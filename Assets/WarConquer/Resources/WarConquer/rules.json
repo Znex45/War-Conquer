@@ -1,0 +1,23 @@
+{
+  "initialHand": 5,
+  "drawPerTurn": 1,
+  "initialEnergy": 3,
+  "energyGrowth": 1,
+  "maxEnergy": 10,
+  "leaderHealth": 25,
+  "terraformCost": 1,
+  "revealAshCost": 3,
+  "leaderAbilityCost": 3,
+  "poisonDuration": 2,
+  "spellRange": 3,
+  "baseDeploymentRadius": 2,
+  "centerVictoryScore": 0,
+  "evolvedHealth": 6,
+  "evolvedAttack": 3,
+  "evolvedMovement": 3,
+  "maxResourcesPerBiome": 20,
+  "drawOnFirstTurn": false,
+  "summoningSickness": false,
+  "allowNeutralDeployment": true,
+  "ashOnMarkedDestruction": true
+}
