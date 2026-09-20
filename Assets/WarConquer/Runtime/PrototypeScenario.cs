@@ -49,7 +49,7 @@ namespace WarConquer
     {
         public static string Validate(GameState s,CardCatalog catalog)
         {
-            if(s==null||s.version!=1||s.rules==null||s.players==null||s.players.Count!=4||s.tiles==null||s.tiles.Count!=87)return "Formato de partida incompatible.";
+            if(s==null||s.version!=2||s.rules==null||s.players==null||s.players.Count!=4||s.tiles==null||s.tiles.Count!=87)return "Partida incompatible con el mapa continuo. Inicia una nueva partida.";
             if(s.activePlayer<0||s.activePlayer>3||s.turn<1)return "Turno inválido.";
             var validCards=new HashSet<string>(catalog.All.Select(c=>c.id));var ids=new HashSet<int>();
             for(int i=0;i<87;i++)

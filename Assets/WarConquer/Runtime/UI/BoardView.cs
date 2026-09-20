@@ -16,23 +16,26 @@ namespace WarConquer
         public void Render(GameManager g,HashSet<int> valid,HashSet<int> selected,int focus)
         {
             GrayboxUI.Clear(root);centers.Clear();var s=g.State;
-            float scale=26*Zoom;Vector2 offset=new Vector2(490,327)+Pan;
+            float scale=34*Zoom;Vector2 offset=new Vector2(490,337)+Pan;
             foreach(var tile in s.tiles)centers[tile.id]=new Vector2(offset.x+tile.x*scale,offset.y-tile.y*scale);
-            // Water gaps and double bridges distinguish the five islands without assigning any initial biome.
-            foreach(var edge in s.connections.Where(c=>c.bridge))DrawLine(centers[edge.a],centers[edge.b],8*Zoom,new Color32(156,141,105,255));
-            foreach(var route in s.fastRoutes)DrawLine(centers[route.a],centers[route.b],4*Zoom,GrayboxUI.Purple);
             foreach(var t in s.tiles)
             {
-                int id=t.id;var pos=centers[id];float size=41.6f*Zoom;
+                int id=t.id;var pos=centers[id];float size=1.6f*scale;
                 var rect=GrayboxUI.Rect(root,"Hex "+(id+1),pos.x-size/2,pos.y-size/2,size,size);
-                var hex=rect.gameObject.AddComponent<HexGraphic>();hex.color=GrayboxUI.BiomeColor(t.biome);
-                hex.border=selected.Contains(id)?Color.white:valid.Contains(id)?GrayboxUI.Green:focus==id?new Color32(248,165,79,255):t.owner>=0?Color.Lerp(GrayboxUI.PlayerColor(t.owner),GrayboxUI.Background,.55f):new Color32(102,113,126,255);
+                var hex=rect.gameObject.AddComponent<HexGraphic>();hex.color=t.biome==Biome.Neutral?GrayboxUI.TerritoryColor(t.territory):GrayboxUI.BiomeColor(t.biome);
+                hex.border=selected.Contains(id)?Color.white:valid.Contains(id)?GrayboxUI.Green:focus==id?new Color32(248,165,79,255):new Color32(27,34,37,255);
                 hex.Click=()=>controller.TileClick(id);
-                var label=GrayboxUI.Text(rect,(id+1).ToString(),size*.28f,1,size*.5f,12*Zoom,Mathf.RoundToInt(9*Zoom),new Color32(183,192,198,255));label.alignment=TextAnchor.UpperCenter;
+                var label=GrayboxUI.Text(rect,(id+1).ToString(),size*.25f,size*.09f,size*.5f,12*Zoom,Mathf.RoundToInt(10*Zoom),new Color32(237,233,213,255));label.alignment=TextAnchor.UpperCenter;
+                if(t.owner>=0)
+                {
+                    var ownership=GrayboxUI.Text(rect,"J"+(t.owner+1),size*.3f,size*.75f,size*.4f,11*Zoom,Mathf.RoundToInt(9*Zoom),GrayboxUI.Ink);ownership.alignment=TextAnchor.UpperCenter;
+                }
                 if(t.blocked)GrayboxUI.Text(rect,"▲",size*.22f,size*.25f,size*.7f,size*.5f,Mathf.RoundToInt(23*Zoom),GrayboxUI.Muted);
                 if(t.baseOwner>=0)
                 {
-                    var mark=GrayboxUI.Text(rect,"J"+(t.baseOwner+1),0,size*.26f,size,size*.5f,Mathf.RoundToInt(16*Zoom),GrayboxUI.PlayerColor(t.baseOwner),FontStyle.Bold);mark.alignment=TextAnchor.MiddleCenter;
+                    var baseRect=GrayboxUI.Rect(rect,"Base J"+(t.baseOwner+1),size*.19f,size*.21f,size*.62f,size*.62f);
+                    var baseHex=baseRect.gameObject.AddComponent<HexGraphic>();baseHex.color=GrayboxUI.Background;baseHex.border=GrayboxUI.PlayerColor(t.baseOwner);baseHex.raycastTarget=false;
+                    var mark=GrayboxUI.Text(baseRect,"J"+(t.baseOwner+1),0,0,size*.62f,size*.62f,Mathf.RoundToInt(16*Zoom),GrayboxUI.PlayerColor(t.baseOwner),FontStyle.Bold);mark.alignment=TextAnchor.MiddleCenter;
                 }
                 if(t.unit!=null||t.structure!=null)
                 {
@@ -44,23 +47,24 @@ namespace WarConquer
                     string status=(piece.poison>0?"V"+piece.poison:"")+(g.IsSleeping(piece)?" Zz":"");
                     if(status.Length>0){var st=GrayboxUI.Text(rect,status,-3,size*.78f,size+6,13*Zoom,Mathf.RoundToInt(10*Zoom),GrayboxUI.Green,FontStyle.Bold);st.alignment=TextAnchor.MiddleCenter;}
                 }
-                else if(t.resource>0&&t.baseOwner<0){var res=GrayboxUI.Text(rect,"+"+t.resource,0,size*.38f,size,size*.3f,Mathf.RoundToInt(11*Zoom),GrayboxUI.Muted);res.alignment=TextAnchor.MiddleCenter;}
+                else if(t.resource>0&&t.baseOwner<0){var res=GrayboxUI.Text(rect,t.territory==4&&t.q==0&&t.r==0?"CENTRO\n+2":"+"+t.resource,0,size*.31f,size,size*.5f,Mathf.RoundToInt(10*Zoom),GrayboxUI.Ink,FontStyle.Bold);res.alignment=TextAnchor.MiddleCenter;}
                 if(t.specialEffect!=null){var unstable=GrayboxUI.Text(rect,"!",size*.70f,size*.33f,10*Zoom,15*Zoom,Mathf.RoundToInt(13*Zoom),GrayboxUI.Yellow,FontStyle.Bold);}
+                var routes=s.fastRoutes.Select((route,index)=>new{route,index}).Where(p=>p.route.a==id||p.route.b==id).ToList();
+                if(routes.Count>0)
+                {
+                    var marker=GrayboxUI.Text(rect,string.Join("/",routes.Select(p=>"R"+(p.index+1))),0,size*.64f,size,12*Zoom,Mathf.RoundToInt(9*Zoom),GrayboxUI.Purple,FontStyle.Bold);marker.alignment=TextAnchor.MiddleCenter;
+                }
             }
             string[] directions={"NORTE","ESTE","SUR","OESTE"};
+            Vector2[] tags={new Vector2(-305,-245),new Vector2(237,-115),new Vector2(140,223),new Vector2(-421,-115)};
             for(int p=0;p<4;p++)
             {
-                var center=s.tiles.First(t=>t.baseOwner==p);var c=centers[center.id];
-                float x=(p==0||p==2)?c.x-254*Zoom:c.x-92;
-                float y=c.y+(p==0?-38:p==2?38:-119)*Zoom;
-                var tag=GrayboxUI.Box(root,"Territorio "+(p+1),x,y,184,28,new Color32(24,30,40,245));
-                var text=GrayboxUI.Text(tag,"J"+(p+1)+" · "+directions[p]+" · 17",4,3,176,22,13,GrayboxUI.PlayerColor(p),FontStyle.Bold);text.alignment=TextAnchor.MiddleCenter;
+                var position=offset+tags[p]*Zoom;
+                var tag=GrayboxUI.Box(root,"Territorio "+(p+1),position.x,position.y,184,45,new Color32(24,30,40,245));
+                GrayboxUI.Box(tag,"Color de zona",0,0,4,45,GrayboxUI.TerritoryColor(p));
+                var text=GrayboxUI.Text(tag,"J"+(p+1)+" · "+directions[p]+"\nZONA INICIAL · 17",8,3,172,40,13,GrayboxUI.Ink,FontStyle.Bold);text.alignment=TextAnchor.MiddleCenter;
             }
-            GrayboxUI.Text(root,"CENTRO · 19",offset.x+107*Zoom,offset.y-30*Zoom,140,20,12,GrayboxUI.Muted,FontStyle.Bold);
-        }
-        void DrawLine(Vector2 a,Vector2 b,float width,Color color)
-        {
-            var direction=b-a;var line=GrayboxUI.Box(root,"Conexión",a.x,a.y,direction.magnitude,width,color);line.pivot=new Vector2(0,.5f);line.localRotation=Quaternion.Euler(0,0,-Mathf.Atan2(direction.y,direction.x)*Mathf.Rad2Deg);
+            GrayboxUI.Text(root,"CENTRO · 19 CASILLAS\nTerreno inicial sin bioma",16,577,220,42,12,GrayboxUI.Muted);
         }
     }
 }

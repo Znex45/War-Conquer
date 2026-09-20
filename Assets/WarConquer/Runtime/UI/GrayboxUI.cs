@@ -13,6 +13,8 @@ namespace WarConquer
         public static Font Font => font ? font : (font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
         public static string[] PlayerLeaders={"ZUKGROK","SAHRIA","ZUKGROK","SAHRIA"};
         public static Color PlayerColor(int id)=>PlayerLeaders[id]=="ZUKGROK"?Purple:Yellow;
+        // Starting territory identity is independent of biome and of the chosen deck.
+        public static Color TerritoryColor(int id)=>new[]{new Color32(108,143,64,255),new Color32(196,148,52,255),new Color32(167,72,65,255),new Color32(55,125,171,255),new Color32(126,116,97,255)}[id];
         public static RectTransform Rect(Transform parent,string name,float x,float y,float w,float h)
         {
             var go=new GameObject(name,typeof(RectTransform));var r=go.GetComponent<RectTransform>();r.SetParent(parent,false);
@@ -36,6 +38,7 @@ namespace WarConquer
         public static void Clear(Transform root){for(int i=root.childCount-1;i>=0;i--){var go=root.GetChild(i).gameObject;go.SetActive(false);UnityEngine.Object.Destroy(go);}}
         public static Color BiomeColor(Biome b)=>new[]{new Color32(65,74,84,255),new Color32(44,99,74,255),new Color32(53,83,91,255),new Color32(116,162,179,255),new Color32(141,67,52,255),new Color32(151,124,59,255),new Color32(83,49,102,255),new Color32(99,93,88,255)}[(int)b];
     }
+    [RequireComponent(typeof(CanvasRenderer))]
     public class HexGraphic : MaskableGraphic, IPointerClickHandler
     {
         public Color border=Color.gray;
@@ -47,7 +50,7 @@ namespace WarConquer
             {
                 float a=i*Mathf.PI/3,b=(i+1)*Mathf.PI/3;
                 Vector2 pa=center+new Vector2(Mathf.Cos(a),Mathf.Sin(a))*radius,pb=center+new Vector2(Mathf.Cos(b),Mathf.Sin(b))*radius;
-                Vector2 ia=center+(pa-center)*.88f,ib=center+(pb-center)*.88f;
+                Vector2 ia=center+(pa-center)*.94f,ib=center+(pb-center)*.94f;
                 int n=vh.currentVertCount;vh.AddVert(center,color,Vector2.zero);vh.AddVert(ia,color,Vector2.zero);vh.AddVert(ib,color,Vector2.zero);vh.AddTriangle(n,n+1,n+2);
                 n=vh.currentVertCount;vh.AddVert(pa,border,Vector2.zero);vh.AddVert(pb,border,Vector2.zero);vh.AddVert(ib,border,Vector2.zero);vh.AddVert(ia,border,Vector2.zero);vh.AddTriangle(n,n+1,n+2);vh.AddTriangle(n,n+2,n+3);
             }
@@ -60,6 +63,7 @@ namespace WarConquer
         }
         public void OnPointerClick(PointerEventData data){if(data.button==PointerEventData.InputButton.Left)Click?.Invoke();}
     }
+    [RequireComponent(typeof(CanvasRenderer))]
     public class PieceGraphic : MaskableGraphic
     {
         public bool square;

@@ -37,14 +37,49 @@ namespace WarConquer.Editor
                 for(int i=0;i<5;i++)Check(g.State.tiles.Count(t=>t.territory==i)==(i==4?19:17),"Distribución incorrecta.");
                 Check(g.State.tiles.Count(t=>t.baseOwner>=0)==4,"Bases incorrectas.");Valid(g);
             });
-            Test("Múltiples puentes y sin un único punto de corte",()=>{
-                var s=New().State;Check(s.connections.Count(c=>c.bridge)==16,"Se esperan 16 puentes.");
+            Test("Mapa continuo: aristas compartidas, sin puentes, sin huecos",()=>{
+                var s=New().State;Check(s.connections.All(c=>!c.bridge),"El mapa no debe contener puentes.");
+                Check(s.tiles.Select(t=>(t.q,t.r)).Distinct().Count()==87,"Hay casillas superpuestas.");
+                foreach(var a in s.tiles)foreach(var b in s.tiles.Where(t=>t.id>a.id))
+                {
+                    bool adjacent=BoardManager.AxialDistance(a,b)==1;
+                    Check(a.neighbors.Contains(b.id)==adjacent&&b.neighbors.Contains(a.id)==adjacent,"Adyacencia visual y lógica diferentes.");
+                    Check(s.connections.Count(c=>c.a==a.id&&c.b==b.id)==(adjacent?1:0),"Arista incorrecta o duplicada.");
+                    if(adjacent)Check(Math.Abs(Vector2.Distance(new Vector2(a.x,a.y),new Vector2(b.x,b.y))-1.385640646f)<.0001f,"Los hexágonos no comparten borde.");
+                }
+                foreach(var column in s.tiles.GroupBy(t=>t.q))Check(column.Count()==column.Max(t=>t.r)-column.Min(t=>t.r)+1,"Hueco en la retícula.");
+            });
+            Test("Entradas múltiples por territorio y sin un único punto de corte",()=>{
+                var s=New().State;
+                for(int territory=0;territory<4;territory++)
+                {
+                    foreach(int destination in new[]{4,(territory+1)%4,(territory+3)%4})
+                    {
+                        var entrances=s.tiles.Where(t=>t.territory==territory&&t.neighbors.Any(n=>s.tiles[n].territory==destination)).ToList();
+                        Check(entrances.Count>=2,"Faltan accesos compartidos desde "+territory+" a "+destination);
+                    }
+                    var region=s.tiles.Where(t=>t.territory==territory).ToList();var reached=new HashSet<int>();var pending=new Queue<int>();pending.Enqueue(region[0].id);
+                    while(pending.Count>0){int id=pending.Dequeue();if(!reached.Add(id))continue;foreach(int n in s.tiles[id].neighbors.Where(n=>s.tiles[n].territory==territory))pending.Enqueue(n);}
+                    Check(reached.Count==17,"Territorio inicial dividido.");
+                }
                 foreach(var removed in s.tiles)
                 {
                     var queue=new Queue<int>();var seen=new HashSet<int>();queue.Enqueue(removed.id==0?1:0);
                     while(queue.Count>0){int id=queue.Dequeue();if(id==removed.id||!seen.Add(id))continue;foreach(int n in s.tiles[id].neighbors)queue.Enqueue(n);}
                     Check(seen.Count==86,"Punto de corte en "+removed.id);
                 }
+            });
+            Test("Renderizadores de casillas y fichas disponibles en Unity",()=>{
+                var hex=new GameObject("Test hex",typeof(RectTransform));var piece=new GameObject("Test piece",typeof(RectTransform));
+                try
+                {
+                    hex.AddComponent<HexGraphic>();piece.AddComponent<PieceGraphic>();
+                    Check(hex.GetComponent<CanvasRenderer>()!=null&&piece.GetComponent<CanvasRenderer>()!=null,"Falta CanvasRenderer en el graybox.");
+                }
+                finally{UnityEngine.Object.DestroyImmediate(hex);UnityEngine.Object.DestroyImmediate(piece);}
+            });
+            Test("Guardados del mapa anterior se rechazan sin recrear puentes",()=>{
+                var s=New().State;s.version=1;Check(StateValidator.Validate(s,catalog)!="","Se admitió el mapa anterior.");
             });
             Test("Barajado reproducible y manos independientes",()=>{
                 var a=New();var b=New();Check(a.State.players.All(p=>p.hand.Count==5&&p.deck.Count==45),"Mano inicial incorrecta.");

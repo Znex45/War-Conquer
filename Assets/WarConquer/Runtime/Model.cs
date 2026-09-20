@@ -82,7 +82,7 @@ namespace WarConquer
     }
     [Serializable] public class GameState
     {
-        public int version = 1, seed, randomState, activePlayer, turn = 1, round = 1, nextId = 1, winner = -1;
+        public int version = 2, seed, randomState, activePlayer, turn = 1, round = 1, nextId = 1, winner = -1;
         public Phase phase;
         public Rules rules;
         public List<Player> players = new List<Player>();

@@ -6,43 +6,39 @@ namespace WarConquer
 {
     public static class BoardManager
     {
-        // Five separated islands reproduce the reference's compass layout. Bridges are graph edges, not extra tiles.
+        // One flat-top axial lattice: every connection crosses a shared hexagon edge.
         public static void Create(GameState s)
         {
-            float[] xs = { 0, 9, 0, -9, 0 }, ys = { 8.4f, 0, -8.4f, 0, 0 };
+            int[] halfHeights = { 10, 11, 10, 5, 4, 3 };
+            int[] baseQ = { 0, 4, 0, -4 }, baseR = { 4, -2, -4, 2 };
             for (int territory = 0; territory < 5; territory++)
             {
-                for (int q = -2; q <= 2; q++) for (int r = -2; r <= 2; r++)
+                for (int q = -5; q <= 5; q++) for (int r = -8; r <= 8; r++)
                 {
-                    if (Math.Abs(q + r) > 2) continue;
-                    if (territory < 4 && ((q == -2 && r == 0) || (q == 2 && r == 0))) continue;
+                    int height = 2 * r + q;
+                    if (Math.Abs(height) > halfHeights[Math.Abs(q)]) continue;
+                    int region = Math.Max(Math.Abs(q), Math.Max(Math.Abs(r), Math.Abs(q+r))) <= 2 ? 4
+                        : Math.Abs(q) >= 3 || (Math.Abs(q) == 2 && Math.Abs(height) == 4) ? (q > 0 ? 1 : 3)
+                        : height > 0 ? 0 : 2;
+                    if (region != territory) continue;
+                    bool home = territory < 4;
                     var t = new HexTile { id = s.tiles.Count, territory = territory, q = q, r = r,
-                        x = xs[territory] + 1.2f * q, y = ys[territory] + 1.38564f * (r + q * .5f),
-                        owner = territory < 4 ? territory : -1, biome = Biome.Neutral,
-                        baseOwner = territory < 4 && q == 0 && r == 0 ? territory : -1,
+                        x = 1.2f * q, y = 1.385640646f * (r + q * .5f),
+                        owner = home ? territory : -1, biome = Biome.Neutral,
+                        baseOwner = home && q == baseQ[territory] && r == baseR[territory] ? territory : -1,
                         resource = territory == 4 ? (q == 0 && r == 0 ? 2 : (Math.Abs(q + r) == 2 ? 1 : 0)) : 0,
-                        hiddenAsh = q == 0 && r == 1, hiddenResource = territory == 4 && q == 1 && r == 0 };
+                        hiddenAsh = home ? q == baseQ[territory] && r == baseR[territory]+1 : q == 0 && r == 1,
+                        hiddenResource = territory == 4 && q == 1 && r == 0 };
                     s.tiles.Add(t);
                 }
             }
-            foreach (var a in s.tiles) foreach (var b in s.tiles.Where(b => b.id > a.id && b.territory == a.territory))
-                if (AxialDistance(a, b) == 1) Connect(s, a.id, b.id, false);
-            // Two separate entrances to each island pair prevent any single occupied gateway cutting a territory off.
-            for (int i = 0; i < 4; i++) { BridgePair(s, i, 4); BridgePair(s, i, (i + 1) % 4); }
+            foreach (var a in s.tiles) foreach (var b in s.tiles.Where(b => b.id > a.id))
+                if (AxialDistance(a, b) == 1) Connect(s, a.id, b.id);
         }
-        static void BridgePair(GameState s, int a, int b)
+        public static int AxialDistance(HexTile a, HexTile b) => (Math.Abs(a.q-b.q)+Math.Abs(a.r-b.r)+Math.Abs(a.q+a.r-b.q-b.r))/2;
+        static void Connect(GameState s, int a, int b)
         {
-            var candidates = (from x in s.tiles where x.territory == a && x.baseOwner < 0
-                              from y in s.tiles where y.territory == b && y.baseOwner < 0
-                              select new { x, y, d = (x.x-y.x)*(x.x-y.x)+(x.y-y.y)*(x.y-y.y) }).OrderBy(p => p.d).ToList();
-            var first = candidates[0]; Connect(s, first.x.id, first.y.id, true);
-            var second = candidates.First(p => p.x.id != first.x.id && p.y.id != first.y.id);
-            Connect(s, second.x.id, second.y.id, true);
-        }
-        static int AxialDistance(HexTile a, HexTile b) => (Math.Abs(a.q-b.q)+Math.Abs(a.r-b.r)+Math.Abs(a.q+a.r-b.q-b.r))/2;
-        static void Connect(GameState s, int a, int b, bool bridge)
-        {
-            s.tiles[a].neighbors.Add(b); s.tiles[b].neighbors.Add(a); s.connections.Add(new Connection { a=a,b=b,bridge=bridge });
+            s.tiles[a].neighbors.Add(b); s.tiles[b].neighbors.Add(a); s.connections.Add(new Connection { a=a,b=b });
         }
         public static int Distance(GameState s, int a, int b, int limit = 100)
         {

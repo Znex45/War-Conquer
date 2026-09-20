@@ -16,7 +16,7 @@ namespace WarConquer
         BoardView board;
         string mode="inspect";
         int viewedPlayer,focus=-1,selectedCard=-1,page;
-        Piece selectedPiece;
+        [NonSerialized] Piece selectedPiece;
         readonly List<int> targets=new List<int>();
         bool useResources=true;
         Biome chosenBiome=Biome.Forest;
@@ -26,6 +26,8 @@ namespace WarConquer
         string SavePath=>Path.Combine(Application.persistentDataPath,"war-conquer-save.json");
         void Awake()
         {
+            // Unity restores private serializable fields on editor reload; selection belongs to this game only.
+            ClearAction();focus=-1;viewedPlayer=0;page=0;
             Game=new GameManager(CardCatalog.Load());CreateUI();Game.Changed+=Render;
             Game.NewGame(leaders,seed,CardCatalog.LoadRules());
         }
@@ -82,7 +84,7 @@ namespace WarConquer
             GrayboxUI.Button(left,"Habilidad del Líder",12,557,198,36,()=>Begin("leader"),Color.Lerp(GrayboxUI.PlayerColor(p.id),GrayboxUI.Panel,.5f),viewedPlayer==s.activePlayer&&Game.CanAct);
             GrayboxUI.Button(left,"FINALIZAR TURNO  >",12,614,198,44,()=>{ClearAction();Game.EndTurn();viewedPlayer=s.activePlayer;page=0;Render();},Color.Lerp(GrayboxUI.PlayerColor(s.activePlayer),GrayboxUI.Panel,.4f),Game.CanAct);
             var valid=ValidTargets();board.Render(Game,new HashSet<int>(valid),new HashSet<int>(targets),focus);
-            GrayboxUI.Text(boardPanel,"87 HEXÁGONOS  ·  17 / 17 / 17 / 17 / 19",16,12,480,22,12,GrayboxUI.Muted);
+            GrayboxUI.Text(boardPanel,"87 HEXÁGONOS  ·  MAPA CONTINUO  ·  SIN PUENTES",16,12,600,22,12,GrayboxUI.Muted);
             GrayboxUI.Button(boardPanel,"−",854,11,33,30,()=>{board.Zoom=Mathf.Max(1,board.Zoom-.25f);Render();});
             GrayboxUI.Button(boardPanel,"+",892,11,33,30,()=>{board.Zoom=Mathf.Min(2,board.Zoom+.25f);Render();});
             GrayboxUI.Button(boardPanel,"1:1",930,11,42,30,()=>{board.Zoom=1;board.Pan=Vector2.zero;Render();});
@@ -91,7 +93,7 @@ namespace WarConquer
                 GrayboxUI.Button(boardPanel,"←",840,48,30,28,()=>{board.Pan.x+=80;Render();});GrayboxUI.Button(boardPanel,"→",875,48,30,28,()=>{board.Pan.x-=80;Render();});
                 GrayboxUI.Button(boardPanel,"↑",910,48,30,28,()=>{board.Pan.y+=80;Render();});GrayboxUI.Button(boardPanel,"↓",945,48,30,28,()=>{board.Pan.y-=80;Render();});
             }
-            GrayboxUI.Text(boardPanel,"Círculo: unidad  ·  Cuadrado: estructura  ·  Verde: objetivo válido  ·  V: veneno  ·  Zz: dormido",16,641,965,24,12,GrayboxUI.Muted);
+            GrayboxUI.Text(boardPanel,"Círculo: unidad · Cuadrado: estructura · Borde verde: objetivo · R: vía rápida · V: veneno · Zz: sueño",16,641,965,24,12,GrayboxUI.Muted);
             DrawInspector();DrawHand(p);
         }
         List<int> ValidTargets()

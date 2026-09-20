@@ -28,11 +28,11 @@ El juego es local por turnos compartiendo pantalla. Los controles de jugador per
 
 ## Tablero
 
-El mapa usa cinco islas hexagonales, con J1 al norte, J2 al este, J3 al sur, J4 al oeste y el centro disputado. Los cuatro territorios iniciales contienen **17 casillas** cada uno y el centro **19**. Los puentes son conexiones del grafo, no casillas adicionales: el total sigue siendo 87.
+El tablero es una retícula continua de **87 hexágonos que comparten sus bordes**, sin puentes ni separaciones de agua. J1 ocupa el norte (verde), J2 el este (amarillo), J3 el sur (rojo), J4 el oeste (azul), y el centro es gris cálido. Los territorios iniciales tienen **17 casillas** cada uno y el centro **19**. Cada zona comparte múltiples accesos con el centro y sus dos vecinos laterales.
 
-Hay **16 puentes**, dos para cada conexión centro–territorio y dos para cada conexión lateral del anillo exterior. Sus extremos son distintos. Las pruebas verifican que retirar cualquier casilla aislada no desconecta el resto del grafo. Los canales oscuros, los puentes y las cinco agrupaciones reproducen la organización de la imagen, simplificada al número de casillas exigido por el texto. Los relieves, agua ilustrada, vegetación y castillos detallados quedan para la fase artística.
+Los colores iniciales distinguen territorios: todas las casillas siguen **sin bioma** hasta terraformarse. Al terraformar, el relleno muestra el bioma; la marca J1–J4 indica el control actual. Las unidades y los mazos conservan morado para Zukgrok y amarillo para Sahria. Los círculos son unidades, los cuadrados estructuras, `Vn` indica veneno, `Zz` sueño, `!` terreno inestable y `+1/+2` recurso estratégico central. Las vías rápidas se identifican con el mismo número `R` en ambos extremos, sin dibujar puentes.
 
-El relleno indica bioma; el borde indica control. Todos los rellenos empiezan neutros. Los círculos son unidades, los cuadrados estructuras, `Vn` indica veneno, `Zz` sueño, `!` terreno inestable y `+1/+2` recurso estratégico central. Las bases se marcan J1–J4.
+**War & Conquer → Ver mapa en escena** permite inspeccionar el mapa antes de pulsar Play. Los guardados antiguos del mapa de islas no se cargan en esta versión; se conservan en disco y se puede iniciar una partida nueva.
 
 ## Fuente de los mazos
 
@@ -54,7 +54,7 @@ El Líder, la energía, los recursos y las fichas generadas no se incluyen en la
 - Costes de energía, pago opcional mediante recursos compatibles, ingresos y descuentos de estructuras.
 - Colocación de unidades, estructuras y Latentes; validación previa de energía, propiedad, ocupación y compatibilidad.
 - Magias de objetivo único y múltiple; daño, curación, mejoras, veneno, sueño, ralentización, terraformación, destrucción y reactivación.
-- Movimiento por adyacencia y puentes, ocupación, obstáculos, vuelo, rutas rápidas y tiradas de entrada/salida del terreno inestable.
+- Movimiento entre hexágonos adyacentes, ocupación, obstáculos, vuelo, rutas rápidas y tiradas de entrada/salida del terreno inestable.
 - Ataque por alcance, auras, defensa, salud, muerte y descarte. Las bases reciben ataques de unidades, eliminan a su jugador al llegar a cero y gana el último Líder vivo.
 - Producción de Esporas y fichas, evolución de Larva, Red Micelial, recursos de bioma y centro, habilidades de Líder y de piezas.
 - Guardado/carga local con validación, HUD, consultas de mazo/descarte, colores por facción y escenario explícito de pruebas.
@@ -74,7 +74,7 @@ Los documentos no cierran todos los valores ni todas las ambigüedades. `Assets/
 - Veneno: daño al inicio de dos turnos propios; reaplicar renueva duración y conserva la mayor intensidad. Sueño dura el próximo turno de su dueño y se retira al terminarlo.
 - Tormenta de Arena reduce MOV en el próximo turno afectado de la unidad, para que tenga efecto en un juego sin interrupciones durante el turno rival.
 - Revelar ceniza: acción de 3 Energías sobre bioma normal propio, rebajada por Templo de Ceniza. Además, hay cinco casillas ocultas marcadas (una por territorio) cuya destrucción revela ceniza.
-- Puentes: una conexión cuesta un punto de movimiento, independientemente de su longitud dibujada. Los disparos usan distancia de grafo; no se ha definido línea de visión.
+- Cada paso cruza un borde compartido entre dos hexágonos. Los disparos usan distancia de grafo; no se ha definido línea de visión.
 - Las estructuras normales bloquean el paso. Arena Profunda, Dunas Movedizas y Oasis de Cristal permiten una unidad encima de su casilla de terreno. Guardián del Oasis obtiene su defensa al estar sobre el Oasis.
 - Fallar una tirada de entrada deja a la unidad en la casilla anterior, le causa el daño y termina su movimiento. Fallar al salir la mantiene en su sitio. Vuelo y compatibilidad evitan la tirada.
 - Red Micelial elige inicialmente los dos terrenos compatibles más cercanos y permite reconfigurarlos con su habilidad. Hongo Explorador recibe su bonificación una vez por turno; Ciervo cruza sin coste adicional.
@@ -94,7 +94,7 @@ Todo el sistema se añade bajo `Assets/WarConquer/` y usa el namespace `WarConqu
 |---|---|
 | `Runtime/Model.cs` | Tipos de cartas, piezas, jugadores, turnos, recursos, reglas y estado serializable |
 | `Runtime/CardCatalog.cs` | Carga y validación del catálogo, mazos, robo y pagos compatibles |
-| `Runtime/BoardManager.cs` | 87 hexágonos, conexiones, puentes, distancia y regiones conectadas |
+| `Runtime/BoardManager.cs` | 87 hexágonos continuos, adyacencia, distancia y regiones conectadas |
 | `Runtime/GameManager.cs` | Partida, validación y resolución de acciones de usuario |
 | `Runtime/TurnManager.cs` | Inicio/fin de turno, estados, energía, robo y producción |
 | `Runtime/TerrainManager.cs` | Biomas, ceniza, rutas y tiradas de terreno |
@@ -105,12 +105,13 @@ Todo el sistema se añade bajo `Assets/WarConquer/` y usa el namespace `WarConqu
 | `Runtime/PrototypeScenario.cs` | Escenario de prueba y validador de integridad de guardados |
 | `Runtime/GamePersistence.cs` | Guardado completo conservando los espacios vacíos de Unity |
 | `Runtime/UI/GrayboxUI.cs` | Controles uGUI y geometría de hexágonos y fichas |
-| `Runtime/UI/BoardView.cs` | Presentación del tablero, puentes, biomas y selección |
+| `Runtime/UI/BoardView.cs` | Presentación del tablero continuo, biomas y selección |
 | `Runtime/UI/WarConquerController.cs` | HUD, mano, inspector, selección, controles y guardado |
 | `Runtime/GrayboxCapture.cs` | Captura de verificación activada solo por argumentos explícitos |
 | `Resources/WarConquer/cards.json` | 58 diseños importados y 2 fichas, editables |
 | `Resources/WarConquer/rules.json` | Valores y decisiones configurables de prototipo |
 | `Editor/GrayboxProject.cs` | Menú para abrir/generar escena y compilación de comprobación |
+| `Editor/GrayboxScenePreview.cs` | Vista previa del mapa en Scene sin iniciar la partida |
 | `Editor/GrayboxTests.cs` | Pruebas de reglas, invariantes y partida automatizada |
 | `Scenes/WarConquer_Graybox.unity` | Escena ejecutable del prototipo |
 
