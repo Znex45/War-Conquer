@@ -11,6 +11,23 @@ namespace WarConquer.Editor
     // Integration checks against the live Canvas. Never writes the player's saved game.
     public static class InterfacePlayModeTests
     {
+        const string PendingKey="WarConquer.PendingInterfaceCheck";
+        // Unity CLI entry point for the same Play Mode integration test.
+        public static void Begin()
+        {
+            if(EditorApplication.isPlaying){Run();return;}
+            SessionState.SetBool(PendingKey,true);EditorApplication.isPlaying=true;
+        }
+        [InitializeOnLoadMethod]
+        static void Register()
+        {
+            EditorApplication.playModeStateChanged+=state=>
+            {
+                if(state!=PlayModeStateChange.EnteredPlayMode||!SessionState.GetBool(PendingKey,false))return;
+                SessionState.SetBool(PendingKey,false);
+                EditorApplication.delayCall+=()=>{Run();EditorApplication.ExecuteMenuItem("Window/General/Game");};
+            };
+        }
         static void Check(bool condition,string message){if(!condition)throw new Exception(message);}
         static void Invoke(WarConquerController ui,string method,params object[] args)
         {typeof(WarConquerController).GetMethod(method,BindingFlags.Instance|BindingFlags.NonPublic).Invoke(ui,args);}
@@ -20,7 +37,7 @@ namespace WarConquer.Editor
         public static void Run()
         {
             if(!EditorApplication.isPlaying)throw new Exception("Inicia Play antes de comprobar la interfaz.");
-            var ui=UnityEngine.Object.FindFirstObjectByType<WarConquerController>();
+            var ui=UnityEngine.Object.FindAnyObjectByType<WarConquerController>();
             if(ui==null)throw new Exception("No hay un Graybox activo.");
             string previous=GamePersistence.Serialize(ui.Game.State);
             try
