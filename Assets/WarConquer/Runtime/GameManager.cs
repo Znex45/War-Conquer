@@ -11,17 +11,27 @@ namespace WarConquer
         public string LastMessage { get; private set; } = "Selecciona una carta o una casilla.";
         public event Action Changed;
         public GameManager(CardCatalog catalog) { Catalog=catalog; }
-        public void NewGame(string[] leaders, int seed, Rules rules)
+        public void NewGame(string[] leaders, int seed, Rules rules, int humanPlayers=4, bool startImmediately=true)
         {
+            if(humanPlayers<1||humanPlayers>4)throw new ArgumentOutOfRangeException(nameof(humanPlayers));
+            int participants=humanPlayers==1?2:humanPlayers;
+            if(leaders==null||leaders.Length<participants||leaders.Take(participants).Any(l=>l!="ZUKGROK"&&l!="SAHRIA"))throw new ArgumentException("Selecciona uno de los dos mazos para cada participante.");
             State=new GameState {seed=seed,randomState=seed==0?12345:seed,rules=rules,phase=Phase.Setup};
             BoardManager.Create(State);
             for(int i=0;i<4;i++)
             {
-                var p=new Player {id=i,leader=leaders[i],factionTag=leaders[i]=="ZUKGROK"?"MICELIAL":"SOLAR",leaderHealth=rules.leaderHealth};
-                State.players.Add(p); DeckManager.Build(State,p,Catalog);
+                bool inactive=i>=participants;string leader=inactive?"ZUKGROK":leaders[i];
+                var p=new Player {id=i,leader=leader,factionTag=leader=="ZUKGROK"?"MICELIAL":"SOLAR",leaderHealth=inactive?0:rules.leaderHealth,inactive=inactive,eliminated=inactive,isAI=humanPlayers==1&&i==1};
+                State.players.Add(p);if(!inactive)DeckManager.Build(State,p,Catalog);
             }
-            State.Log("Partida local • semilla "+seed+" • 87 casillas sin bioma • 4 mazos de 50.");
-            TurnManager.Start(this); Notify("Turno de J1 · Despliegue. Selecciona una carta permitida.");
+            foreach(var tile in State.tiles.Where(t=>t.territory<4))
+            {
+                int owner=participants==2?(tile.territory==0?0:tile.territory==2?1:-1):tile.territory<participants?tile.territory:-1;
+                tile.owner=owner;if(tile.baseOwner>=0)tile.baseOwner=owner;
+            }
+            State.Log("Partida local • "+humanPlayers+" persona(s)"+(humanPlayers==1?" + IA":"")+" • semilla "+seed+" • "+participants+" mazos de 50.");
+            if(startImmediately){TurnManager.Start(this);Notify("Turno de J1 · Despliegue. Selecciona una carta permitida.");}
+            else Notify("Partida en pausa. Elige participantes y mazos antes de comenzar.");
         }
         public void Restore(GameState state) { State=state; Notify("Partida cargada."); }
         public void Notify(string message) { LastMessage=message; Changed?.Invoke(); }

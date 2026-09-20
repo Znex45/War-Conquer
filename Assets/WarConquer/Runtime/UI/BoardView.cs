@@ -62,7 +62,10 @@ namespace WarConquer
                 var position=offset+tags[p]*Zoom;
                 var tag=GrayboxUI.Box(root,"Territorio "+(p+1),position.x,position.y,184,45,new Color32(24,30,40,245));
                 GrayboxUI.Box(tag,"Color de zona",0,0,4,45,GrayboxUI.TerritoryColor(p));
-                var text=GrayboxUI.Text(tag,"J"+(p+1)+" · "+directions[p]+"\n"+s.players[p].conquestPoints+" / 10 PC · 17 HEX",8,3,172,40,13,GrayboxUI.Ink,FontStyle.Bold);text.alignment=TextAnchor.MiddleCenter;
+                var home=s.tiles.FirstOrDefault(t=>t.territory==p&&t.baseOwner>=0);
+                var player=home!=null?s.players[home.baseOwner]:null;
+                string title=player==null?"ZONA LIBRE · "+directions[p]+"\n17 HEX": "J"+(player.id+1)+(player.isAI?" (IA)":"")+" · "+directions[p]+"\n"+player.conquestPoints+" / 10 PC · 17 HEX";
+                var text=GrayboxUI.Text(tag,title,8,3,172,40,13,GrayboxUI.Ink,FontStyle.Bold);text.alignment=TextAnchor.MiddleCenter;
             }
             GrayboxUI.Text(root,"CENTRO · 19 CASILLAS\nTerreno inicial sin bioma",16,562,220,42,12,GrayboxUI.Muted);
         }

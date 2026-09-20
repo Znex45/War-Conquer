@@ -12,8 +12,9 @@ namespace WarConquer
             {
                 int id=i;var p=s.players[i];float y=46+i*70;var color=GrayboxUI.PlayerColor(i);
                 var row=GrayboxUI.Box(inspector,"Puntuación J"+(i+1),10,y,304,65,i==viewedPlayer?Color.Lerp(color,GrayboxUI.Panel,.84f):edge);
+                if(p.inactive){GrayboxUI.Text(row,"PUESTO "+(i+1)+" · SIN JUGADOR",8,9,287,27,14,GrayboxUI.Muted);GrayboxUI.Text(row,"No participa en esta partida",8,36,287,22,12,GrayboxUI.Muted);continue;}
                 var b=row.gameObject.AddComponent<UnityEngine.UI.Button>();b.onClick.AddListener(()=>{viewedPlayer=id;page=0;handFilter="Todas";ClearAction();Render();});
-                GrayboxUI.Text(row,"J"+(i+1)+" "+p.leader+(p.eliminated?" · FUERA":""),8,4,209,22,13,color,FontStyle.Bold);
+                GrayboxUI.Text(row,"J"+(i+1)+" "+p.leader+(p.isAI?" · IA":"")+(p.eliminated?" · FUERA":""),8,4,209,22,13,color,FontStyle.Bold);
                 GrayboxUI.Text(row,p.conquestPoints+" / 10",220,3,82,25,18,color,FontStyle.Bold);
                 string control=string.Join("  ",new[]{"N","E","S","O","C"}.Select((name,n)=>name+":"+s.tiles.Count(t=>t.territory==n&&t.owner==id)));
                 GrayboxUI.Text(row,"Vida "+p.leaderHealth+" · +"+ConquestManager.Income(s,id)+" PC/ronda · faltan "+Mathf.Max(0,10-p.conquestPoints),8,25,290,18,11,GrayboxUI.Muted);
@@ -36,7 +37,7 @@ namespace WarConquer
                 string stats="E "+quote.EnergyLabel+" · VIDA "+(selectedPiece?.health??card.health)+" · ATQ "+(selectedPiece!=null?CombatManager.AttackValue(Game,selectedPiece):card.attack)+" · MOV "+(selectedPiece?.remainingMovement??card.movement);
                 GrayboxUI.Text(box,stats,0,80,300,35,14);GrayboxUI.Text(box,instance!=null?quote.Detail:Names.Categories[(int)card.category]+" · ALC "+card.range,0,116,300,29,12,GrayboxUI.Muted);
                 GrayboxUI.Button(box,"Ver carta completa",0,153,190,28,()=>ShowCardModal(card,s.players[viewedPlayer]));
-                if(selectedPiece!=null&&Game.CanTakeTurnAction(TurnStage.Assault)&&selectedPiece.owner==Game.ActingPlayerId)
+                if(selectedPiece!=null&&!Game.ActingPlayer.isAI&&Game.CanTakeTurnAction(TurnStage.Assault)&&selectedPiece.owner==Game.ActingPlayerId)
                 {
                     GrayboxUI.Button(box,"Mover",0,187,92,29,()=>Begin("move"),null,MovementManager.Paths(Game,selectedPiece).Count>0);
                     GrayboxUI.Button(box,"Atacar",101,187,92,29,()=>Begin("attack"),null,CombatManager.Targets(Game,selectedPiece).Count>0);

@@ -4,11 +4,12 @@
 
 1. Abre este proyecto en **Unity 6000.6.2f1**.
 2. En el menú superior elige **War & Conquer → Abrir Graybox**. También puedes abrir `Assets/WarConquer/Scenes/WarConquer_Graybox.unity`.
-3. Pulsa **Play**. La partida empieza con cuatro jugadores, cinco territorios, 87 casillas neutras y cinco cartas en cada mano.
-4. **Nueva partida** permite elegir Zukgrok o Sahria para cada jugador, cambiar la semilla y comenzar de nuevo.
-5. Para comprobar combate y efectos sin esperar varios turnos: **Nueva partida → Cargar escenario de pruebas**. Este escenario prepara explícitamente unidades, biomas, una red y ceniza; el inicio de una partida normal sigue siendo completamente neutro.
+3. Pulsa **Play**. La pantalla de preparación mantiene la partida en pausa hasta pulsar **COMENZAR PARTIDA**.
+4. Elige **1, 2, 3 o 4 personas**. Una persona juega contra una IA; las otras opciones son partidas locales con ese número de personas, sin rellenar puestos con IA. Elige Zukgrok o Sahria para cada participante, incluido el rival automático. Cada mazo conserva sus 50 cartas.
+5. Los duelos usan las bases norte y sur. Los puestos sin participante quedan libres, no reciben turnos ni cuentan para la victoria. Se conservan los cinco territorios y los 87 hexágonos.
+6. Para comprobar combate y efectos sin esperar varios turnos: **Nueva partida → Escenario de pruebas**. Este escenario prepara explícitamente unidades, biomas, una red y ceniza; el inicio normal sigue siendo completamente neutro.
 
-El juego es local por turnos compartiendo pantalla. Los controles de jugador permiten consultar las cuatro manos; solo el jugador activo puede ejecutar acciones. J1/J3 usan Zukgrok y J2/J4 Sahria por defecto. El morado identifica a Zukgrok y el amarillo a Sahria, incluso si se cambia la selección de Líder. Los números J1–J4 distinguen a jugadores con el mismo mazo.
+El juego es local por turnos compartiendo pantalla. Los controles de jugador permiten consultar las manos de los participantes; solo el jugador activo puede ejecutar acciones. El morado identifica a Zukgrok y el amarillo a Sahria, incluso si se cambia la selección de Líder. Los números J1–J4 distinguen a jugadores con el mismo mazo. La IA decide despliegues, terraformación, habilidades, movimiento y ataques con las mismas reglas y costes, sin consultar manos rivales ni el orden de robo. Se detiene al abrir un diálogo y reanuda al cerrarlo. El guardado conserva los participantes, sus mazos y quién controla cada puesto.
 
 ## Controles
 
@@ -103,7 +104,7 @@ Los documentos no cierran todos los valores ni todas las ambigüedades. `Assets/
 - Mar de Arena dura dos cambios de ronda y requiere 5+ al entrar o salir. El daño de entrada no se especifica: se usa 1 como valor de prototipo.
 - Al completar la ronda global (después de pasar por los cuatro asientos y omitir eliminados), el centro y cada base enemiga controlada otorgan +1 Punto de Conquista. Se cuenta al controlador en ese momento. `lastScoredRound` evita duplicados después de cargar. Se resuelven los jugadores en orden J1–J4 y se termina inmediatamente al alcanzar 10 puntos.
 
-Quedan pendientes el balance competitivo, arte final, audio, animaciones, IA rival, multijugador por red, información privada de manos y un editor visual de mazos. La partida local usa las 50 cartas de cada listado fijo.
+Quedan pendientes el balance competitivo, arte final, audio, animaciones, niveles de dificultad de la IA, multijugador por red, información privada de manos y un editor visual de mazos. La partida local usa las 50 cartas de cada listado fijo.
 
 ## Arquitectura y archivos
 
@@ -137,6 +138,8 @@ Todo el sistema se añade bajo `Assets/WarConquer/` y usa el namespace `WarConqu
 ## Verificar
 
 En Unity: **War & Conquer → Ejecutar pruebas de reglas**. La consola imprime `PASS` para cada prueba y `WAR_CONQUER_TESTS_PASSED` al finalizar. Una prueba fallida lanza una excepción con el caso afectado.
+
+Con Play activo: **War & Conquer → Comprobar interfaz en Play** verifica los botones de participantes y mazos, la pausa, la reanudación de IA y las pantallas de victoria; restaura la partida anterior sin escribir el guardado del jugador. `MatchSetupTests` comprueba los cuatro modos, duelos con ambos mazos, respuestas autorizadas de IA, partidas completas y carga a mitad de turno.
 
 Las pruebas cubren mazos, neutralidad, distribución territorial, conectividad resistente a un bloqueo, pago y colocación atómicos, descarte, biomas, Latentes, energía/robo, veneno/sueño, movimiento, combate, terreno inestable, vuelo, rutas, Marcha, producción, habilidades, guardado y una partida automatizada de 120 turnos con comprobación de integridad después de cada acción.
 

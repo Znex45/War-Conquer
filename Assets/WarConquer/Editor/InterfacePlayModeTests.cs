@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,12 +22,26 @@ namespace WarConquer.Editor
         [InitializeOnLoadMethod]
         static void Register()
         {
+            EditorApplication.delayCall+=RunRequestedCheck;
             EditorApplication.playModeStateChanged+=state=>
             {
                 if(state!=PlayModeStateChange.EnteredPlayMode||!SessionState.GetBool(PendingKey,false))return;
                 SessionState.SetBool(PendingKey,false);
-                EditorApplication.delayCall+=()=>{Run();EditorApplication.ExecuteMenuItem("Window/General/Game");};
+                EditorApplication.delayCall+=()=>
+                {
+                    Run();
+                    var view=EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GameView"));
+                    view.maximized=true;view.Focus();
+                };
             };
+        }
+        static void RunRequestedCheck()
+        {
+            // Optional local test request, consumed once after an editor script import.
+            const string request="Temp/WarConquer.InterfaceCheck.request";
+            if(!File.Exists(request))return;
+            if(EditorApplication.isCompiling||EditorApplication.isUpdating){EditorApplication.delayCall+=RunRequestedCheck;return;}
+            File.Delete(request);Begin();
         }
         static void Check(bool condition,string message){if(!condition)throw new Exception(message);}
         static void Invoke(WarConquerController ui,string method,params object[] args)
@@ -40,8 +55,11 @@ namespace WarConquer.Editor
             var ui=UnityEngine.Object.FindAnyObjectByType<WarConquerController>();
             if(ui==null)throw new Exception("No hay un Graybox activo.");
             string previous=GamePersistence.Serialize(ui.Game.State);
+            var humanField=typeof(WarConquerController).GetField("humanPlayers",BindingFlags.Instance|BindingFlags.NonPublic);
+            int previousHumans=(int)humanField.GetValue(ui);
             try
             {
+                humanField.SetValue(ui,4);
                 Invoke(ui,"StartMatch",false);var g=ui.Game;
                 Check(Has(ui,"ETAPAS · J1")&&Has(ui,"ENERGÍA 3 / 3"),"Estado inicial no reflejado en Canvas.");
                 for(int i=0;i<4;i++)Check(Has(ui,"J"+(i+1)+" "+g.State.players[i].leader),"Falta un jugador en la puntuación.");
@@ -61,11 +79,13 @@ namespace WarConquer.Editor
                 string before=GamePersistence.Serialize(g.State);
                 Invoke(ui,"ShowCardModal",g.Catalog["bestia-micelial"],g.State.Active);
                 Check(Has(ui,"VENTANAS DE USO")&&before==GamePersistence.Serialize(g.State),"La consulta de carta modifica la partida.");
+                Invoke(ui,"CloseModal");SetupPlayModeTests.Run(ui);
                 Debug.Log("WAR_CONQUER_UI_PASSED: Canvas, cuatro jugadores, tres etapas, Líderes, dos pantallas de victoria y consulta sin mutación.");
             }
             finally
             {
-                Invoke(ui,"CloseModal");ui.Game.Restore(GamePersistence.Deserialize(previous));
+                Invoke(ui,"CloseModal");humanField.SetValue(ui,previousHumans);ui.Game.Restore(GamePersistence.Deserialize(previous));
+                if(ui.Game.State.phase==Phase.Setup)Invoke(ui,"ShowSetup");
             }
         }
     }

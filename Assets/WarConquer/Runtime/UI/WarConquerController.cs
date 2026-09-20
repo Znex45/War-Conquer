@@ -22,13 +22,14 @@ namespace WarConquer
         Biome chosenBiome=Biome.Forest;
         string[] leaders={"ZUKGROK","SAHRIA","ZUKGROK","SAHRIA"};
         int seed=2026;
+        int humanPlayers=1;
         readonly Color edge=new Color32(48,61,79,255);
         string SavePath=>Path.Combine(Application.persistentDataPath,"war-conquer-save.json");
         void Awake()
         {
             ClearAction();focus=-1;viewedPlayer=0;page=0;lastActor=-1;useResources=false;
             Game=new GameManager(CardCatalog.Load());CreateUI();Game.Changed+=Render;
-            Game.NewGame(leaders,seed,CardCatalog.LoadRules());
+            Game.NewGame(leaders,seed,CardCatalog.LoadRules(),4,false);ShowSetup();
         }
         void OnDestroy(){if(Game!=null)Game.Changed-=Render;}
         void CreateUI()
@@ -54,12 +55,13 @@ namespace WarConquer
         {
             if(root==null)return;var canvas=root.GetComponentInParent<CanvasScaler>();float scale=Mathf.Min(Screen.width/1600f,Screen.height/1000f);
             if(Mathf.Abs(canvas.scaleFactor-scale)>.001f)canvas.scaleFactor=scale;
+            UpdateAI();
         }
         public void Render()
         {
             if(Game?.State==null)return;
             int actor=Game.ActingPlayerId;
-            if(actor!=lastActor){lastActor=actor;viewedPlayer=actor;page=0;handFilter="Todas";useResources=false;ClearAction();focus=-1;}
+            if(actor!=lastActor){lastActor=actor;viewedPlayer=actor;page=0;handFilter="Todas";useResources=Game.ActingPlayer.isAI&&AiPlayer.UseResources;ClearAction();focus=-1;nextAiAction=Time.unscaledTime+1;}
             if(selectedPiece!=null&&!BoardManager.Pieces(Game.State).Contains(selectedPiece))ClearAction();
             HideTooltip();foreach(var panel in new[]{header,left,leaderPanel,inspector,hand,piles})GrayboxUI.Clear(panel);
             var s=Game.State;GrayboxUI.PlayerLeaders=s.players.Select(p=>p.leader).ToArray();var player=s.players[viewedPlayer];
@@ -86,14 +88,14 @@ namespace WarConquer
         {
             var s=Game.State;var actor=Game.ActingPlayer;
             GrayboxUI.Text(header,"WAR & CONQUER",20,12,300,34,26,GrayboxUI.Ink,FontStyle.Bold);
-            GrayboxUI.Text(header,"RONDA "+s.round+" · TURNO J"+(s.activePlayer+1)+" · "+TimingRules.StageName(s.stage),340,12,595,27,18,GrayboxUI.PlayerColor(s.activePlayer),FontStyle.Bold);
+            GrayboxUI.Text(header,s.phase==Phase.Setup?"PREPARACIÓN · PARTIDA EN PAUSA":"RONDA "+s.round+" · TURNO J"+(s.activePlayer+1)+(s.Active.isAI?" (IA)":"")+" · "+TimingRules.StageName(s.stage),340,12,595,27,18,GrayboxUI.PlayerColor(s.activePlayer),FontStyle.Bold);
             GrayboxUI.Text(header,"J"+(actor.id+1)+" · ENERGÍA "+actor.currentEnergy+" / "+actor.maxEnergy,960,10,325,28,21,GrayboxUI.PlayerColor(actor.id),FontStyle.Bold);
             GrayboxUI.Text(header,string.Join(" · ",actor.resources.Where(r=>r.amount>0).Select(r=>Names.Biomes[(int)r.biome]+" "+r.amount))+"  Esporas "+actor.spores,960,39,380,20,11,GrayboxUI.Muted);
             GrayboxUI.Button(header,"Nueva partida",1402,14,182,36,ShowSetup);
         }
         List<int> ValidTargets()
         {
-            if(viewedPlayer!=Game.ActingPlayerId||!Game.CanAct)return new List<int>();
+            if(viewedPlayer!=Game.ActingPlayerId||!Game.CanAct||Game.ActingPlayer.isAI)return new List<int>();
             switch(mode)
             {
                 case "card": var instance=Game.ActingPlayer.hand.Find(c=>c.instanceId==selectedCard);return instance!=null&&Game.CardBlockReason(instance,useResources)==""?Game.CardTargets(Game.Catalog[instance.cardId],targets):new List<int>();
@@ -112,6 +114,7 @@ namespace WarConquer
         void ClearAction(){mode="inspect";selectedCard=-1;selectedPiece=null;targets.Clear();}
         public void TileClick(int id)
         {
+            if(!Game.CanAct||Game.ActingPlayer.isAI)return;
             if(ValidTargets().Contains(id))
             {
                 bool done=false;
@@ -140,6 +143,7 @@ namespace WarConquer
         }
         void Confirm()
         {
+            if(!Game.CanAct||Game.ActingPlayer.isAI)return;
             bool ok=mode=="card"?Game.Play(selectedCard,targets,useResources,chosenBiome):mode=="leader"?AbilityManager.Leader(Game,targets):AbilityManager.Activate(Game,selectedPiece,targets);
             if(ok)ClearAction();Render();
         }

@@ -21,7 +21,13 @@ namespace WarConquer
                 if(s.battle==null&&s.responsePlayer<0&&BattleManager.HasResponse(Game,viewedPlayer))GrayboxUI.Button(left,"Intervenir con permiso",12,y+42,214,36,()=>BattleManager.RequestOutsideTurn(Game,viewedPlayer));
                 return;
             }
-            if(!Game.CanAct){GrayboxUI.Text(left,"PARTIDA FINALIZADA",14,y,214,32,15);return;}
+            if(!Game.CanAct){GrayboxUI.Text(left,s.phase==Phase.Setup?"PARTIDA EN PAUSA":"PARTIDA FINALIZADA",14,y,214,32,15);return;}
+            if(Game.ActingPlayer.isAI)
+            {
+                GrayboxUI.Text(left,"TURNO DE LA IA",14,y,214,30,19,GrayboxUI.PlayerColor(Game.ActingPlayerId),FontStyle.Bold);
+                GrayboxUI.Text(left,"El rival está jugando.\n\nUsa sus cartas, energía y unidades con las mismas reglas.",14,y+42,208,105,15,GrayboxUI.Muted);
+                return;
+            }
             if(responding)
             {
                 GrayboxUI.Text(left,"Solo respuestas autorizadas por el texto de la carta o habilidad.",14,y,212,50,14,GrayboxUI.Muted);y+=57;
@@ -74,8 +80,8 @@ namespace WarConquer
             GrayboxUI.Text(leaderPanel,fungus?"INFLUENCIA MICELIAL":"DOMINIO DE LAS ARENAS",14,119,214,27,13,GrayboxUI.Ink,FontStyle.Bold);
             GrayboxUI.Text(leaderPanel,fungus?"Envenena 1 a un enemigo en Bosque conectado a tu red y crea una Espora adyacente.":"Hasta 2 Desiertos propios se vuelven inestables (4+). Un fallo causa 1 daño adicional, una sola vez entre ambos.",14,149,210,67,13,GrayboxUI.Muted);
             GrayboxUI.Text(leaderPanel,TimingRules.StageName(TimingRules.LeaderStage(player))+" · COSTE "+Game.State.rules.leaderAbilityCost+" E",14,221,214,22,13,color,FontStyle.Bold);
-            bool own=player.id==Game.ActingPlayerId;bool ready=own&&AbilityManager.LeaderTargets(Game).Count>0;
-            string condition=player.eliminated?"Líder eliminado":!own?"Espera tu turno":!TimingRules.LeaderAllowed(Game)?"Disponible en "+TimingRules.StageName(TimingRules.LeaderStage(player)):player.currentEnergy<Game.State.rules.leaderAbilityCost?"Energía insuficiente":ready?"Habilidad disponible":fungus?"Requiere red y enemigo en Bosque":"Requiere Desierto propio";
+            bool own=player.id==Game.ActingPlayerId;bool ready=own&&!player.isAI&&AbilityManager.LeaderTargets(Game).Count>0;
+            string condition=player.eliminated?"Líder eliminado":player.isAI?"Controlado por IA":!own?"Espera tu turno":!TimingRules.LeaderAllowed(Game)?"Disponible en "+TimingRules.StageName(TimingRules.LeaderStage(player)):player.currentEnergy<Game.State.rules.leaderAbilityCost?"Energía insuficiente":ready?"Habilidad disponible":fungus?"Requiere red y enemigo en Bosque":"Requiere Desierto propio";
             GrayboxUI.Text(leaderPanel,condition,14,246,212,21,11,GrayboxUI.Muted);
             GrayboxUI.Button(leaderPanel,"Activar habilidad",12,275,214,27,()=>Begin("leader"),Color.Lerp(color,GrayboxUI.Panel,.55f),ready);
         }

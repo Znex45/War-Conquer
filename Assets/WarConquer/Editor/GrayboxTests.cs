@@ -247,6 +247,7 @@ namespace WarConquer.Editor
                 }
             });
             InterfaceRulesTests.RunAll(catalog,Test);
+            MatchSetupTests.RunAll(catalog,Test);
             Debug.Log("WAR_CONQUER_TESTS_PASSED "+passed);
             string report=Environment.GetEnvironmentVariable("WAR_CONQUER_TEST_REPORT");if(!string.IsNullOrEmpty(report))System.IO.File.WriteAllText(report,string.Join("\n",results)+"\nTOTAL "+passed+" passed\n");
         }

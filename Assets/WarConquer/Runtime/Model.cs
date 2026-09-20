@@ -75,6 +75,7 @@ namespace WarConquer
         public int id, leaderHealth, currentEnergy, maxEnergy, turnsTaken, spores, centerScore;
         public string leader, factionTag;
         public bool eliminated, terraformDiscountUsed, towerUsed;
+        public bool inactive, isAI;
         public int structureDiscount, dreamRound = -1, freeSteps;
         public int conquestPoints, pendingDraw;
         public List<CardInstance> deck = new List<CardInstance>(), hand = new List<CardInstance>(), discardPile = new List<CardInstance>();
