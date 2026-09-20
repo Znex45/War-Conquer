@@ -22,26 +22,36 @@ namespace WarConquer
         }
         public static List<int> Targets(GameManager g,Piece p)
         {
-            if(p==null||!g.CanAct||p.owner!=g.State.activePlayer||p.attacked||g.IsSleeping(p)||g.Data(p).IsStructure) return new List<int>();
+            if(p==null||!g.CanTakeTurnAction(TurnStage.Assault)||p.owner!=g.State.activePlayer||p.attacked||g.IsSleeping(p)||g.Data(p).IsStructure) return new List<int>();
             return g.State.tiles.Where(t=>((t.unit!=null&&t.unit.owner!=p.owner)||(t.structure!=null&&t.structure.owner!=p.owner)||(t.baseOwner>=0&&t.baseOwner!=p.owner&&!g.State.players[t.baseOwner].eliminated))&&BoardManager.Distance(g.State,p.tileId,t.id,g.Data(p).range)<=g.Data(p).range).Select(t=>t.id).ToList();
         }
         public static bool Attack(GameManager g,Piece attacker,int target)
         {
             if(!Targets(g,attacker).Contains(target))return g.Fail("No puedes atacar: objetivo, alcance, ataque usado o Dormido.");
-            var t=g.State.tiles[target]; var victim=t.unit!=null&&t.unit.owner!=attacker.owner?t.unit:t.structure!=null&&t.structure.owner!=attacker.owner?t.structure:null;
-            attacker.attacked=true; int damage=AttackValue(g,attacker,victim);
+            BattleManager.Open(g,attacker,target);
+            g.Notify(g.State.battle==null?"Ataque resuelto.":"Batalla abierta · responde J"+(g.ActingPlayerId+1)+".");return true;
+        }
+        internal static void ResolvePending(GameManager g,PendingBattle battle)
+        {
+            var attacker=BoardManager.Pieces(g.State).FirstOrDefault(p=>p.id==battle.attackerId);
+            if(attacker==null||g.IsSleeping(attacker)||BoardManager.Distance(g.State,attacker.tileId,battle.targetTile)>g.Data(attacker).range)
+            {g.State.Log("Ataque cancelado: el atacante ya no puede resolverlo.");return;}
+            var tile=g.State.tiles[battle.targetTile];
+            var victim=BoardManager.Pieces(g.State).FirstOrDefault(p=>p.id==battle.victimId&&p.tileId==battle.targetTile);
+            if(battle.victimId>=0&&victim==null){g.State.Log("Ataque cancelado: el objetivo ya no está.");return;}
+            int damage=AttackValue(g,attacker,victim);
             if(victim!=null)
             {
                 Damage(g,victim,damage,true);
-                if(victim.health>0&&g.Data(attacker).Has("PoisonAttack")&&(g.State.tiles[attacker.tileId].biome==Biome.Forest||g.State.tiles[attacker.tileId].biome==Biome.Swamp)) EffectManager.Poison(g,victim,1,attacker.owner);
+                if(victim.health>0&&g.Data(attacker).Has("PoisonAttack")&&(g.State.tiles[attacker.tileId].biome==Biome.Forest||g.State.tiles[attacker.tileId].biome==Biome.Swamp))EffectManager.Poison(g,victim,1,attacker.owner);
             }
             else
             {
-                var leader=g.State.players[t.baseOwner]; leader.leaderHealth=Math.Max(0,leader.leaderHealth-damage);
+                var leader=g.State.players[battle.defenderOwner];if(leader.eliminated)return;
+                leader.leaderHealth=Math.Max(0,leader.leaderHealth-damage);
                 g.State.Log("J"+(leader.id+1)+" pierde "+damage+" de vida de Líder.");
-                if(leader.leaderHealth<=0)Eliminate(g,leader);
+                if(leader.leaderHealth==0){Eliminate(g,leader);tile.owner=attacker.owner;g.State.Log("J"+(attacker.owner+1)+" conquista la base de J"+(leader.id+1)+".");}
             }
-            g.Notify("Ataque de "+g.Data(attacker).name+" resuelto.");return true;
         }
         public static void Damage(GameManager g,Piece p,int amount,bool attack)
         {
@@ -69,8 +79,7 @@ namespace WarConquer
             player.eliminated=true;
             foreach(var p in g.Allies(player.id).ToList())Remove(g,p);
             foreach(var t in g.State.tiles.Where(t=>t.owner==player.id))t.owner=-1;
-            var alive=g.State.players.Where(p=>!p.eliminated).ToList();
-            if(alive.Count==1){g.State.winner=alive[0].id;g.State.phase=Phase.Finished;g.State.Log("Gana J"+(alive[0].id+1)+".");}
+            ConquestManager.CheckLastLeader(g.State);
         }
     }
 }

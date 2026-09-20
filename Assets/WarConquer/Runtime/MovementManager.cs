@@ -14,7 +14,7 @@ namespace WarConquer
         public static Dictionary<int,List<int>> Paths(GameManager g,Piece p)
         {
             var result=new Dictionary<int,List<int>>();
-            if(p==null||p.owner!=g.State.activePlayer||g.IsSleeping(p)||g.Data(p).IsStructure||!g.CanAct||p.remainingMovement<=0) return result;
+            if(p==null||p.owner!=g.State.activePlayer||g.IsSleeping(p)||g.Data(p).IsStructure||!g.CanTakeTurnAction(TurnStage.Assault)||p.remainingMovement<=0) return result;
             var c=g.Data(p); var open=new List<Node> { new Node {tile=p.tileId,cost=0,path=new List<int>(),route=false} };
             var seen=new Dictionary<(int,bool),int>(); var best=new Dictionary<int,int>();
             while(open.Count>0)
@@ -72,7 +72,7 @@ namespace WarConquer
         }
         public static bool FreeStep(GameManager g,Piece p,int destination)
         {
-            if(!g.CanAct||p==null||p.owner!=g.State.activePlayer||g.IsSleeping(p)||g.State.Active.freeSteps<=0||!g.State.tiles[p.tileId].neighbors.Contains(destination)||!CanStop(g,p,destination)) return g.Fail("No hay un paso adicional válido.");
+            if(!g.CanTakeTurnAction(TurnStage.Assault)||p==null||p.owner!=g.State.activePlayer||g.IsSleeping(p)||g.State.Active.freeSteps<=0||!g.State.tiles[p.tileId].neighbors.Contains(destination)||!CanStop(g,p,destination)) return g.Fail("No hay un paso adicional válido.");
             g.State.Active.freeSteps--;
             if(TerrainManager.CheckUnstable(g,p,g.State.tiles[p.tileId],true)&&TerrainManager.CheckUnstable(g,p,g.State.tiles[destination],false)) Relocate(g,p,destination);
             g.Notify("Paso adicional resuelto.");return true;

@@ -35,7 +35,17 @@
       "traits": [
         "EnterPoison"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "hongo-explorador",
@@ -70,7 +80,17 @@
       "traits": [
         "FastBonus"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "larva-micelial",
@@ -105,7 +125,17 @@
       "traits": [
         "Evolve"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "bestia-micelial",
@@ -143,7 +173,17 @@
       "traits": [
         "PoisonAttack"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "guardian-del-bosque",
@@ -178,7 +218,17 @@
       "traits": [
         "FirstAttackGuard"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "cazador-de-esporas",
@@ -216,7 +266,17 @@
       "traits": [
         "PoisonHunter"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "chaman-micelial",
@@ -254,7 +314,17 @@
       "traits": [
         "ExtendBuff"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "coloso-de-esporas",
@@ -291,7 +361,17 @@
       "traits": [
         "FungusAttackAura"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "matriarca-micelial",
@@ -327,7 +407,17 @@
       "traits": [
         "ForestSpore"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "ancestro-micelial",
@@ -362,7 +452,17 @@
       "traits": [
         "EnterForest"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "ciervo-de-esporas",
@@ -397,7 +497,17 @@
       "traits": [
         "FreeRoute"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "semillero-micelial",
@@ -434,7 +544,17 @@
       "traits": [
         "SporeToken"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "nido-de-esporas",
@@ -469,7 +589,17 @@
       "traits": [
         "FungusDefenseAura"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "santuario-del-bosque",
@@ -504,7 +634,17 @@
       "traits": [
         "ForestDiscount"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "jardin-micelial",
@@ -541,7 +681,17 @@
       "traits": [
         "NegativeSpore"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "red-micelial",
@@ -578,7 +728,17 @@
       "traits": [
         "FastNetwork"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "torre-de-esporas",
@@ -613,7 +773,17 @@
       "traits": [
         "PoisonRange"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "corazon-del-hongo",
@@ -649,7 +819,17 @@
       "traits": [
         "PoisonSpore"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "santuario-del-sueno",
@@ -686,7 +866,17 @@
       "traits": [
         "SleepStep"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "arbol-madre",
@@ -721,7 +911,17 @@
       "traits": [
         "ConnectedSpores"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "brote-repentino",
@@ -763,7 +963,17 @@
           "trigger": "Play",
           "duration": 1
         }
-      ]
+      ],
+      "allowedPhases": [
+        1
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "lluvia-de-esporas",
@@ -817,7 +1027,17 @@
           "trigger": "Play",
           "duration": 1
         }
-      ]
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "espora-somnifera",
@@ -862,7 +1082,17 @@
           "trigger": "Play",
           "duration": 1
         }
-      ]
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "nube-de-esporas",
@@ -905,7 +1135,17 @@
           "trigger": "Play",
           "duration": 1
         }
-      ]
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "crecimiento-descontrolado",
@@ -950,7 +1190,17 @@
           "trigger": "Play",
           "duration": 1
         }
-      ]
+      ],
+      "allowedPhases": [
+        1
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "marcha-micelial",
@@ -993,7 +1243,17 @@
           "trigger": "Play",
           "duration": 1
         }
-      ]
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "sueno-micelial",
@@ -1038,7 +1298,17 @@
           "trigger": "Play",
           "duration": 1
         }
-      ]
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "explosion-de-esporas",
@@ -1083,7 +1353,17 @@
           "trigger": "Play",
           "duration": 1
         }
-      ]
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "rey-micelial",
@@ -1120,7 +1400,17 @@
       "traits": [
         "EnterKing"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "bosque-eterno",
@@ -1156,7 +1446,17 @@
       "traits": [
         "EternalForest"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "nomada-de-arena",
@@ -1190,7 +1490,17 @@
       "traits": [
         "IgnoreUnstable"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "escorpion-solar",
@@ -1224,7 +1534,17 @@
       "traits": [
         "IgnoreUnstable"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "guardian-del-obelisco",
@@ -1258,7 +1578,17 @@
       "traits": [
         "StructureGuard"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "sacerdote-solar",
@@ -1292,7 +1622,17 @@
       "traits": [
         "StructureDiscount"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "bestia-de-las-dunas",
@@ -1327,7 +1667,17 @@
       "traits": [
         "DesertAttack"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "avatar-del-sol",
@@ -1362,7 +1712,17 @@
       "traits": [
         "EnterDesert"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "obelisco-solar",
@@ -1396,7 +1756,17 @@
       "traits": [
         "SolarAttackAura"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "campamento-nomada",
@@ -1430,7 +1800,17 @@
       "traits": [
         "CampStep"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "santuario-de-arena",
@@ -1464,7 +1844,17 @@
       "traits": [
         "DesertDiscount"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "obelisco-de-ruptura",
@@ -1498,7 +1888,17 @@
       "traits": [
         "DestroyBiome"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "templo-de-ceniza",
@@ -1534,7 +1934,17 @@
       "traits": [
         "AshDiscount"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "trono-solar",
@@ -1569,7 +1979,17 @@
       "traits": [
         "SolarEngine"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "arena-profunda",
@@ -1604,7 +2024,17 @@
         "DeepSand",
         "Passable"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "dunas-movedizas",
@@ -1639,7 +2069,17 @@
         "MovingDunes",
         "Passable"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "tormenta-de-arena",
@@ -1681,7 +2121,17 @@
           "trigger": "Play",
           "duration": 1
         }
-      ]
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "terraformacion-solar",
@@ -1722,7 +2172,17 @@
           "trigger": "Play",
           "duration": 1
         }
-      ]
+      ],
+      "allowedPhases": [
+        1
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "erosion",
@@ -1761,7 +2221,17 @@
           "trigger": "Play",
           "duration": 1
         }
-      ]
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "ruptura-del-terreno",
@@ -1800,7 +2270,17 @@
           "trigger": "Play",
           "duration": 1
         }
-      ]
+      ],
+      "allowedPhases": [
+        1
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "despertar-de-las-ruinas",
@@ -1843,7 +2323,18 @@
           "trigger": "Play",
           "duration": 1
         }
-      ]
+      ],
+      "allowedPhases": [
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "mar-de-arena",
@@ -1885,7 +2376,17 @@
           "trigger": "Play",
           "duration": 2
         }
-      ]
+      ],
+      "allowedPhases": [
+        1
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "llamado-del-oasis",
@@ -1927,7 +2428,17 @@
           "trigger": "Play",
           "duration": 1
         }
-      ]
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "guardian-del-oasis",
@@ -1962,7 +2473,17 @@
       "traits": [
         "OasisGuard"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "halconero-solar",
@@ -1996,7 +2517,17 @@
       "traits": [
         "RevealResource"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "escarabajo-de-cobre",
@@ -2031,7 +2562,17 @@
       "traits": [
         "ExtraResource"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "emperador-de-las-dunas",
@@ -2067,7 +2608,17 @@
       "traits": [
         "NomadAura"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "oasis-de-cristal",
@@ -2103,7 +2654,17 @@
         "Oasis",
         "Passable"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "titan-de-ceniza",
@@ -2139,7 +2700,17 @@
       "traits": [
         "EnterTitan"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "ciudad-sepultada",
@@ -2175,7 +2746,17 @@
       "traits": [
         "BuriedCity"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "espora",
@@ -2209,7 +2790,17 @@
       "traits": [
         "Token"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     },
     {
       "id": "obelisco-de-arena",
@@ -2241,7 +2832,17 @@
         "Token",
         "SolarAttackAura"
       ],
-      "effects": []
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": ""
     }
   ]
 }

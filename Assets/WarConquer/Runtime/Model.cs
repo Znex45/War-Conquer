@@ -7,6 +7,9 @@ namespace WarConquer
     public enum Biome { Neutral, Forest, Swamp, Tundra, Volcanic, Desert, AshLand, Wasteland }
     public enum Category { Unit, Structure, Spell, Latent }
     public enum Phase { Setup, Start, Actions, End, Finished }
+    public enum TurnStage { Deployment, Terraforming, Assault }
+    public enum ActionTiming { OwnTurn, Battle, Attacking, Defending, Intervention, OtherTurn }
+    public enum VictoryReason { None, Conquest, LastLeader }
     [Serializable] public class EffectData
     {
         public string trigger, operation, target, biome;
@@ -21,6 +24,10 @@ namespace WarConquer
         public EffectData[] effects;
         public int energyCost, health, attack, movement, range, quantity, maxCopies = 3;
         public bool requiresAshLand;
+        public TurnStage[] allowedPhases;
+        public ActionTiming[] allowedTiming;
+        public bool canRespond, canInterrupt, canReact;
+        public string timingPermissionText;
         public bool IsStructure => category == Category.Structure || (category == Category.Latent && movementType == "Fixed");
         public bool Has(string trait) => traits != null && traits.Contains(trait);
         public bool Tag(string tag) => terrainTags != null && terrainTags.Contains(tag);
@@ -69,6 +76,7 @@ namespace WarConquer
         public string leader, factionTag;
         public bool eliminated, terraformDiscountUsed, towerUsed;
         public int structureDiscount, dreamRound = -1, freeSteps;
+        public int conquestPoints, pendingDraw;
         public List<CardInstance> deck = new List<CardInstance>(), hand = new List<CardInstance>(), discardPile = new List<CardInstance>();
         public List<ResourcePool> resources = new List<ResourcePool>();
     }
@@ -82,7 +90,11 @@ namespace WarConquer
     }
     [Serializable] public class GameState
     {
-        public int version = 2, seed, randomState, activePlayer, turn = 1, round = 1, nextId = 1, winner = -1;
+        public int version = 3, seed, randomState, activePlayer, turn = 1, round = 1, nextId = 1, winner = -1;
+        public int lastScoredRound, responsePlayer = -1;
+        public TurnStage stage;
+        public VictoryReason victoryReason;
+        public PendingBattle battle;
         public Phase phase;
         public Rules rules;
         public List<Player> players = new List<Player>();
@@ -97,6 +109,11 @@ namespace WarConquer
             randomState = (int)x; return (int)(x % max);
         }
         public void Log(string message) { log.Add(message); if (log.Count > 100) log.RemoveAt(0); }
+    }
+    [Serializable] public class PendingBattle
+    {
+        public int attackerId, attackerOwner, defenderOwner, victimId = -1, targetTile, priorityPlayer = -1, priorityIndex;
+        public List<int> order = new List<int>();
     }
     public static class Names
     {

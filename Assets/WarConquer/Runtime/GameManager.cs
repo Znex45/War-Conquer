@@ -21,60 +21,77 @@ namespace WarConquer
                 State.players.Add(p); DeckManager.Build(State,p,Catalog);
             }
             State.Log("Partida local • semilla "+seed+" • 87 casillas sin bioma • 4 mazos de 50.");
-            TurnManager.Start(this); Notify("Turno de J1. Selecciona una carta o terraforma una casilla.");
+            TurnManager.Start(this); Notify("Turno de J1 · Despliegue. Selecciona una carta permitida.");
         }
         public void Restore(GameState state) { State=state; Notify("Partida cargada."); }
         public void Notify(string message) { LastMessage=message; Changed?.Invoke(); }
         public bool Fail(string reason) { Notify(reason); return false; }
         public bool CanAct => State!=null && State.phase==Phase.Actions && !State.Active.eliminated;
+        int queryPlayer=-1;
+        public int ActingPlayerId=>queryPlayer>=0?queryPlayer:State.battle!=null?State.battle.priorityPlayer:State.responsePlayer>=0?State.responsePlayer:State.activePlayer;
+        public Player ActingPlayer=>State.players[ActingPlayerId];
+        internal T ForPlayer<T>(int player,Func<T> query){int previous=queryPlayer;queryPlayer=player;try{return query();}finally{queryPlayer=previous;}}
+        public bool CanTakeTurnAction(TurnStage stage)=>CanAct&&State.battle==null&&State.responsePlayer<0&&ActingPlayerId==State.activePlayer&&State.stage==stage;
+        public bool AdvanceStage()
+        {
+            if(!CanAct||State.battle!=null||State.responsePlayer>=0)return Fail("Resuelve la intervención antes de continuar.");
+            if(State.stage==TurnStage.Assault)return EndTurn();
+            State.stage=(TurnStage)((int)State.stage+1);Notify("Etapa de "+TimingRules.StageName(State.stage)+".");return true;
+        }
+        public bool DrawPending()
+        {
+            if(!CanTakeTurnAction(TurnStage.Deployment)||ActingPlayer.pendingDraw<=0)return Fail("No corresponde robar cartas ahora.");
+            int count=ActingPlayer.pendingDraw;ActingPlayer.pendingDraw=0;DeckManager.Draw(State,ActingPlayer,count);Notify("Robo resuelto.");return true;
+        }
         public CardData Data(Piece p) => Catalog[p.cardId];
         public IEnumerable<Piece> Allies(int player) => BoardManager.Pieces(State).Where(p=>p.owner==player);
         public bool HasTrait(int player,string trait) => Allies(player).Any(p=>Data(p).Has(trait));
         public bool InRange(int tile, int range)
         {
-            return State.tiles.Any(t=>(t.baseOwner==State.activePlayer || (t.unit!=null&&t.unit.owner==State.activePlayer) || (t.structure!=null&&t.structure.owner==State.activePlayer)) && BoardManager.Distance(State,t.id,tile,range)<=range);
+            return State.tiles.Any(t=>(t.baseOwner==ActingPlayerId || (t.unit!=null&&t.unit.owner==ActingPlayerId) || (t.structure!=null&&t.structure.owner==ActingPlayerId)) && BoardManager.Distance(State,t.id,tile,range)<=range);
         }
         public bool TerraformTarget(int tile)
         {
             var t=State.tiles[tile];
-            if(t.blocked || t.permanentAsh || t.biome==Biome.AshLand || (t.baseOwner>=0&&t.baseOwner!=State.activePlayer)) return false;
-            if((t.unit!=null&&t.unit.owner!=State.activePlayer)||(t.structure!=null&&t.structure.owner!=State.activePlayer)) return false;
-            return t.owner==State.activePlayer || t.neighbors.Any(n=>State.tiles[n].owner==State.activePlayer);
+            if(t.blocked || t.permanentAsh || t.biome==Biome.AshLand || (t.baseOwner>=0&&t.baseOwner!=ActingPlayerId)) return false;
+            if((t.unit!=null&&t.unit.owner!=ActingPlayerId)||(t.structure!=null&&t.structure.owner!=ActingPlayerId)) return false;
+            return t.owner==ActingPlayerId || t.neighbors.Any(n=>State.tiles[n].owner==ActingPlayerId);
         }
         public string CardBlockReason(CardInstance instance,bool resources=false)
         {
             if(!CanAct) return "No es la fase de acciones.";
-            if(instance==null || !State.Active.hand.Any(c=>c.instanceId==instance.instanceId)) return "La carta no está en la mano del jugador activo.";
+            if(instance==null || !ActingPlayer.hand.Any(c=>c.instanceId==instance.instanceId)) return "La carta no está en la mano del jugador activo.";
             var c=Catalog[instance.cardId];
-            if(!EnergyManager.CanPay(State.Active,c,resources)) return "Energía insuficiente.";
-            if(c.requiresAshLand&&!State.tiles.Any(t=>t.owner==State.activePlayer&&t.biome==Biome.AshLand&&!t.IsOccupied)) return "Requiere Tierra Ceniza libre bajo tu control.";
-            if(c.effects.Any(e=>e.operation=="SporeDamage")&&State.Active.spores==0) return "Requiere al menos 1 Espora.";
-            if(c.effects.Any(e=>e.operation=="March")&&!State.fastRoutes.Any(f=>f.owner==State.activePlayer)) return "Requiere una Vía Rápida propia.";
+            if(!TimingRules.CardAllowed(this,c))return "Ventana no permitida. "+TimingRules.Description(c);
+            if(!EnergyManager.CanPay(ActingPlayer,c,resources)) return "Energía insuficiente.";
+            if(c.requiresAshLand&&!State.tiles.Any(t=>t.owner==ActingPlayerId&&t.biome==Biome.AshLand&&!t.IsOccupied)) return "Requiere Tierra Ceniza libre bajo tu control.";
+            if(c.effects.Any(e=>e.operation=="SporeDamage")&&ActingPlayer.spores==0) return "Requiere al menos 1 Espora.";
+            if(c.effects.Any(e=>e.operation=="March")&&!State.fastRoutes.Any(f=>f.owner==ActingPlayerId)) return "Requiere una Vía Rápida propia.";
             if(CardTargets(c).Count==0) return c.category==Category.Spell?"No hay objetivos compatibles dentro del alcance.":"No hay casillas propias libres con terreno compatible.";
             return "";
         }
         public List<int> CardTargets(CardData c, IList<int> selected=null)
         {
-            if(!CanAct) return new List<int>();
+            if(!CanAct||!TimingRules.CardAllowed(this,c)) return new List<int>();
             var ids=selected??new List<int>();
             if(c.category!=Category.Spell)
-                return State.tiles.Where(t=>!t.IsOccupied&&!t.blocked&&t.baseOwner<0&&t.owner==State.activePlayer
+                return State.tiles.Where(t=>!t.IsOccupied&&!t.blocked&&t.baseOwner<0&&t.owner==ActingPlayerId
                     &&(c.requiresAshLand?t.biome==Biome.AshLand:((t.biome==Biome.Neutral&&State.rules.allowNeutralDeployment) || c.biomes.Contains(t.biome))))
                     .Select(t=>t.id).ToList();
             var e=c.effects[0];
             if(e.operation=="March")
             {
-                if(ids.Count%2==0) return Allies(State.activePlayer).Where(p=>!Data(p).IsStructure&&!IsSleeping(p)&&!ids.Contains(p.tileId)
+                if(ids.Count%2==0) return Allies(ActingPlayerId).Where(p=>!Data(p).IsStructure&&!IsSleeping(p)&&!ids.Contains(p.tileId)
                     &&MovementManager.RouteDestinations(this,p).Count>0).Select(p=>p.tileId).ToList();
                 var unit=State.tiles[ids[ids.Count-1]].unit;
                 return unit==null?new List<int>():MovementManager.RouteDestinations(this,unit).Where(n=>!ids.Contains(n)).ToList();
             }
-            int range=State.rules.spellRange + (e.operation=="Poison"&&HasTrait(State.activePlayer,"PoisonRange")&&!State.Active.towerUsed?1:0);
+            int range=State.rules.spellRange + (e.operation=="Poison"&&HasTrait(ActingPlayerId,"PoisonRange")&&!ActingPlayer.towerUsed?1:0);
             return State.tiles.Where(t=>(e.operation=="SporeDamage"||!ids.Contains(t.id))&&ValidSpellTarget(e.target,t,ids)&&((e.target.Contains("Terraform"))||InRange(t.id,range))).Select(t=>t.id).ToList();
         }
         bool ValidSpellTarget(string kind,HexTile t,IList<int> selected)
         {
-            bool enemy=t.unit!=null&&t.unit.owner!=State.activePlayer, ally=t.unit!=null&&t.unit.owner==State.activePlayer;
+            bool enemy=t.unit!=null&&t.unit.owner!=ActingPlayerId, ally=t.unit!=null&&t.unit.owner==ActingPlayerId;
             switch(kind)
             {
                 case "Terraform": return TerraformTarget(t.id);
@@ -84,33 +101,33 @@ namespace WarConquer
                 case "EnemyGround": return enemy&&Data(t.unit).movementType=="Ground";
                 case "EnemyForest": return enemy&&t.biome==Biome.Forest;
                 case "EnemyForestSwamp": return enemy&&(t.biome==Biome.Forest||t.biome==Biome.Swamp);
-                case "EnemyPiece": return enemy||(t.structure!=null&&t.structure.owner!=State.activePlayer);
-                case "EnemyAdjacent": return enemy&&BoardManager.Nearby(State,t.id).Any(p=>p.owner==State.activePlayer);
-                case "EnemyBiome": return t.owner>=0&&t.owner!=State.activePlayer&&TerrainManager.Normal(t);
-                case "AllyDesert": return t.owner==State.activePlayer&&t.biome==Biome.Desert;
+                case "EnemyPiece": return enemy||(t.structure!=null&&t.structure.owner!=ActingPlayerId);
+                case "EnemyAdjacent": return enemy&&BoardManager.Nearby(State,t.id).Any(p=>p.owner==ActingPlayerId);
+                case "EnemyBiome": return t.owner>=0&&t.owner!=ActingPlayerId&&TerrainManager.Normal(t);
+                case "AllyDesert": return t.owner==ActingPlayerId&&t.biome==Biome.Desert;
                 case "AllyDesertUnit": return ally&&t.biome==Biome.Desert&&t.unit.health<MaxHealth(t.unit);
-                case "UsedStructure": return t.structure!=null&&t.structure.owner==State.activePlayer&&t.structure.abilityUsed&&AbilityManager.HasActive(Data(t.structure));
+                case "UsedStructure": return t.structure!=null&&t.structure.owner==ActingPlayerId&&t.structure.abilityUsed&&AbilityManager.HasActive(Data(t.structure));
                 default: return false;
             }
         }
         public bool Play(int instanceId,IList<int> targets,bool useResources=false,Biome choice=Biome.Forest)
         {
-            var instance=State.Active.hand.Find(c=>c.instanceId==instanceId); string error=CardBlockReason(instance,useResources);
+            var instance=ActingPlayer.hand.Find(c=>c.instanceId==instanceId); string error=CardBlockReason(instance,useResources);
             if(error.Length>0) return Fail(error);
             var card=Catalog[instance.cardId];
             int max=card.category==Category.Spell?card.effects[0].count:1;
             bool march=card.effects.Any(e=>e.operation=="March");
             if(targets==null||targets.Count<1||targets.Count>max*(march?2:1)||(march&&targets.Count%2!=0)) return Fail("Selecciona objetivos válidos antes de confirmar.");
-            if(card.effects.Any(e=>e.operation=="SporeDamage")&&targets.Count>State.Active.spores) return Fail("No hay suficientes Esporas para esos objetivos.");
+            if(card.effects.Any(e=>e.operation=="SporeDamage")&&targets.Count>ActingPlayer.spores) return Fail("No hay suficientes Esporas para esos objetivos.");
             var previous=new List<int>();
             foreach(int target in targets) { if(!CardTargets(card,previous).Contains(target)) return Fail("Objetivo inválido, ocupado, incompatible o fuera de alcance."); previous.Add(target); }
             if(choice!=Biome.Forest&&choice!=Biome.Swamp) return Fail("Elige Bosque o Pantano.");
-            EnergyManager.Pay(State.Active,card,useResources); State.Active.hand.Remove(instance);
+            EnergyManager.Pay(ActingPlayer,card,useResources); ActingPlayer.hand.Remove(instance);
             if(card.category==Category.Spell)
-            { EffectManager.ResolveSpell(this,card,targets,choice); State.Active.discardPile.Add(instance); }
-            else { var piece=Place(instance.cardId,State.activePlayer,targets[0],instance.instanceId,false); EffectManager.OnEnter(this,piece); }
-            State.Log("J"+(State.activePlayer+1)+" juega "+card.name+" ["+string.Join(",",targets.Select(t=>t+1))+"]");
-            Notify(card.name+" resuelta."); return true;
+            { EffectManager.ResolveSpell(this,card,targets,choice); ActingPlayer.discardPile.Add(instance); }
+            else { var piece=Place(instance.cardId,ActingPlayerId,targets[0],instance.instanceId,false); EffectManager.OnEnter(this,piece); }
+            State.Log("J"+(ActingPlayerId+1)+" juega "+card.name+" ["+string.Join(",",targets.Select(t=>t+1))+"]");
+            BattleManager.AfterResponse(this);Notify(card.name+" resuelta."); return true;
         }
         public Piece Place(string cardId,int owner,int tile,int id=0,bool token=true)
         {
@@ -123,28 +140,32 @@ namespace WarConquer
         public int MaxHealth(Piece p) => p.evolved?State.rules.evolvedHealth:Data(p).health;
         public bool IsSleeping(Piece p) => p.sleepUntilTurn>=State.turn;
         public int NextTurnOf(int player) { int delta=(player-State.activePlayer+4)%4; return State.turn+(delta==0?4:delta); }
+        public int TerraformCost(Biome biome)
+        {
+            bool discount=!State.Active.terraformDiscountUsed&&((biome==Biome.Forest&&HasTrait(State.activePlayer,"ForestDiscount"))||(biome==Biome.Desert&&HasTrait(State.activePlayer,"DesertDiscount")));
+            return Math.Max(0,State.rules.terraformCost-(discount?1:0));
+        }
+        public int AshCost()=>Math.Max(0,State.rules.revealAshCost-(HasTrait(State.activePlayer,"AshDiscount")?1:0));
         public bool Terraform(int tile,Biome biome)
         {
-            if(!CanAct||tile<0||tile>=State.tiles.Count||!TerraformTarget(tile)) return Fail("No puedes terraformar esta casilla.");
+            if(!CanTakeTurnAction(TurnStage.Terraforming)||tile<0||tile>=State.tiles.Count||!TerraformTarget(tile)) return Fail("No puedes terraformar esta casilla.");
             if(biome==Biome.Neutral||biome==Biome.AshLand) return Fail("Usa destruir bioma o revelar ceniza para esa transformación.");
             if(State.tiles[tile].biome==biome) return Fail("La casilla ya tiene ese bioma.");
-            int cost=State.rules.terraformCost;
-            bool discount=!State.Active.terraformDiscountUsed&&((biome==Biome.Forest&&HasTrait(State.activePlayer,"ForestDiscount"))||(biome==Biome.Desert&&HasTrait(State.activePlayer,"DesertDiscount")));
-            if(discount) cost=Math.Max(0,cost-1);
+            int cost=TerraformCost(biome);bool discount=cost<State.rules.terraformCost;
             if(State.Active.currentEnergy<cost) return Fail("Energía insuficiente.");
             State.Active.currentEnergy-=cost; if(discount) State.Active.terraformDiscountUsed=true;
             TerrainManager.Terraform(this,tile,biome,State.activePlayer); Notify("Casilla "+(tile+1)+": "+Names.Biomes[(int)biome]+"."); return true;
         }
         public bool RevealAsh(int tile)
         {
-            if(!CanAct||tile<0||tile>=State.tiles.Count||!TerrainManager.Normal(State.tiles[tile])||State.tiles[tile].owner!=State.activePlayer) return Fail("Requiere un bioma normal bajo tu control.");
-            int cost=Math.Max(0,State.rules.revealAshCost-(HasTrait(State.activePlayer,"AshDiscount")?1:0));
+            if(!CanTakeTurnAction(TurnStage.Terraforming)||tile<0||tile>=State.tiles.Count||!TerrainManager.Normal(State.tiles[tile])||State.tiles[tile].owner!=State.activePlayer) return Fail("Requiere un bioma normal bajo tu control.");
+            int cost=AshCost();
             if(State.Active.currentEnergy<cost) return Fail("Energía insuficiente.");
             State.Active.currentEnergy-=cost; TerrainManager.RevealAsh(this,State.tiles[tile]); Notify("Tierra Ceniza revelada."); return true;
         }
         public bool EndTurn()
         {
-            if(!CanAct) return Fail("No puedes finalizar ahora.");
+            if(!CanTakeTurnAction(TurnStage.Assault)) return Fail("Termina las tres etapas y las intervenciones antes de finalizar.");
             TurnManager.End(this); Notify(State.phase==Phase.Finished?"Partida terminada.":"Turno de J"+(State.activePlayer+1)+" · "+State.Active.leader); return true;
         }
     }

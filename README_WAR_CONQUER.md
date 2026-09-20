@@ -20,8 +20,8 @@ El juego es local por turnos compartiendo pantalla. Los controles de jugador per
 - **Estructura o unidad con habilidad:** usa el botón de habilidad del inspector. La Red Micelial permite seleccionar sus dos extremos.
 - **Habilidad del Líder:** Zukgrok necesita una red micelial y un enemigo en Bosque conectado o adyacente a ella; Sahria elige hasta dos Desiertos propios.
 - **Marcha Micelial:** elige una unidad situada en un extremo de una vía rápida y después el destino. Puedes resolver un par o añadir otra unidad y su destino.
-- **Recursos compatibles SÍ/NO:** decide si se usan primero recursos de bioma para pagar cartas. Solo se gastan los que coinciden con las etiquetas de la carta.
-- **Finalizar turno:** resuelve el fin de turno, rota de jugador, genera energía, resuelve veneno/producción y roba automáticamente.
+- **Solo energía / Pago mixto:** por defecto se paga exactamente la energía indicada. El pago mixto es una elección explícita; la carta muestra el coste original → energía final y su vista ampliada desglosa recursos y descuentos. Solo se admiten recursos compatibles con las etiquetas.
+- **Despliegue → Terraformación → Asalto → Finalizar turno:** avanza mediante el botón izquierdo; al finalizar se resuelve el fin de turno, rota de jugador, genera energía, resuelve veneno/producción y roba automáticamente.
 - **Guardar/Cargar:** conserva la partida completa en `Application.persistentDataPath/war-conquer-save.json`, incluidos mazos, instancias, rutas, turnos y estado aleatorio.
 - **Registro:** muestra cartas resueltas, daño, tiradas, movimiento, producción y cambios de turno.
 - **+ / − / flechas / 1:1:** amplían y desplazan el tablero sin alterar las casillas.
@@ -33,6 +33,25 @@ El tablero es una retícula continua de **87 hexágonos que comparten sus bordes
 Los colores iniciales distinguen territorios: todas las casillas siguen **sin bioma** hasta terraformarse. Al terraformar, el relleno muestra el bioma; la marca J1–J4 indica el control actual. Las unidades y los mazos conservan morado para Zukgrok y amarillo para Sahria. Los círculos son unidades, los cuadrados estructuras, `Vn` indica veneno, `Zz` sueño, `!` terreno inestable y `+1/+2` recurso estratégico central. Las vías rápidas se identifican con el mismo número `R` en ambos extremos, sin dibujar puentes.
 
 **War & Conquer → Ver mapa en escena** permite inspeccionar el mapa antes de pulsar Play. Los guardados antiguos del mapa de islas no se cargan en esta versión; se conservan en disco y se puede iniciar una partida nueva.
+
+## Interfaz y reglas de etapas
+
+- Izquierda: etapa activa y acciones legales; debajo, ficha independiente del Líder con vida, facción, retrato graybox, habilidad, coste, condición y disponibilidad.
+- Centro: tablero continuo; cada rótulo de territorio muestra los puntos de su jugador.
+- Derecha: los cuatro marcadores de Conquista, vida y casillas controladas por zona, siempre visibles; detalle de selección debajo.
+- Abajo: mano de seis cartas por página, coste/vida arriba, fuerza/movimiento debajo del área central y texto/etiquetas al pie. Hover abre una carta ampliada sin modificar el estado. En pantalla táctil, tocar abre el detalle y permite seleccionar objetivos desde allí.
+- Esquina inferior derecha: mazo y descarte como pilas, contador real y carta superior del descarte. Al pulsar una pila se abre una galería paginada. El mazo no revela su orden de robo. Robar fuera de la ventana correspondiente se rechaza.
+- La pantalla de victoria indica ganador y motivo; no se pueden ejecutar más acciones.
+
+`EnergyManager.Quote` es la fuente compartida de coste para interfaz y pago. Los descuentos proceden de efectos existentes (por ejemplo, Sacerdote Solar), se muestran y se consumen. Los recursos no reducen energía automáticamente: se requiere seleccionar Pago mixto, cuyo desglose también aparece en la carta.
+
+Cada carta define `allowedPhases`, `allowedTiming`, `canRespond`, `canInterrupt`, `canReact` y `timingPermissionText`. Los textos finales suministrados no contienen permisos para jugar cartas en una intervención: se conservan y **no se les inventan permisos**. Las magias territoriales se asignan a Terraformación y las de combate a Asalto; Despertar de las Ruinas admite ambas etapas para reactivar habilidades de estructura compatibles. Las habilidades activas siguen su función (descuento: Despliegue, red/destrucción: Terraformación, movimiento/mejoras: Asalto).
+
+El motor de batalla admite respuestas explícitas del atacante, defensor y los dos terceros, en ese orden. Un permiso externo requiere texto presente en la propia descripción y el indicador correspondiente. Se comprueban objetivos, energía, dueño y prioridad; se puede responder o pasar. Después se revalida y resuelve el ataque. Si no hay respuestas legales, se resuelve directamente. Una carta que duerme o elimina al atacante puede cancelar el golpe. También existe una ventana solicitada para cartas con permiso explícito de turno ajeno. Estas rutas se prueban con catálogos sintéticos exclusivamente en Editor; las listas reales siguen siendo las dos de 50 cartas.
+
+La nueva partida guarda etapa, puntos, ronda puntuada, prioridad de intervención, batalla pendiente y motivo de victoria. Los guardados de versiones anteriores se conservan en disco pero no se cargan con las reglas nuevas.
+
+Módulos añadidos: `EnergyManager`, `TimingRules`, `BattleManager`, `ConquestManager`, `CardPresentation`, vistas parciales `WarConquerController.Cards`, `.Turn`, `.Status`, `.Dialogs` y pruebas `InterfaceRulesTests`. La lógica de biomas, ceniza, veneno, sueño, vuelo, terrenos inestables, rutas, cartas y cuatro jugadores permanece integrada.
 
 ## Fuente de los mazos
 
@@ -55,7 +74,7 @@ El Líder, la energía, los recursos y las fichas generadas no se incluyen en la
 - Colocación de unidades, estructuras y Latentes; validación previa de energía, propiedad, ocupación y compatibilidad.
 - Magias de objetivo único y múltiple; daño, curación, mejoras, veneno, sueño, ralentización, terraformación, destrucción y reactivación.
 - Movimiento entre hexágonos adyacentes, ocupación, obstáculos, vuelo, rutas rápidas y tiradas de entrada/salida del terreno inestable.
-- Ataque por alcance, auras, defensa, salud, muerte y descarte. Las bases reciben ataques de unidades, eliminan a su jugador al llegar a cero y gana el último Líder vivo.
+- Ataque por alcance, auras, defensa, salud, muerte y descarte. Las bases reciben ataques de unidades; al derrotar al Líder la base pasa al atacante. Gana el último Líder vivo o quien alcanza 10 Puntos de Conquista.
 - Producción de Esporas y fichas, evolución de Larva, Red Micelial, recursos de bioma y centro, habilidades de Líder y de piezas.
 - Guardado/carga local con validación, HUD, consultas de mazo/descarte, colores por facción y escenario explícito de pruebas.
 
@@ -66,7 +85,7 @@ Los documentos no cierran todos los valores ni todas las ambigüedades. `Assets/
 - Mano inicial: 5. Robo: 1 por turno después del primer turno propio. Un mazo vacío deja de robar; no se ha añadido daño de fatiga.
 - Energía: 3 en el primer turno propio, +1 máximo por turno propio hasta 10; se repone al comenzar el turno. La energía adicional de Trono Solar puede superar el máximo base.
 - Vida del Líder: 25. Una unidad puede mover y atacar el turno en que se coloca; `summoningSickness` permite cambiarlo.
-- Acciones de ataque, cartas, construcción y terraformación se realizan dentro de la fase de acciones. Inicio y fin de turno se resuelven automáticamente; fuera de acciones no se admiten órdenes.
+- Cada turno recorre Despliegue, Terraformación y Asalto, en orden. No se puede finalizar antes de Asalto. Inicio, energía, producción y robo ocurren una sola vez por turno. Unidades y estructuras se juegan en Despliegue; terraformación manual y magia territorial en Terraformación; movimiento, ataque y magias de combate en Asalto.
 - Terraformar: 1 Energía base, sobre terreno propio o adyacente al propio, sin transformar ceniza permanente ni una casilla ocupada por un enemigo. Los santuarios descuentan la primera terraformación de su bioma del turno.
 - Se permite desplegar sobre casillas neutras propias al inicio (`allowNeutralDeployment`), para que una partida sin biomas pueda arrancar. Sobre un bioma ya definido se exige afinidad; las Latentes siempre exigen ceniza.
 - Recursos: cada bioma normal propio genera al menos 1 por turno propio, con 2 en el recurso central principal. Tope 20 por bioma; solo sirven para cartas con su etiqueta. Los colores de territorio no generan recursos en casillas neutras.
@@ -82,7 +101,7 @@ Los documentos no cierran todos los valores ni todas las ambigüedades. `Assets/
 - Chamán extiende una mejora temporal de ATQ desde otra unidad adyacente a la unidad aliada elegida y consume 1 Espora. El documento no enumera qué otras clases de efecto pueden extenderse; ampliar esa selección requiere cerrar la regla.
 - Las estadísticas de Espora, Espora Evolucionada y Obelisco de Arena no aparecen en la fuente: sus valores están identificados como configurables de prototipo.
 - Mar de Arena dura dos cambios de ronda y requiere 5+ al entrar o salir. El daño de entrada no se especifica: se usa 1 como valor de prototipo.
-- El control del hexágono central cuenta turnos de control; la victoria por puntos está desactivada por defecto (`centerVictoryScore = 0`). Se puede activar estableciendo un umbral.
+- Al completar la ronda global (después de pasar por los cuatro asientos y omitir eliminados), el centro y cada base enemiga controlada otorgan +1 Punto de Conquista. Se cuenta al controlador en ese momento. `lastScoredRound` evita duplicados después de cargar. Se resuelven los jugadores en orden J1–J4 y se termina inmediatamente al alcanzar 10 puntos.
 
 Quedan pendientes el balance competitivo, arte final, audio, animaciones, IA rival, multijugador por red, información privada de manos y un editor visual de mazos. La partida local usa las 50 cartas de cada listado fijo.
 

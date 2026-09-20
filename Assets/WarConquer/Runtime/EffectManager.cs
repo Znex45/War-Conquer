@@ -20,18 +20,18 @@ namespace WarConquer
                     }
                     continue;
                 }
-                if(effect.operation=="Spore") {s.Active.spores+=effect.amount;continue;}
+                if(effect.operation=="Spore") {g.ActingPlayer.spores+=effect.amount;continue;}
                 foreach(int id in targets)
                 {
                     var t=s.tiles[id];var p=t.unit??t.structure;
                     switch(effect.operation)
                     {
-                        case "Terraform": TerrainManager.Terraform(g,id,effect.biome=="ChooseForestSwamp"?choice:(Biome)Enum.Parse(typeof(Biome),effect.biome),s.activePlayer);break;
+                        case "Terraform": TerrainManager.Terraform(g,id,effect.biome=="ChooseForestSwamp"?choice:(Biome)Enum.Parse(typeof(Biome),effect.biome),g.ActingPlayerId);break;
                         case "Buff": if(p!=null)p.bonusAttack+=effect.amount;break;
-                        case "Poison": if(p!=null)Poison(g,p,effect.amount,s.activePlayer);s.Active.towerUsed=true;break;
-                        case "Sleep": if(p!=null)Sleep(g,p,s.activePlayer);break;
-                        case "SleepPoisonDamage": if(p!=null){bool poisoned=p.poison>0;Sleep(g,p,s.activePlayer);if(poisoned)CombatManager.Damage(g,p,1,false);}break;
-                        case "SporeDamage": s.Active.spores--;if(p!=null)CombatManager.Damage(g,p,1,false);break;
+                        case "Poison": if(p!=null)Poison(g,p,effect.amount,g.ActingPlayerId);g.ActingPlayer.towerUsed=true;break;
+                        case "Sleep": if(p!=null)Sleep(g,p,g.ActingPlayerId);break;
+                        case "SleepPoisonDamage": if(p!=null){bool poisoned=p.poison>0;Sleep(g,p,g.ActingPlayerId);if(poisoned)CombatManager.Damage(g,p,1,false);}break;
+                        case "SporeDamage": g.ActingPlayer.spores--;if(p!=null)CombatManager.Damage(g,p,1,false);break;
                         case "Damage": if(p!=null)CombatManager.Damage(g,p,effect.amount,false);break;
                         case "Heal": if(p!=null)p.health=Math.Min(g.MaxHealth(p),p.health+effect.amount);break;
                         case "Slow": if(p!=null){p.slow=effect.amount;p.slowUntilTurn=g.NextTurnOf(p.owner);Negative(g,p);}break;

@@ -49,8 +49,10 @@ namespace WarConquer
     {
         public static string Validate(GameState s,CardCatalog catalog)
         {
-            if(s==null||s.version!=2||s.rules==null||s.players==null||s.players.Count!=4||s.tiles==null||s.tiles.Count!=87)return "Partida incompatible con el mapa continuo. Inicia una nueva partida.";
+            if(s==null||s.version!=3||s.rules==null||s.players==null||s.players.Count!=4||s.tiles==null||s.tiles.Count!=87)return "Partida incompatible con las etapas y la puntuación. Inicia una nueva partida.";
             if(s.activePlayer<0||s.activePlayer>3||s.turn<1)return "Turno inválido.";
+            if(!Enum.IsDefined(typeof(TurnStage),s.stage)||s.lastScoredRound>s.round||s.responsePlayer < -1||s.responsePlayer>3)return "Ventana o ronda inválida.";
+            if(s.battle!=null&&(s.stage!=TurnStage.Assault||s.battle.priorityPlayer<0||s.battle.priorityPlayer>3||s.battle.targetTile<0||s.battle.targetTile>=87||s.battle.order.Count!=4||s.battle.order.Distinct().Count()!=4||s.battle.priorityIndex<0||s.battle.priorityIndex>3))return "Batalla inválida.";
             var validCards=new HashSet<string>(catalog.All.Select(c=>c.id));var ids=new HashSet<int>();
             for(int i=0;i<87;i++)
             {
@@ -61,7 +63,7 @@ namespace WarConquer
             }
             foreach(var p in s.players)
             {
-                if(p.currentEnergy<0||p.maxEnergy<0||p.id<0||p.id>3||p.spores<0||p.resources.Any(r=>r.amount<0))return "Recurso negativo.";
+                if(p.currentEnergy<0||p.maxEnergy<0||p.id<0||p.id>3||p.spores<0||p.conquestPoints<0||p.pendingDraw<0||p.resources.Any(r=>r.amount<0))return "Recurso negativo.";
                 var all=p.deck.Concat(p.hand).Concat(p.discardPile).ToList();
                 foreach(var c in all)if(!validCards.Contains(c.cardId)||!ids.Add(c.instanceId))return "Carta desconocida o duplicada.";
                 all.AddRange(BoardManager.Pieces(s).Where(b=>b.owner==p.id&&!b.token).Select(b=>new CardInstance {instanceId=b.id,cardId=b.cardId}));

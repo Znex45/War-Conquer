@@ -17,7 +17,7 @@ namespace WarConquer.Editor
         static GameManager New(){var g=new GameManager(catalog);g.NewGame(new[]{"ZUKGROK","SAHRIA","ZUKGROK","SAHRIA"},2026,CardCatalog.LoadRules());return g;}
         static CardInstance Hand(GameManager g,string id)
         {
-            var p=g.State.Active;var existing=p.hand.Find(c=>c.cardId==id);if(existing!=null)return existing;
+            g.State.stage=catalog[id].allowedPhases[0];var p=g.State.Active;var existing=p.hand.Find(c=>c.cardId==id);if(existing!=null)return existing;
             var c=PrototypeScenario.Take(g,p.id,id);p.hand.Add(c);return c;
         }
         static int Home(GameManager g,int player=0,int skip=0)=>g.State.tiles.Where(t=>t.territory==player&&t.baseOwner<0&&!t.IsOccupied).Skip(skip).First().id;
@@ -116,7 +116,7 @@ namespace WarConquer.Editor
             });
             Test("Latentes bloqueadas hasta revelar Tierra Ceniza",()=>{
                 var g=New();Energy(g);int id=Home(g);var c=Hand(g,"rey-micelial");Check(!g.Play(c.instanceId,new[]{id}),"Latente sin ceniza.");
-                g.State.tiles[id].biome=Biome.Forest;Check(g.RevealAsh(id),"No revela ceniza.");Check(g.Play(c.instanceId,new[]{id}),"Latente no se juega desde ceniza.");Valid(g);
+                g.State.tiles[id].biome=Biome.Forest;g.State.stage=TurnStage.Terraforming;Check(g.RevealAsh(id),"No revela ceniza.");g.State.stage=TurnStage.Deployment;Check(g.Play(c.instanceId,new[]{id}),"Latente no se juega desde ceniza.");Valid(g);
             });
             Test("Destruir bioma conserva hex y revela ceniza marcada",()=>{
                 var g=New();var a=g.State.tiles[Home(g)];a.biome=Biome.Forest;a.hiddenAsh=false;TerrainManager.DestroyBiome(g,a);Check(a.biome==Biome.Neutral,"No neutraliza.");
@@ -127,40 +127,40 @@ namespace WarConquer.Editor
                 Check(!g.Play(c.instanceId,new[]{Home(g)},true),"Recursos incompatibles usados.");EnergyManager.AddResource(g.State,g.State.Active,Biome.Forest,3);Check(g.Play(c.instanceId,new[]{Home(g)},true),"Pago compatible rechazado.");Check(g.State.Active.currentEnergy==0,"Energía negativa.");Valid(g);
             });
             Test("Turnos 1→2→3→4, energía automática y robo real",()=>{
-                var g=New();int count=g.State.Active.deck.Count;for(int i=1;i<=4;i++){Check(g.EndTurn(),"No termina turno.");Check(g.State.activePlayer==i%4,"Orden incorrecto.");}
+                var g=New();int count=g.State.Active.deck.Count;for(int i=1;i<=4;i++){Check(FinishTurn(g),"No termina turno.");Check(g.State.activePlayer==i%4,"Orden incorrecto.");}
                 Check(g.State.Active.deck.Count==count-1&&g.State.Active.hand.Count==6&&g.State.Active.currentEnergy==4,"Robo/energía incorrecto.");Valid(g);
             });
             Test("Dormido bloquea movimiento y ataque solo durante su turno",()=>{
-                var g=New();var p=PrototypeScenario.Spawn(g,1,"nomada-de-arena",Home(g,1));EffectManager.Sleep(g,p,0);g.EndTurn();
-                Check(g.IsSleeping(p)&&MovementManager.Paths(g,p).Count==0&&CombatManager.Targets(g,p).Count==0,"Dormido permite acciones.");g.EndTurn();Check(p.sleepUntilTurn==0,"Dormido no expira.");Valid(g);
+                var g=New();var p=PrototypeScenario.Spawn(g,1,"nomada-de-arena",Home(g,1));EffectManager.Sleep(g,p,0);FinishTurn(g);
+                Check(g.IsSleeping(p)&&Paths(g,p).Count==0&&CombatManager.Targets(g,p).Count==0,"Dormido permite acciones.");FinishTurn(g);Check(p.sleepUntilTurn==0,"Dormido no expira.");Valid(g);
             });
             Test("Veneno se resuelve en turnos propios y expira",()=>{
-                var g=New();var p=PrototypeScenario.Spawn(g,1,"guardian-del-obelisco",Home(g,1));int hp=p.health;EffectManager.Poison(g,p,1,0);g.EndTurn();Check(p.health==hp-1,"Primer daño de veneno incorrecto.");
-                for(int i=0;i<4;i++)g.EndTurn();Check(p.health==hp-2&&p.poison==0,"Duración del veneno incorrecta.");Valid(g);
+                var g=New();var p=PrototypeScenario.Spawn(g,1,"guardian-del-obelisco",Home(g,1));int hp=p.health;EffectManager.Poison(g,p,1,0);FinishTurn(g);Check(p.health==hp-1,"Primer daño de veneno incorrecto.");
+                for(int i=0;i<4;i++)FinishTurn(g);Check(p.health==hp-2&&p.poison==0,"Duración del veneno incorrecta.");Valid(g);
             });
             Test("Movimiento respeta ocupación, alcance y coste",()=>{
                 var g=New();var p=PrototypeScenario.Spawn(g,0,"recolector-de-esporas",Home(g));int from=p.tileId;
-                var paths=MovementManager.Paths(g,p);Check(paths.Count>0,"Sin movimientos.");int dest=paths.Keys.First();Check(MovementManager.Move(g,p,dest)&&g.State.tiles[from].unit==null&&g.State.tiles[dest].unit==p,"No mueve estado real.");
-                Check(!MovementManager.Move(g,p,Home(g,2)),"Teletransporte sin ruta.");Valid(g);
+                var paths=Paths(g,p);Check(paths.Count>0,"Sin movimientos.");int dest=paths.Keys.First();Check(Move(g,p,dest)&&g.State.tiles[from].unit==null&&g.State.tiles[dest].unit==p,"No mueve estado real.");
+                Check(!Move(g,p,Home(g,2)),"Teletransporte sin ruta.");Valid(g);
             });
             Test("Combate una vez, alcance, veneno y defensa",()=>{
                 var g=New();PrototypeScenario.Load(g);var p=g.Allies(0).First(a=>!g.Data(a).IsStructure);var enemy=g.Allies(1).First(a=>!g.Data(a).IsStructure);
-                enemy.health=9;Check(CombatManager.Attack(g,p,enemy.tileId),"Ataque válido rechazado.");Check(enemy.health==6&&enemy.poison==1,"Daño o veneno incorrecto.");Check(!CombatManager.Attack(g,p,enemy.tileId),"Doble ataque permitido.");Valid(g);
+                enemy.health=9;Check(Attack(g,p,enemy.tileId),"Ataque válido rechazado.");Check(enemy.health==6&&enemy.poison==1,"Daño o veneno incorrecto.");Check(!Attack(g,p,enemy.tileId),"Doble ataque permitido.");Valid(g);
             });
             Test("Terreno inestable tira dado; fallo detiene y daña",()=>{
-                var g=New();var p=PrototypeScenario.Spawn(g,0,"bestia-micelial",Home(g));int from=p.tileId;int dest=MovementManager.Paths(g,p).Keys.First(n=>g.State.tiles[from].neighbors.Contains(n));
+                var g=New();var p=PrototypeScenario.Spawn(g,0,"bestia-micelial",Home(g));int from=p.tileId;int dest=Paths(g,p).Keys.First(n=>g.State.tiles[from].neighbors.Contains(n));
                 g.State.tiles[dest].specialEffect=new TerrainEffect{threshold=7,damage=2};int hp=p.health;
-                Check(MovementManager.Move(g,p,dest),"Intento no resuelto.");Check(p.tileId==from&&p.health==hp-2&&p.remainingMovement==0,"Fallo de entrada incorrecto.");
+                Check(Move(g,p,dest),"Intento no resuelto.");Check(p.tileId==from&&p.health==hp-2&&p.remainingMovement==0,"Fallo de entrada incorrecto.");
                 Check(g.State.log.Any(l=>l.Contains("d6=")),"No registra tirada.");Valid(g);
             });
             Test("Unidades compatibles y voladoras ignoran terreno",()=>{
-                var g=New();g.EndTurn();var p=PrototypeScenario.Spawn(g,1,"nomada-de-arena",Home(g,1));var t=g.State.tiles[Home(g,1)];t.specialEffect=new TerrainEffect {threshold=7,damage=99,onExit=true};
+                var g=New();FinishTurn(g);var p=PrototypeScenario.Spawn(g,1,"nomada-de-arena",Home(g,1));var t=g.State.tiles[Home(g,1)];t.specialEffect=new TerrainEffect {threshold=7,damage=99,onExit=true};
                 Check(TerrainManager.CheckUnstable(g,p,t,false)&&TerrainManager.CheckUnstable(g,p,t,true),"Compatibilidad ignorada.");
                 var f=PrototypeScenario.Spawn(g,1,"avatar-del-sol",Home(g,1));Check(TerrainManager.CheckUnstable(g,f,t,false),"Voladora afectada.");Valid(g);
             });
             Test("Vía rápida conecta físicamente; destrucción elimina ruta normal",()=>{
                 var g=New();PrototypeScenario.Load(g);var p=g.Allies(0).First(a=>!g.Data(a).IsStructure);var route=g.State.fastRoutes.First();int dest=route.a==p.tileId?route.b:route.a;
-                Check(MovementManager.Paths(g,p).ContainsKey(dest),"Ruta no modifica movimiento.");Check(MovementManager.Move(g,p,dest)&&p.tileId==dest,"Ruta no mueve.");
+                Check(Paths(g,p).ContainsKey(dest),"Ruta no modifica movimiento.");Check(Move(g,p,dest)&&p.tileId==dest,"Ruta no mueve.");
                 g.State.tiles[dest].hiddenAsh=false;TerrainManager.DestroyBiome(g,g.State.tiles[dest]);Check(g.State.fastRoutes.Count==0,"Ruta normal persiste sobre terreno incompatible.");Valid(g);
             });
             Test("Marcha usa ruta sin consumir movimiento normal",()=>{
@@ -168,48 +168,48 @@ namespace WarConquer.Editor
                 Check(g.Play(c.instanceId,new[]{p.tileId,dest}),"Marcha rechazada.");Check(p.tileId==dest&&p.remainingMovement==mov,"Marcha consume movimiento.");Valid(g);
             });
             Test("Semillero genera ficha fuera del mazo",()=>{
-                var g=New();int id=Home(g);PrototypeScenario.Spawn(g,0,"semillero-micelial",id);for(int i=0;i<4;i++)g.EndTurn();
+                var g=New();int id=Home(g);PrototypeScenario.Spawn(g,0,"semillero-micelial",id);for(int i=0;i<4;i++)FinishTurn(g);
                 Check(g.Allies(0).Any(p=>p.token&&p.cardId=="espora"),"No genera ficha.");Valid(g);
             });
             Test("Habilidad de estructura se usa una vez por turno",()=>{
-                var g=New();g.EndTurn();var p=PrototypeScenario.Spawn(g,1,"sacerdote-solar",Home(g,1));Check(AbilityManager.Activate(g,p,new int[0]),"Habilidad rechazada.");
-                Check(!AbilityManager.Activate(g,p,new int[0])&&g.State.Active.structureDiscount==1,"Habilidad duplicada.");Valid(g);
+                var g=New();FinishTurn(g);var p=PrototypeScenario.Spawn(g,1,"sacerdote-solar",Home(g,1));Check(Activate(g,p,new int[0]),"Habilidad rechazada.");
+                Check(!Activate(g,p,new int[0])&&g.State.Active.structureDiscount==1,"Habilidad duplicada.");Valid(g);
             });
             Test("Sahria: cura limitada y erosión a estructuras",()=>{
-                var g=New();PrototypeScenario.Load(g);g.EndTurn();Energy(g);
+                var g=New();PrototypeScenario.Load(g);FinishTurn(g);Energy(g);
                 var unit=g.Allies(1).First(p=>!g.Data(p).IsStructure);var t=g.State.tiles[unit.tileId];t.biome=Biome.Desert;unit.health=2;
                 var heal=Hand(g,"llamado-del-oasis");Check(g.Play(heal.instanceId,new[]{t.id}),"No cura.");Check(unit.health==3,"Curación supera salud máxima.");
                 var enemy=g.Allies(0).First(p=>g.Data(p).IsStructure);int hp=enemy.health;var erosion=Hand(g,"erosion");Check(g.Play(erosion.instanceId,new[]{enemy.tileId}),"No daña estructura.");Check(enemy.health==hp-2,"Daño de Erosión incorrecto.");Valid(g);
             });
             Test("Sahria: Despertar permite reactivar estructura usada",()=>{
-                var g=New();g.EndTurn();Energy(g);var camp=PrototypeScenario.Spawn(g,1,"campamento-nomada",Home(g,1));var unit=PrototypeScenario.Spawn(g,1,"nomada-de-arena",Home(g,1));
-                Check(AbilityManager.Activate(g,camp,new[]{unit.tileId}),"Campamento falla.");var spell=Hand(g,"despertar-de-las-ruinas");
-                Check(g.Play(spell.instanceId,new[]{camp.tileId})&&!camp.abilityUsed,"No reactiva.");Check(AbilityManager.Activate(g,camp,new[]{unit.tileId}),"No permite segunda activación tras Despertar.");Valid(g);
+                var g=New();FinishTurn(g);Energy(g);var camp=PrototypeScenario.Spawn(g,1,"campamento-nomada",Home(g,1));var unit=PrototypeScenario.Spawn(g,1,"nomada-de-arena",Home(g,1));
+                Check(Activate(g,camp,new[]{unit.tileId}),"Campamento falla.");var spell=Hand(g,"despertar-de-las-ruinas");
+                Check(g.Play(spell.instanceId,new[]{camp.tileId})&&!camp.abilityUsed,"No reactiva.");Check(Activate(g,camp,new[]{unit.tileId}),"No permite segunda activación tras Despertar.");Valid(g);
             });
             Test("Sahria: bonus de Líder se consume una vez entre dos casillas",()=>{
-                var g=New();g.EndTurn();Energy(g);int a=Home(g,1),b=Home(g,1,1);g.State.tiles[a].biome=g.State.tiles[b].biome=Biome.Desert;
-                Check(AbilityManager.Leader(g,new[]{a,b}),"Habilidad de Líder falló.");var enemy=PrototypeScenario.Spawn(g,0,"bestia-micelial",Home(g));
+                var g=New();FinishTurn(g);Energy(g);int a=Home(g,1),b=Home(g,1,1);g.State.tiles[a].biome=g.State.tiles[b].biome=Biome.Desert;
+                Check(Leader(g,new[]{a,b}),"Habilidad de Líder falló.");var enemy=PrototypeScenario.Spawn(g,0,"bestia-micelial",Home(g));
                 g.State.tiles[a].specialEffect.threshold=7;int hp=enemy.health;TerrainManager.CheckUnstable(g,enemy,g.State.tiles[a],false);
                 Check(enemy.health==hp-2&&g.State.tiles[b].specialEffect.bonusDamage==0,"Bonus duplicado entre las casillas.");Valid(g);
             });
             Test("Salida inestable fallida conserva posición y vida",()=>{
                 var g=New();var unit=PrototypeScenario.Spawn(g,0,"bestia-micelial",Home(g));var t=g.State.tiles[unit.tileId];t.specialEffect=new TerrainEffect{threshold=7,damage=1,onExit=true};int hp=unit.health;
-                int dest=MovementManager.Paths(g,unit).Keys.First();MovementManager.Move(g,unit,dest);Check(unit.tileId==t.id&&unit.health==hp&&unit.remainingMovement==0,"Fallo al salir incorrecto.");Valid(g);
+                int dest=Paths(g,unit).Keys.First();Move(g,unit,dest);Check(unit.tileId==t.id&&unit.health==hp&&unit.remainingMovement==0,"Fallo al salir incorrecto.");Valid(g);
             });
             Test("Guardia reduce el primer ataque, no todos los ataques de ronda",()=>{
                 var g=New();int guardTile=Home(g);var guard=PrototypeScenario.Spawn(g,0,"guardian-del-bosque",guardTile);int id=g.State.tiles[guardTile].neighbors.First(n=>g.State.tiles[n].baseOwner<0);
                 var ally=PrototypeScenario.Spawn(g,0,"bestia-micelial",id);int hp=ally.health;CombatManager.Damage(g,ally,2,true);Check(ally.health==hp-1,"Protección no aplica.");CombatManager.Damage(g,ally,2,true);Check(ally.health==hp-3,"Protección se repitió.");Valid(g);
             });
             Test("Oasis permite entrar y protege a su Guardián",()=>{
-                var g=New();g.EndTurn();int id=Home(g,1);var oasis=PrototypeScenario.Spawn(g,1,"oasis-de-cristal",id);int near=g.State.tiles[id].neighbors.First(n=>g.State.tiles[n].baseOwner<0);
-                var guard=PrototypeScenario.Spawn(g,1,"guardian-del-oasis",near);Check(MovementManager.Move(g,guard,id),"Oasis bloquea entrada.");int hp=guard.health;CombatManager.Damage(g,guard,2,true);Check(guard.health==hp-1,"Defensa sobre Oasis incorrecta.");Valid(g);
+                var g=New();FinishTurn(g);int id=Home(g,1);var oasis=PrototypeScenario.Spawn(g,1,"oasis-de-cristal",id);int near=g.State.tiles[id].neighbors.First(n=>g.State.tiles[n].baseOwner<0);
+                var guard=PrototypeScenario.Spawn(g,1,"guardian-del-oasis",near);Check(Move(g,guard,id),"Oasis bloquea entrada.");int hp=guard.health;CombatManager.Damage(g,guard,2,true);Check(guard.health==hp-1,"Defensa sobre Oasis incorrecta.");Valid(g);
             });
             Test("Explosión puede gastar varias Esporas sobre el mismo enemigo",()=>{
                 var g=New();PrototypeScenario.Load(g);Energy(g);var target=g.Allies(1).First(p=>!g.Data(p).IsStructure);int id=target.tileId;var c=Hand(g,"explosion-de-esporas");
                 Check(g.Play(c.instanceId,new[]{id,id,id}),"No permite asignar 3 Esporas a un enemigo.");Check(g.State.Active.spores==0&&g.State.tiles[id].unit==null,"Daño o consumo incorrecto.");Valid(g);
             });
             Test("Larva solo evoluciona tras permanecer sobre Bosque",()=>{
-                var g=New();int id=Home(g);g.State.tiles[id].biome=Biome.Forest;var larva=PrototypeScenario.Spawn(g,0,"larva-micelial",id);for(int i=0;i<4;i++)g.EndTurn();
+                var g=New();int id=Home(g);g.State.tiles[id].biome=Biome.Forest;var larva=PrototypeScenario.Spawn(g,0,"larva-micelial",id);for(int i=0;i<4;i++)FinishTurn(g);
                 Check(larva.evolved&&larva.health==g.State.rules.evolvedHealth,"No evoluciona.");Valid(g);
             });
             Test("Bosque Eterno protege las vías existentes",()=>{
@@ -218,7 +218,7 @@ namespace WarConquer.Editor
                 var end=g.State.tiles[route.b];end.hiddenAsh=false;TerrainManager.DestroyBiome(g,end);Check(g.State.fastRoutes.Count==1,"Se destruyó ruta protegida.");Valid(g);
             });
             Test("Ciudad Sepultada crea fichas y ceniza permanente",()=>{
-                var g=New();g.EndTurn();Energy(g);int id=g.State.tiles.First(t=>t.baseOwner==1).neighbors.First();g.State.tiles[id].biome=Biome.AshLand;var c=Hand(g,"ciudad-sepultada");
+                var g=New();FinishTurn(g);Energy(g);int id=g.State.tiles.First(t=>t.baseOwner==1).neighbors.First();g.State.tiles[id].biome=Biome.AshLand;var c=Hand(g,"ciudad-sepultada");
                 Check(g.Play(c.instanceId,new[]{id}),"Ciudad no jugada.");Check(g.Allies(1).Count(p=>p.token&&p.cardId=="obelisco-de-arena")==2&&g.State.tiles[id].permanentAsh,"Fichas/ceniza incorrectas.");Valid(g);
             });
             Test("Conservación al preparar escenario y guardar/cargar",()=>{
@@ -229,25 +229,38 @@ namespace WarConquer.Editor
                 var g=New();
                 for(int turn=0;turn<120;turn++)
                 {
-                    foreach(var card in g.State.Active.hand.ToList())
-                    {
-                        if(GameCardTry(g,card))Valid(g);
-                    }
+                    foreach(var card in g.State.Active.hand.ToList())if(GameCardTry(g,card))Valid(g);
+                    g.AdvanceStage();
+                    foreach(var card in g.State.Active.hand.ToList())if(GameCardTry(g,card))Valid(g);
+                    var terraform=g.State.tiles.FirstOrDefault(t=>g.TerraformTarget(t.id)&&t.biome==Biome.Neutral);
+                    if(terraform!=null)g.Terraform(terraform.id,g.State.Active.leader=="ZUKGROK"?Biome.Forest:Biome.Desert);
+                    g.AdvanceStage();
+                    foreach(var card in g.State.Active.hand.ToList())if(GameCardTry(g,card))Valid(g);
                     foreach(var p in g.Allies(g.State.activePlayer).Where(p=>!g.Data(p).IsStructure).ToList())
                     {
-                        var attacks=CombatManager.Targets(g,p);if(attacks.Count>0)CombatManager.Attack(g,p,attacks[0]);
-                        else{var paths=MovementManager.Paths(g,p);if(paths.Count>0)MovementManager.Move(g,p,paths.Keys.Last());}
+                        var attacks=CombatManager.Targets(g,p);if(attacks.Count>0)Attack(g,p,attacks[0]);
+                        else{var paths=Paths(g,p);if(paths.Count>0)Move(g,p,paths.Keys.Last());}
                         Valid(g);
                     }
                     if(g.State.phase==Phase.Finished)break;
-                    var terraform=g.State.tiles.FirstOrDefault(t=>g.TerraformTarget(t.id)&&t.biome==Biome.Neutral);
-                    if(terraform!=null)g.Terraform(terraform.id,g.State.Active.leader=="ZUKGROK"?Biome.Forest:Biome.Desert);
-                    g.EndTurn();Valid(g);
+                    FinishTurn(g);Valid(g);
                 }
             });
+            InterfaceRulesTests.RunAll(catalog,Test);
             Debug.Log("WAR_CONQUER_TESTS_PASSED "+passed);
             string report=Environment.GetEnvironmentVariable("WAR_CONQUER_TEST_REPORT");if(!string.IsNullOrEmpty(report))System.IO.File.WriteAllText(report,string.Join("\n",results)+"\nTOTAL "+passed+" passed\n");
         }
+        static bool FinishTurn(GameManager g)
+        {
+            while(g.State.battle!=null)BattleManager.Pass(g,g.ActingPlayerId);
+            while(g.State.stage!=TurnStage.Assault&&g.CanAct)g.AdvanceStage();
+            return g.EndTurn();
+        }
+        static Dictionary<int,List<int>> Paths(GameManager g,Piece p){g.State.stage=TurnStage.Assault;return MovementManager.Paths(g,p);}
+        static bool Move(GameManager g,Piece p,int target){g.State.stage=TurnStage.Assault;return MovementManager.Move(g,p,target);}
+        static bool Attack(GameManager g,Piece p,int target){g.State.stage=TurnStage.Assault;return CombatManager.Attack(g,p,target);}
+        static bool Activate(GameManager g,Piece p,IList<int> targets){g.State.stage=TimingRules.AbilityStage(g.Data(p));return AbilityManager.Activate(g,p,targets);}
+        static bool Leader(GameManager g,IList<int> targets){g.State.stage=TimingRules.LeaderStage(g.State.Active);return AbilityManager.Leader(g,targets);}
         static bool GameCardTry(GameManager g,CardInstance instance)
         {
             if(g.CardBlockReason(instance,true)!="")return false;var c=catalog[instance.cardId];var targets=g.CardTargets(c);if(targets.Count==0)return false;

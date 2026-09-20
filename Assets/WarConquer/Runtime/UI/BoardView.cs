@@ -16,7 +16,7 @@ namespace WarConquer
         public void Render(GameManager g,HashSet<int> valid,HashSet<int> selected,int focus)
         {
             GrayboxUI.Clear(root);centers.Clear();var s=g.State;
-            float scale=34*Zoom;Vector2 offset=new Vector2(490,337)+Pan;
+            float scale=32.5f*Zoom;Vector2 offset=new Vector2(490,320)+Pan;
             foreach(var tile in s.tiles)centers[tile.id]=new Vector2(offset.x+tile.x*scale,offset.y-tile.y*scale);
             foreach(var t in s.tiles)
             {
@@ -62,9 +62,9 @@ namespace WarConquer
                 var position=offset+tags[p]*Zoom;
                 var tag=GrayboxUI.Box(root,"Territorio "+(p+1),position.x,position.y,184,45,new Color32(24,30,40,245));
                 GrayboxUI.Box(tag,"Color de zona",0,0,4,45,GrayboxUI.TerritoryColor(p));
-                var text=GrayboxUI.Text(tag,"J"+(p+1)+" · "+directions[p]+"\nZONA INICIAL · 17",8,3,172,40,13,GrayboxUI.Ink,FontStyle.Bold);text.alignment=TextAnchor.MiddleCenter;
+                var text=GrayboxUI.Text(tag,"J"+(p+1)+" · "+directions[p]+"\n"+s.players[p].conquestPoints+" / 10 PC · 17 HEX",8,3,172,40,13,GrayboxUI.Ink,FontStyle.Bold);text.alignment=TextAnchor.MiddleCenter;
             }
-            GrayboxUI.Text(root,"CENTRO · 19 CASILLAS\nTerreno inicial sin bioma",16,577,220,42,12,GrayboxUI.Muted);
+            GrayboxUI.Text(root,"CENTRO · 19 CASILLAS\nTerreno inicial sin bioma",16,562,220,42,12,GrayboxUI.Muted);
         }
     }
 }

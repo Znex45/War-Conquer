@@ -40,22 +40,4 @@ namespace WarConquer
             if(actual<count) s.Log("J"+(p.id+1)+": mazo vacío, no roba más cartas.");
         }
     }
-    public static class EnergyManager
-    {
-        public static int CompatibleResources(Player p,CardData card) => p.resources.Where(r=>card.Tag(r.requiredTag)).Sum(r=>r.amount);
-        public static int Cost(Player p, CardData card) => Math.Max(0,card.energyCost-(card.IsStructure?p.structureDiscount:0));
-        public static bool CanPay(Player p, CardData card, bool useResources) => p.currentEnergy+(useResources?CompatibleResources(p,card):0)>=Cost(p,card);
-        public static void Pay(Player p, CardData card, bool useResources)
-        {
-            int cost=Cost(p,card);
-            if(useResources) foreach(var pool in p.resources.Where(r=>card.Tag(r.requiredTag))) { int paid=Math.Min(pool.amount,cost); pool.amount-=paid; cost-=paid; }
-            p.currentEnergy-=cost; if(card.IsStructure) p.structureDiscount=0;
-        }
-        public static void AddResource(GameState s, Player p, Biome biome,int amount)
-        {
-            string tag=Names.BiomeTag(biome); if(tag.Length==0) return;
-            var pool=p.resources.Find(r=>r.biome==biome); if(pool==null) { pool=new ResourcePool { biome=biome,requiredTag=tag }; p.resources.Add(pool); }
-            pool.amount=Math.Min(s.rules.maxResourcesPerBiome,pool.amount+amount);
-        }
-    }
 }

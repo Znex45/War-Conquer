@@ -32,13 +32,9 @@ namespace WarConquer
             foreach(var tile in s.tiles.Where(t=>t.owner==p.id&&t.biome!=Biome.Neutral&&t.biome!=Biome.AshLand))
                 EnergyManager.AddResource(s,p,tile.biome,Math.Max(1,tile.resource));
             foreach(var piece in g.Allies(p.id).ToList())EffectManager.OnStart(g,piece);
-            var center=s.tiles.First(t=>t.territory==4&&t.q==0&&t.r==0);
-            if(center.owner==p.id)
-            {
-                p.centerScore++;s.Log("J"+(p.id+1)+" controla el centro: "+p.centerScore+" turnos.");
-                if(s.rules.centerVictoryScore>0&&p.centerScore>=s.rules.centerVictoryScore){s.winner=p.id;s.phase=Phase.Finished;return;}
-            }
-            if(p.turnsTaken>1||s.rules.drawOnFirstTurn)DeckManager.Draw(s,p,s.rules.drawPerTurn);
+            p.pendingDraw=p.turnsTaken>1||s.rules.drawOnFirstTurn?s.rules.drawPerTurn:0;
+            DeckManager.Draw(s,p,p.pendingDraw);p.pendingDraw=0;
+            s.stage=TurnStage.Deployment;
             s.phase=Phase.Actions;s.Log("Ronda "+s.round+" · J"+(p.id+1)+" · Energía "+p.currentEnergy+"/"+p.maxEnergy);
         }
         public static void End(GameManager g)
@@ -52,7 +48,12 @@ namespace WarConquer
                 if(g.Data(piece).Has("Evolve")&&piece.moved)piece.forestSinceTurn=-1;
             }
             s.Active.freeSteps=0;
-            do {s.activePlayer=(s.activePlayer+1)%4;s.turn++;if(s.activePlayer==0)s.round++;}while(s.Active.eliminated);
+            do
+            {
+                int next=(s.activePlayer+1)%4;
+                if(next==0){ConquestManager.RoundCompleted(s);if(s.phase==Phase.Finished)return;s.round++;}
+                s.activePlayer=next;s.turn++;
+            }while(s.Active.eliminated);
             Start(g);
         }
     }
