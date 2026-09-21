@@ -25,10 +25,10 @@ namespace WarConquer.Editor
         }
         public static void RunAll(CardCatalog catalog,Action<string,Action> test)
         {
-            test("3D: 87 prismas con volumen, centros originales y selección por collider",()=>{
+            test("3D: prismas con volumen, centros originales y selección por collider",()=>{
                 using(var f=new Fixture(catalog))
                 {
-                    Check(f.world.TileCount==87,"No hay 87 casillas 3D.");
+                    Check(f.world.TileCount==f.game.State.tiles.Count,"No hay 87 casillas 3D.");
                     foreach(var tile in f.game.State.tiles)
                     {
                         var root=f.world.transform.Find("HEX "+(tile.id+1));Check(root!=null&&root.localPosition==Board3DScene.Position(tile),"Coordenadas de casilla alteradas.");
@@ -36,10 +36,10 @@ namespace WarConquer.Editor
                         Check(collider.sharedMesh.bounds.size.y>.3f&&collider.GetComponent<Hex3DTarget>().tileId==tile.id,"Casilla plana o sin identidad de selección.");
                     }
                     int picked=f.game.State.tiles.Count(t=>f.world.Pick(f.world.ViewportOf(t.id,t.baseOwner>=0?1.2f:BoardMeshFactory.Surface))==t.id);
-                    Check(picked>=75,"Selección de cámara incorrecta: "+picked+"/87 casillas visibles.");
+                    Check(picked>=f.game.State.tiles.Count*.8f,"Selección de cámara incorrecta: "+picked+" casillas visibles.");
                 }
             });
-            test("3D: los 87 hexágonos siguen conectados borde con borde y sin puentes",()=>{
+            test("3D: los hexágonos siguen conectados borde con borde y sin puentes",()=>{
                 using(var f=new Fixture(catalog))
                 {
                     foreach(var t in f.game.State.tiles)foreach(int n in t.neighbors)
@@ -55,7 +55,7 @@ namespace WarConquer.Editor
                     g.State.stage=TurnStage.Assault;int destination=MovementManager.Paths(g,piece).Keys.First();Check(MovementManager.Move(g,piece,destination),"Movimiento fallido.");f.Sync();
                     Check(visual.tileId==destination&&visual.transform.localPosition==Board3DScene.Position(g.State.tiles[destination])+Vector3.up*BoardMeshFactory.Surface,"Miniatura no sigue a la unidad.");
                     CombatManager.Damage(g,piece,1,false);string before=GamePersistence.Serialize(g.State);f.Sync();
-                    Check(visual.GetComponentInChildren<TextMesh>().text.Contains(piece.health+" ♥")&&before==GamePersistence.Serialize(g.State),"Vida visual incorrecta o render altera estado.");
+                    Check(visual.GetComponentsInChildren<TextMesh>().Any(t=>t.text.Contains(piece.health+" ♥"))&&before==GamePersistence.Serialize(g.State),"Vida visual incorrecta o render altera estado.");
                     CombatManager.Damage(g,piece,100,false);f.Sync();Check(f.world.PieceCount==0,"Queda una miniatura de unidad destruida.");
                 }
             });

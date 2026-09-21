@@ -14,7 +14,7 @@ namespace WarConquer.Editor
         static int Home(GameManager g,int player=0)=>g.State.tiles.First(t=>t.owner==player&&t.baseOwner<0&&!t.IsOccupied).id;
         static CardInstance Hand(GameManager g,int owner,string id)
         {var c=PrototypeScenario.Take(g,owner,id);g.State.players[owner].hand.Add(c);return c;}
-        static void End(GameManager g){while(g.State.stage!=TurnStage.Assault)g.AdvanceStage();g.EndTurn();}
+        static void End(GameManager g){while(g.State.stage!=TurnStage.Terraforming)g.AdvanceStage();g.EndTurn();}
         static CardCatalog WithPermission(CardCatalog catalog,string id,ActionTiming timing,bool interrupt=true)
         {
             var data=catalog.All.Select(c=>JsonUtility.FromJson<CardData>(JsonUtility.ToJson(c))).ToArray();var card=data.First(c=>c.id==id);
@@ -54,18 +54,14 @@ namespace WarConquer.Editor
                 var quote=EnergyManager.Quote(g.State.Active,catalog[c.cardId],true);Check(quote.energy==2&&quote.resources==1&&quote.EnergyLabel=="3 → 2","Desglose no coincide.");
                 Check(g.Play(c.instanceId,new[]{Home(g)},true)&&g.State.Active.currentEnergy==1&&g.State.Active.resources[0].amount==0,"Pago mixto diferente del mostrado.");
             });
-            test("Despliegue → Terraformación → Asalto sin recargar energía ni robar entre etapas",()=>{
-                var g=New(catalog);g.State.Active.currentEnergy=10;var unit=Hand(g,0,"bestia-micelial");var spell=Hand(g,0,"brote-repentino");int hand=g.State.Active.hand.Count;
-                string before=GamePersistence.Serialize(g.State);Check(!g.EndTurn()&&before==GamePersistence.Serialize(g.State),"Saltó el turno desde Despliegue.");
-                Check(!g.Play(spell.instanceId,new[]{Home(g)})&&!g.Terraform(Home(g),Biome.Forest),"Terraformó en Despliegue.");
-                int tile=Home(g);Check(g.Play(unit.instanceId,new[]{tile}),"No despliega.");var p=g.State.tiles[tile].unit;
-                Check(MovementManager.Paths(g,p).Count==0,"Movimiento fuera de Asalto.");
-                Check(g.AdvanceStage()&&g.State.stage==TurnStage.Terraforming&&g.State.Active.currentEnergy==7,"Transición repone energía.");
-                var extra=Hand(g,0,"hongo-explorador");Check(!g.Play(extra.instanceId,new[]{Home(g)}),"Unidad fuera de Despliegue.");
-                Check(g.Play(spell.instanceId,new[]{Home(g)}),"No usa magia de Terraformación.");
-                Check(g.AdvanceStage()&&g.State.stage==TurnStage.Assault&&g.State.Active.currentEnergy==6,"Cambio de etapa incorrecto.");
-                Check(MovementManager.Paths(g,p).Count>0&&!g.Terraform(Home(g),Biome.Forest),"Acciones de Asalto incorrectas.");
-                Check(g.State.Active.hand.Count==hand-1,"Robo inesperado entre etapas.");Check(g.EndTurn()&&g.State.activePlayer==1&&g.State.stage==TurnStage.Deployment,"No inicia Despliegue de J2.");
+            test("Despliegue Ataque Terraformación conserva energía y mano",()=>{
+                var g=New(catalog);g.State.Active.currentEnergy=10;var unit=Hand(g,0,"bestia-micelial");var spell=Hand(g,0,"brote-repentino");
+                Check(!g.EndTurn(),"Finaliza antes de completar etapas.");int tile=Home(g);Check(g.Play(unit.instanceId,new[]{tile}),"No despliega.");
+                Check(g.AdvanceStage()&&g.State.stage==TurnStage.Assault&&g.State.Active.currentEnergy==7,"No pasa a Ataque.");
+                Check(MovementManager.Paths(g,g.State.tiles[tile].unit).Count>0&&!g.Play(spell.instanceId,new[]{Home(g)}),"Ventanas incorrectas.");
+                Check(g.AdvanceStage()&&g.State.stage==TurnStage.Terraforming&&g.State.Active.currentEnergy==7,"No pasa a Terraformación.");
+                Check(g.Play(spell.instanceId,new[]{Home(g)})&&g.State.Active.currentEnergy==6,"No resuelve magia territorial.");
+                Check(g.EndTurn()&&g.State.activePlayer==1&&g.State.stage==TurnStage.Deployment,"No termina turno.");
             });
             test("Los 4 jugadores completan las 3 etapas; mazo -1, mano +1 solo al robar",()=>{
                 var g=New(catalog);int deck=g.State.Active.deck.Count,hand=g.State.Active.hand.Count;
@@ -136,23 +132,21 @@ namespace WarConquer.Editor
                 var loaded=new GameManager(custom);loaded.Restore(saved);BattleManager.Pass(loaded,1);Check(loaded.State.tiles[victim.tileId].unit.health==6&&loaded.State.battle==null,"Daño incorrecto tras carga.");
                 Check(!BattleManager.Pass(loaded,1)&&loaded.State.tiles[victim.tileId].unit.health==6,"Daño repetido al pasar.");
             });
-            test("Centro y base enemiga generan +1 cada uno al completar una ronda, una sola vez",()=>{
-                var g=New(catalog);var center=g.State.tiles.First(ConquestManager.IsCenter);var baseTile=g.State.tiles.First(t=>t.baseOwner==1);center.owner=0;baseTile.owner=0;
-                for(int i=0;i<3;i++)End(g);Check(g.State.players[0].conquestPoints==0,"Puntos antes de completar ronda.");
-                End(g);Check(g.State.round==2&&g.State.players[0].conquestPoints==2,"No suma centro y base.");
-                var restored=GamePersistence.Deserialize(GamePersistence.Serialize(g.State));Check(restored.lastScoredRound==1,"No conserva ronda puntuada.");
-                restored.round=1;ConquestManager.RoundCompleted(restored);Check(restored.players[0].conquestPoints==2,"Puntúa dos veces la misma ronda.");
-                center.owner=1;for(int i=0;i<4;i++)End(g);Check(g.State.players[0].conquestPoints==3&&g.State.players[1].conquestPoints==1,"Cambio de control puntúa al dueño anterior.");
+            test("Control sin guarnición o sin bioma no genera puntos",()=>{
+                var g=New(catalog);var center=g.State.tiles.First(ConquestManager.IsCenter);center.owner=0;
+                for(int i=0;i<4;i++)End(g);Check(g.State.players[0].conquestPoints==0,"Puntúa sin unidad y bioma.");
+                center.biome=Biome.Forest;ConquestManager.Refresh(g.State);
+                for(int i=0;i<4;i++)End(g);Check(g.State.players[0].conquestPoints==0,"Puntúa sin guarnición.");
             });
             test("Derrotar Líder conquista su base, que puede ser ocupada y puntúa",()=>{
                 var g=New(catalog);g.State.stage=TurnStage.Assault;var enemyBase=g.State.tiles.First(t=>t.baseOwner==1);g.State.players[1].leaderHealth=1;
                 int origin=enemyBase.neighbors.First(n=>!g.State.tiles[n].IsOccupied&&g.State.tiles[n].baseOwner<0);var attacker=PrototypeScenario.Spawn(g,0,"bestia-micelial",origin);
                 Check(CombatManager.Attack(g,attacker,enemyBase.id)&&g.State.players[1].eliminated&&enemyBase.owner==0,"No conquista base derrotada.");
-                Check(MovementManager.Move(g,attacker,enemyBase.id)&&ConquestManager.Income(g.State,0)==1,"No puede ocupar la base.");
+                enemyBase.biome=Biome.Forest;Check(MovementManager.Move(g,attacker,enemyBase.id)&&ConquestManager.Income(g.State,0)==1,"No puede ocupar la base.");
                 Check(g.State.phase!=Phase.Finished,"Victoria prematura con tres líderes vivos.");
             });
             test("Victoria inmediata a 10 Conquista bloquea cartas, movimiento y avances",()=>{
-                var g=New(catalog);g.State.players[0].conquestPoints=9;g.State.tiles.First(ConquestManager.IsCenter).owner=0;
+                var g=New(catalog);g.State.players[0].conquestPoints=9;var point=g.State.tiles.First(ConquestManager.IsCenter);point.owner=0;point.biome=Biome.Forest;PrototypeScenario.Spawn(g,0,"bestia-micelial",point.id);ConquestManager.Refresh(g.State);
                 for(int i=0;i<4;i++)End(g);Check(g.State.phase==Phase.Finished&&g.State.winner==0&&g.State.victoryReason==VictoryReason.Conquest,"No detecta 10 puntos.");
                 Check(!g.CanAct&&!g.AdvanceStage()&&!g.EndTurn()&&g.CardTargets(catalog["bestia-micelial"]).Count==0,"Partida terminada permite acciones.");
             });

@@ -25,7 +25,7 @@ namespace WarConquer.Editor
                 for(int i=0;i<6;i++)polygon[i]=center+Vector3.up*BoardMeshFactory.Surface+(polygon[i]-center-Vector3.up*BoardMeshFactory.Surface)*.955f;
                 Handles.color=GrayboxUI.TerritoryColor(tile.territory);Handles.DrawAAConvexPolygon(polygon);
                 if(tile.baseOwner>=0){Handles.color=GrayboxUI.PlayerColor(tile.baseOwner);Handles.CubeHandleCap(0,center+Vector3.up*.67f,Quaternion.identity,.55f,EventType.Repaint);Handles.Label(center+Vector3.up*1.05f,"J"+(tile.baseOwner+1),label);}
-                else if(tile.territory==4&&tile.q==0&&tile.r==0)Handles.Label(center+Vector3.up*.4f,"CENTRO",label);
+                else if(tile.conquestSite)Handles.Label(center+Vector3.up*.4f,"OBJETIVO +1 PC",label);
             }
             Handles.color=previousColor;Handles.zTest=previousDepth;
         }
@@ -38,7 +38,7 @@ namespace WarConquer.Editor
             if(controller==null)return;
             Selection.activeGameObject=controller.gameObject;
             var view=SceneView.lastActiveSceneView??EditorWindow.GetWindow<SceneView>();
-            view.in2DMode=false;view.drawGizmos=true;view.LookAt(Vector3.zero,Quaternion.Euler(53,0,0),9.5f,true);view.Focus();view.Repaint();
+            view.in2DMode=false;view.drawGizmos=true;view.LookAt(Vector3.zero,Quaternion.Euler(53,0,0),19f,true);view.Focus();view.Repaint();
         }
     }
 }

@@ -17,24 +17,26 @@ namespace WarConquer
             int participants=humanPlayers==1?2:humanPlayers;
             if(leaders==null||leaders.Length<participants||leaders.Take(participants).Any(l=>l!="ZUKGROK"&&l!="SAHRIA"))throw new ArgumentException("Selecciona uno de los dos mazos para cada participante.");
             State=new GameState {seed=seed,randomState=seed==0?12345:seed,rules=rules,phase=Phase.Setup};
-            BoardManager.Create(State);
+            BoardManager.Create(State,participants);
             for(int i=0;i<4;i++)
             {
                 bool inactive=i>=participants;string leader=inactive?"ZUKGROK":leaders[i];
                 var p=new Player {id=i,leader=leader,factionTag=leader=="ZUKGROK"?"MICELIAL":"SOLAR",leaderHealth=inactive?0:rules.leaderHealth,inactive=inactive,eliminated=inactive,isAI=humanPlayers==1&&i==1};
                 State.players.Add(p);if(!inactive)DeckManager.Build(State,p,Catalog);
             }
-            foreach(var tile in State.tiles.Where(t=>t.territory<4))
-            {
-                int owner=participants==2?(tile.territory==0?0:tile.territory==2?1:-1):tile.territory<participants?tile.territory:-1;
-                tile.owner=owner;if(tile.baseOwner>=0)tile.baseOwner=owner;
-            }
             State.Log("Partida local • "+humanPlayers+" persona(s)"+(humanPlayers==1?" + IA":"")+" • semilla "+seed+" • "+participants+" mazos de 50.");
             if(startImmediately){TurnManager.Start(this);Notify("Turno de J1 · Despliegue. Selecciona una carta permitida.");}
             else Notify("Partida en pausa. Elige participantes y mazos antes de comenzar.");
         }
         public void Restore(GameState state) { State=state; Notify("Partida cargada."); }
-        public void Notify(string message) { LastMessage=message; Changed?.Invoke(); }
+        public void Notify(string message) { if(State!=null)ConquestManager.Refresh(State);LastMessage=message; Changed?.Invoke(); }
+        public int RollDie(Piece piece,HexTile tile,int threshold,string reason)
+        {
+            int value=State.Random(6)+1;
+            State.diceRolls.Add(new DiceRoll{id=State.nextRollId++,value=value,threshold=threshold,tileId=tile.id,pieceId=piece?.id??-1,reason=reason});
+            if(State.diceRolls.Count>30)State.diceRolls.RemoveAt(0);
+            State.Log(reason+": d6="+value+" / "+threshold+"+ · "+(value>=threshold?"supera":"falla"));return value;
+        }
         public bool Fail(string reason) { Notify(reason); return false; }
         public bool CanAct => State!=null && State.phase==Phase.Actions && !State.Active.eliminated;
         int queryPlayer=-1;
@@ -45,8 +47,8 @@ namespace WarConquer
         public bool AdvanceStage()
         {
             if(!CanAct||State.battle!=null||State.responsePlayer>=0)return Fail("Resuelve la intervención antes de continuar.");
-            if(State.stage==TurnStage.Assault)return EndTurn();
-            State.stage=(TurnStage)((int)State.stage+1);Notify("Etapa de "+TimingRules.StageName(State.stage)+".");return true;
+            if(State.stage==TurnStage.Terraforming)return EndTurn();
+            State.stage=State.stage==TurnStage.Deployment?TurnStage.Assault:TurnStage.Terraforming;Notify("Etapa de "+TimingRules.StageName(State.stage)+".");return true;
         }
         public bool DrawPending()
         {
@@ -63,7 +65,7 @@ namespace WarConquer
         public bool TerraformTarget(int tile)
         {
             var t=State.tiles[tile];
-            if(t.blocked || t.permanentAsh || t.biome==Biome.AshLand || (t.baseOwner>=0&&t.baseOwner!=ActingPlayerId)) return false;
+            if(t.blocked || t.permanentAsh || t.biome==Biome.AshLand || (t.baseOwner>=0&&t.baseOwner!=ActingPlayerId&&!State.players[t.baseOwner].eliminated)) return false;
             if((t.unit!=null&&t.unit.owner!=ActingPlayerId)||(t.structure!=null&&t.structure.owner!=ActingPlayerId)) return false;
             return t.owner==ActingPlayerId || t.neighbors.Any(n=>State.tiles[n].owner==ActingPlayerId);
         }
@@ -96,8 +98,8 @@ namespace WarConquer
                 var unit=State.tiles[ids[ids.Count-1]].unit;
                 return unit==null?new List<int>():MovementManager.RouteDestinations(this,unit).Where(n=>!ids.Contains(n)).ToList();
             }
-            int range=State.rules.spellRange + (e.operation=="Poison"&&HasTrait(ActingPlayerId,"PoisonRange")&&!ActingPlayer.towerUsed?1:0);
-            return State.tiles.Where(t=>(e.operation=="SporeDamage"||!ids.Contains(t.id))&&ValidSpellTarget(e.target,t,ids)&&((e.target.Contains("Terraform"))||InRange(t.id,range))).Select(t=>t.id).ToList();
+            int range=c.range + (e.operation=="Poison"&&HasTrait(ActingPlayerId,"PoisonRange")&&!ActingPlayer.towerUsed?1:0);
+            return State.tiles.Where(t=>(e.operation=="SporeDamage"||!ids.Contains(t.id))&&ValidSpellTarget(e.target,t,ids)&&(c.range<=0||e.target.Contains("Terraform")||InRange(t.id,range))).Select(t=>t.id).ToList();
         }
         bool ValidSpellTarget(string kind,HexTile t,IList<int> selected)
         {
@@ -115,6 +117,7 @@ namespace WarConquer
                 case "EnemyAdjacent": return enemy&&BoardManager.Nearby(State,t.id).Any(p=>p.owner==ActingPlayerId);
                 case "EnemyBiome": return t.owner>=0&&t.owner!=ActingPlayerId&&TerrainManager.Normal(t);
                 case "AllyDesert": return t.owner==ActingPlayerId&&t.biome==Biome.Desert;
+                case "Desert": return t.biome==Biome.Desert&&(t.unit==null||t.unit.owner==ActingPlayerId)&&(t.structure==null||t.structure.owner==ActingPlayerId);
                 case "AllyDesertUnit": return ally&&t.biome==Biome.Desert&&t.unit.health<MaxHealth(t.unit);
                 case "UsedStructure": return t.structure!=null&&t.structure.owner==ActingPlayerId&&t.structure.abilityUsed&&AbilityManager.HasActive(Data(t.structure));
                 default: return false;
@@ -168,14 +171,14 @@ namespace WarConquer
         }
         public bool RevealAsh(int tile)
         {
-            if(!CanTakeTurnAction(TurnStage.Terraforming)||tile<0||tile>=State.tiles.Count||!TerrainManager.Normal(State.tiles[tile])||State.tiles[tile].owner!=State.activePlayer) return Fail("Requiere un bioma normal bajo tu control.");
+            if(!CanTakeTurnAction(TurnStage.Terraforming)||tile<0||tile>=State.tiles.Count||!TerraformTarget(tile)||!TerrainManager.Normal(State.tiles[tile])||State.tiles[tile].owner!=State.activePlayer) return Fail("Requiere un bioma normal propio sin ocupantes enemigos.");
             int cost=AshCost();
             if(State.Active.currentEnergy<cost) return Fail("Energía insuficiente.");
             State.Active.currentEnergy-=cost; TerrainManager.RevealAsh(this,State.tiles[tile]); Notify("Tierra Ceniza revelada."); return true;
         }
         public bool EndTurn()
         {
-            if(!CanTakeTurnAction(TurnStage.Assault)) return Fail("Termina las tres etapas y las intervenciones antes de finalizar.");
+            if(!CanTakeTurnAction(TurnStage.Terraforming)) return Fail("Termina Despliegue, Ataque y Terraformación antes de finalizar.");
             TurnManager.End(this); Notify(State.phase==Phase.Finished?"Partida terminada.":"Turno de J"+(State.activePlayer+1)+" · "+State.Active.leader); return true;
         }
     }

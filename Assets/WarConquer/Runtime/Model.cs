@@ -39,6 +39,7 @@ namespace WarConquer
         public string cardId;
         public bool token, attacked, abilityUsed, moved, evolved, fastBonusUsed;
         public int poison, poisonTurns, sleepUntilTurn, slow, slowUntilTurn, protectionRound = -1, forestSinceTurn = -1;
+        public int poisonApplications;
     }
     [Serializable] public class ResourcePool
     {
@@ -58,6 +59,8 @@ namespace WarConquer
         public float x, y;
         public Biome biome;
         public bool blocked, hiddenAsh, permanentAsh, hiddenResource;
+        public bool conquestSite;
+        public int garrisonOwner=-1, garrisonSinceTurn=-1, lastConquestTurn=-1;
         public Piece unit, structure;
         public TerrainEffect specialEffect;
         public List<int> neighbors = new List<int>();
@@ -91,7 +94,9 @@ namespace WarConquer
     }
     [Serializable] public class GameState
     {
-        public int version = 3, seed, randomState, activePlayer, turn = 1, round = 1, nextId = 1, winner = -1;
+        public int version = 5, seed, randomState, activePlayer, turn = 1, round = 1, nextId = 1, winner = -1;
+        public int mapPlayers=4, nextRollId=1;
+        public List<DiceRoll> diceRolls=new List<DiceRoll>();
         public int lastScoredRound, responsePlayer = -1;
         public TurnStage stage;
         public VictoryReason victoryReason;
@@ -110,6 +115,11 @@ namespace WarConquer
             randomState = (int)x; return (int)(x % max);
         }
         public void Log(string message) { log.Add(message); if (log.Count > 100) log.RemoveAt(0); }
+    }
+    [Serializable] public class DiceRoll
+    {
+        public int id, value, threshold, tileId, pieceId;
+        public string reason;
     }
     [Serializable] public class PendingBattle
     {

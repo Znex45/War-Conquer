@@ -2369,7 +2369,7 @@
       "effects": [
         {
           "operation": "Unstable",
-          "target": "AllyDesert",
+          "target": "Desert",
           "amount": 1,
           "count": 2,
           "biome": "",

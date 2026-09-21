@@ -17,12 +17,12 @@ namespace WarConquer
                 var b=row.gameObject.AddComponent<UnityEngine.UI.Button>();b.onClick.AddListener(()=>{viewedPlayer=id;page=0;handFilter="Todas";ClearAction();Render();});
                 GrayboxUI.Text(row,"J"+(i+1)+" "+p.leader+(p.isAI?" · IA":"")+(p.eliminated?" · FUERA":""),8,4,209,22,13,color,FontStyle.Bold);
                 GrayboxUI.Text(row,p.conquestPoints+" / 10",220,3,82,25,18,color,FontStyle.Bold);
-                string control=string.Join("  ",new[]{"N","E","S","O","C"}.Select((name,n)=>name+":"+s.tiles.Count(t=>t.territory==n&&t.owner==id)));
-                GrayboxUI.Text(row,"Vida "+p.leaderHealth+" · +"+ConquestManager.Income(s,id)+" PC/ronda"+(scoreDetails?" · faltan "+Mathf.Max(0,10-p.conquestPoints):""),8,25,290,18,11,GrayboxUI.Muted);
+                string control=string.Join("  ",new[]{"B1","B2","B3","B4","C"}.Select((name,n)=>name+":"+s.tiles.Count(t=>t.territory==n&&t.owner==id)));
+                GrayboxUI.Text(row,"Vida "+p.leaderHealth+" · +"+ConquestManager.Income(s,id)+" PC/turno"+(scoreDetails?" · faltan "+Mathf.Max(0,10-p.conquestPoints):""),8,25,290,18,11,GrayboxUI.Muted);
                 if(scoreDetails)GrayboxUI.Text(row,control,8,43,290,17,11,GrayboxUI.Muted);
                 GrayboxUI.Box(row,"Progreso",0,scoreDetails?62:44,304*Mathf.Clamp01(p.conquestPoints/10f),3,color);
             }
-            if(scoreDetails)GrayboxUI.Text(inspector,"N/E/S/O/C: casillas controladas por zona",13,330,296,18,10,GrayboxUI.Muted);
+            if(scoreDetails)GrayboxUI.Text(inspector,"B1/B2/B3/B4/C: bases y zona central",13,330,296,18,10,GrayboxUI.Muted);
         }
         void DrawSelection()
         {
@@ -45,6 +45,7 @@ namespace WarConquer
                     GrayboxUI.Button(box,"+1 paso",202,187,98,29,()=>Begin("step"),null,Game.ActingPlayer.freeSteps>0);
                 }
                 else if(instance!=null)GrayboxUI.Text(box,viewedPlayer!=Game.ActingPlayerId?"Consulta de otra mano.":Game.CardBlockReason(instance,useResources),0,188,300,38,12,GrayboxUI.Yellow);
+                if(selectedPiece!=null)GrayboxUI.Text(box,Game.IsSleeping(selectedPiece)?"DORMIDO · No puede mover ni atacar":selectedPiece.attacked?"ATAQUE YA USADO":CombatManager.Targets(Game,selectedPiece).Count>0?"PUEDE ATACAR": "SIN ATAQUE DISPONIBLE",0,218,300,18,11,Game.IsSleeping(selectedPiece)?GrayboxUI.Yellow:GrayboxUI.Green);
             }
             else if(mode=="terraform")
             {

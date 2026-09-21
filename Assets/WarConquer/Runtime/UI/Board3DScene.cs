@@ -23,6 +23,7 @@ namespace WarConquer
             public TextMesh label;
             public Hex3DTarget target;
             public string shape;
+            public BoardStatusVisual status;
         }
         readonly Dictionary<int,TileVisual> tiles=new Dictionary<int,TileVisual>();
         readonly Dictionary<int,PieceVisual> pieces=new Dictionary<int,PieceVisual>();
@@ -33,6 +34,8 @@ namespace WarConquer
         int previousMask;
         GameState state;
         string routeKey;
+        BoardDiceVisual dice;
+        public bool IsAnimating=>dice!=null&&dice.IsAnimating;
         public Camera BoardCamera { get; private set; }
         public RenderTexture Texture { get; private set; }
         public float Zoom=1,Yaw=0,Pitch=53;
@@ -45,6 +48,7 @@ namespace WarConquer
         {
             if(mesh!=null)return;
             mesh=new BoardMeshFactory();
+            dice=gameObject.AddComponent<BoardDiceVisual>();dice.Initialize(mesh,this);
             previousMain=Camera.main;if(previousMain!=null){previousMask=previousMain.cullingMask;previousMain.cullingMask&=~(1<<BoardMeshFactory.Layer);}
             var cameraRoot=mesh.Group(transform,"Cámara del tablero 3D",Vector3.zero);
             BoardCamera=cameraRoot.gameObject.AddComponent<Camera>();BoardCamera.orthographic=true;BoardCamera.clearFlags=CameraClearFlags.SolidColor;
@@ -56,7 +60,7 @@ namespace WarConquer
             var light=key.gameObject.AddComponent<Light>();light.type=LightType.Directional;light.color=new Color(1,.93f,.81f);light.intensity=1.15f;light.shadows=LightShadows.Soft;light.shadowBias=.04f;light.shadowNormalBias=.2f;light.cullingMask=1<<BoardMeshFactory.Layer;
             var fill=mesh.Group(transform,"Luz de relleno",Vector3.zero);fill.rotation=Quaternion.Euler(32,145,0);
             var fillLight=fill.gameObject.AddComponent<Light>();fillLight.type=LightType.Directional;fillLight.color=new Color(.64f,.77f,1);fillLight.intensity=.45f;fillLight.cullingMask=1<<BoardMeshFactory.Layer;
-            mesh.Part(transform,"Suelo bajo el tablero",mesh.Cube,new Vector3(0,-.2f,0),new Vector3(28,.22f,28),new Color(.035f,.05f,.075f));
+            mesh.Part(transform,"Suelo bajo el tablero",mesh.Cube,new Vector3(0,-.2f,0),new Vector3(56,.22f,56),new Color(.035f,.05f,.075f));
         }
         public void ResizeTexture(int width,int height)
         {
@@ -78,7 +82,15 @@ namespace WarConquer
         }
         public void Sync(GameManager game,HashSet<int> valid,HashSet<int> selected,int focus)
         {
-            Initialize();state=game.State;
+            Initialize();
+            if(state!=game.State)
+            {
+                foreach(var tile in tiles.Values)BoardMeshFactory.Release(tile.root.gameObject);
+                foreach(var piece in pieces.Values)BoardMeshFactory.Release(piece.root.gameObject);
+                foreach(var route in routes)BoardMeshFactory.Release(route);
+                tiles.Clear();pieces.Clear();labels.Clear();routes.Clear();routeKey=null;
+            }
+            state=game.State;dice.Sync(game);
             foreach(var t in state.tiles)
             {
                 if(!tiles.TryGetValue(t.id,out var v))v=CreateTile(t);
@@ -86,9 +98,10 @@ namespace WarConquer
                 mesh.Paint(v.ground,color);
                 bool central=ConquestManager.IsCenter(t);v.ring.gameObject.SetActive(selected.Contains(t.id)||valid.Contains(t.id)||t.id==focus||central);
                 mesh.Paint(v.ring,selected.Contains(t.id)?Color.white:valid.Contains(t.id)?GrayboxUI.Green:t.id==focus?new Color(1,.62f,.2f):new Color(.94f,.81f,.46f));
-                string number=(t.id+1).ToString()+(t.owner>=0?" · J"+(t.owner+1):"")+(t.specialEffect!=null?" !":"");
+                v.number.characterSize=central?.06f:.032f;
+                string number=central?"+1 PC":(t.id+1).ToString()+(t.owner>=0?" · J"+(t.owner+1):"")+(t.specialEffect!=null?" !":"");
                 if(v.number.text!=number)v.number.text=number;
-                v.number.gameObject.SetActive(ShowLabels||t.id==focus||valid.Contains(t.id)||selected.Contains(t.id));
+                v.number.gameObject.SetActive(central||ShowLabels||t.id==focus||valid.Contains(t.id)||selected.Contains(t.id));
                 string decoration=t.biome+"/"+t.blocked+"/"+t.baseOwner;
                 if(decoration!=v.decorationKey)
                 {
@@ -123,14 +136,15 @@ namespace WarConquer
                 {
                     var root=mesh.Group(transform,(card.IsStructure?"ESTRUCTURA ":"UNIDAD ")+card.name+" · J"+(p.owner+1)+" · "+p.id,Vector3.zero);
                     v=new PieceVisual{root=root,shape=shape,target=root.gameObject.AddComponent<Hex3DTarget>()};mesh.PieceModel(root,card,GrayboxUI.PlayerColor(p.owner));
+                    v.status=root.gameObject.AddComponent<BoardStatusVisual>();v.status.Initialize(mesh,BoardCamera);
                     var collider=root.gameObject.AddComponent<BoxCollider>();collider.center=new Vector3(0,.6f,0);collider.size=new Vector3(.94f,card.Has("Passable")?.25f:1.6f,.94f);
                     if(card.Has("Passable"))collider.center=new Vector3(0,.12f,0);
                     v.label=mesh.Label(root,"Vida y estados",new Vector3(0,card.movementType=="Flying"?2.05f:card.Has("Passable")?.45f:1.65f,0),.043f,Color.white);labels.Add(v.label);pieces.Add(p.id,v);
                 }
                 v.target.tileId=p.tileId;v.root.localPosition=Position(state.tiles[p.tileId])+Vector3.up*BoardMeshFactory.Surface;
                 string shortName=string.Concat(card.name.Split(' ').Where(w=>w.Length>2).Take(2).Select(w=>w[0]));
-                v.label.text=shortName+" · "+p.health+" ♥"+(p.poison>0?" · V"+p.poison:"")+(game.IsSleeping(p)?" · Zz":"");
-                v.label.color=p.poison>0?GrayboxUI.Green:Color.white;
+                v.label.text=shortName+" · "+p.health+" ♥"+(p.poison>0?" · VEN "+p.poison:"");
+                v.label.color=p.poison>0?new Color(.8f,.56f,1):Color.white;v.status.Sync(game,p);
             }
             foreach(int id in pieces.Keys.Where(id=>!alive.Contains(id)).ToList()){labels.Remove(pieces[id].label);BoardMeshFactory.Release(pieces[id].root.gameObject);pieces.Remove(id);}
             string nextRoutes=string.Join("|",state.fastRoutes.Select(r=>r.owner+":"+r.a+":"+r.b));
@@ -151,7 +165,7 @@ namespace WarConquer
         public void UpdateCamera()
         {
             if(BoardCamera==null||state==null)return;
-            Zoom=Mathf.Clamp(Zoom,1,2.5f);Pitch=Mathf.Clamp(Pitch,36,78);Pan=Vector2.ClampMagnitude(Pan,500);
+            Zoom=Mathf.Clamp(Zoom,1,5f);Pitch=Mathf.Clamp(Pitch,36,78);Pan=Vector2.ClampMagnitude(Pan,1200);
             var rotation=Quaternion.Euler(Pitch,Yaw,0);var inverse=Quaternion.Inverse(rotation);
             float maxX=0,maxY=0;
             foreach(var tile in state.tiles)foreach(float height in new[]{0f,1.9f})

@@ -11,7 +11,7 @@ namespace WarConquer
             GrayboxUI.Text(left,responding?"INTERVENCIÓN · J"+(Game.ActingPlayerId+1):"ETAPAS · J"+(s.activePlayer+1),12,12,216,26,16,GrayboxUI.Ink,FontStyle.Bold);
             for(int i=0;i<3;i++)
             {
-                bool active=(int)s.stage==i;var stage=(TurnStage)i;
+                var stage=TimingRules.Order[i];bool active=s.stage==stage;
                 GrayboxUI.Text(left,(active?"● ":"○ ")+TimingRules.StageName(stage),14,46+i*24,214,24,14,active?GrayboxUI.PlayerColor(s.activePlayer):GrayboxUI.Muted,active?FontStyle.Bold:FontStyle.Normal);
             }
             float y=130;
@@ -53,7 +53,7 @@ namespace WarConquer
             if(Game.ActingPlayer.hand.Any(c=>Game.Catalog[c.cardId].category==Category.Spell&&Game.CardBlockReason(c,useResources)==""))ActionButton("Magias permitidas",ref y,()=>FilterHand("Magias"));
             DrawAbilityAction(ref y);
             if(y==130)GrayboxUI.Text(left,"Sin acciones disponibles.\nPuedes avanzar de etapa.",14,y,211,65,15,GrayboxUI.Muted);
-            string next=s.stage==TurnStage.Deployment?"IR A TERRAFORMACIÓN":s.stage==TurnStage.Terraforming?"IR A ASALTO":"FINALIZAR TURNO";
+            string next=s.stage==TurnStage.Deployment?"IR A ATAQUE":s.stage==TurnStage.Assault?"IR A TERRAFORMACIÓN":"FINALIZAR TURNO";
             GrayboxUI.Button(left,next,12,280,214,34,()=>{ClearAction();handFilter="Todas";page=0;Game.AdvanceStage();},Color.Lerp(GrayboxUI.PlayerColor(s.activePlayer),GrayboxUI.Panel,.6f));
         }
         void ActionButton(string name,ref float y,System.Action action)

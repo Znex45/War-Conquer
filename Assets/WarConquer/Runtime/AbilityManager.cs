@@ -27,12 +27,14 @@ namespace WarConquer
         {
             if(!CanActivate(g,p))return g.Fail("La habilidad no está disponible.");
             var c=g.Data(p);if(targets.Count!=TargetCount(c)||targets.Distinct().Count()!=targets.Count||targets.Any(t=>!Targets(g,p).Contains(t)))return g.Fail("Selecciona los objetivos de la habilidad.");
+            int bonus=0;
             if(c.Has("ExtendBuff"))
             {
-                int bonus=BoardManager.Nearby(g.State,p.tileId).Where(a=>a.owner==p.owner&&a.tileId!=targets[0]).Select(a=>a.bonusAttack).DefaultIfEmpty().Max();
+                bonus=BoardManager.Nearby(g.State,p.tileId).Where(a=>a.owner==p.owner&&a.tileId!=targets[0]).Select(a=>a.bonusAttack).DefaultIfEmpty().Max();
                 if(g.ActingPlayer.spores<1||bonus==0)return g.Fail("Requiere 1 Espora y otra unidad adyacente con una mejora temporal de ATQ.");
-                g.ActingPlayer.spores--;g.State.tiles[targets[0]].unit.bonusAttack+=bonus;
             }
+            if(!TerrainManager.CheckAction(g,p,"habilidad")){p.abilityUsed=true;g.Notify("Habilidad interrumpida por el terreno.");return true;}
+            if(c.Has("ExtendBuff")){g.ActingPlayer.spores--;g.State.tiles[targets[0]].unit.bonusAttack+=bonus;}
             if(c.Has("FastNetwork"))TerrainManager.CreateFastRoute(g,targets[0],targets[1],p);
             if(c.Has("StructureDiscount"))g.ActingPlayer.structureDiscount++;
             if(c.Has("CampStep"))g.State.tiles[targets[0]].unit.remainingMovement++;

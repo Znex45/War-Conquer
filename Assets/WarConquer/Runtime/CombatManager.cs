@@ -28,6 +28,7 @@ namespace WarConquer
         public static bool Attack(GameManager g,Piece attacker,int target)
         {
             if(!Targets(g,attacker).Contains(target))return g.Fail("No puedes atacar: objetivo, alcance, ataque usado o Dormido.");
+            if(!TerrainManager.CheckAction(g,attacker,"atacar")){attacker.attacked=true;g.Notify("Ataque interrumpido por el terreno.");return true;}
             BattleManager.Open(g,attacker,target);
             g.Notify(g.State.battle==null?"Ataque resuelto.":"Batalla abierta · responde J"+(g.ActingPlayerId+1)+".");return true;
         }
@@ -67,12 +68,17 @@ namespace WarConquer
             g.State.Log(c.name+" recibe "+actual+" daño"+(defense>0?" (defensa "+defense+")":"")+".");
             if(p.health<=0)Remove(g,p);
         }
+        public static void PoisonDamage(GameManager g,Piece p,int amount)
+        {
+            p.health-=Math.Min(p.health,amount);g.State.Log(g.Data(p).name+": pierde "+amount+" VIDA por veneno progresivo.");
+            if(p.health<=0)Remove(g,p);
+        }
         public static void Remove(GameManager g,Piece p)
         {
             var t=g.State.tiles[p.tileId];if(t.unit==p)t.unit=null;if(t.structure==p)t.structure=null;
             if(t.specialEffect!=null&&t.specialEffect.sourceId==p.id)t.specialEffect=null;
             if(!p.token)g.State.players[p.owner].discardPile.Add(new CardInstance {instanceId=p.id,cardId=p.cardId});
-            TerrainManager.MaintainRoutes(g);g.State.Log(g.Data(p).name+" destruida"+(p.token?".":" → descarte."));
+            TerrainManager.MaintainRoutes(g);ConquestManager.Refresh(g.State);g.State.Log(g.Data(p).name+" destruida"+(p.token?".":" → descarte."));
         }
         static void Eliminate(GameManager g,Player player)
         {

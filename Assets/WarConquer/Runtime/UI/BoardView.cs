@@ -22,7 +22,7 @@ namespace WarConquer
             var imageRoot=GrayboxUI.Rect(parent,"Vista del tablero 3D",0,0,982,648);viewport=imageRoot.gameObject.AddComponent<RawImage>();viewport.color=Color.white;
             var input=imageRoot.gameObject.AddComponent<BoardViewportInput>();input.Click=position=>{int id=World.Pick(position);if(id>=0)controller.TileClick(id);};
             input.Drag=(delta,orbit)=>{if(orbit){World.Yaw+=delta.x*.35f;World.Pitch-=delta.y*.22f;}else World.Pan+=new Vector2(delta.x,-delta.y);World.UpdateCamera();};
-            input.Scroll=amount=>{Zoom=Mathf.Clamp(Zoom+amount*.15f,1,2.5f);World.UpdateCamera();};
+            input.Scroll=amount=>{Zoom=Mathf.Clamp(Zoom+amount*.15f,1,5f);World.UpdateCamera();};
             Overlay=GrayboxUI.Rect(parent,"Información sobre el tablero",0,0,982,648);
             Tick();
         }

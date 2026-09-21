@@ -5,7 +5,8 @@ namespace WarConquer
 {
     public static class TimingRules
     {
-        public static string StageName(TurnStage stage)=>new[]{"DESPLIEGUE","TERRAFORMACIÓN","ASALTO"}[(int)stage];
+        public static readonly TurnStage[] Order={TurnStage.Deployment,TurnStage.Assault,TurnStage.Terraforming};
+        public static string StageName(TurnStage stage)=>stage==TurnStage.Deployment?"DESPLIEGUE":stage==TurnStage.Assault?"ATAQUE":"TERRAFORMACIÓN";
         public static string Description(CardData card)
         {
             string normal=string.Join(" / ",(card.allowedPhases??Array.Empty<TurnStage>()).Select(StageName));

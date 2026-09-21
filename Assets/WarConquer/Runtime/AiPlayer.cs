@@ -44,8 +44,9 @@ namespace WarConquer
         static int Center(GameManager g)=>g.State.tiles.First(ConquestManager.IsCenter).id;
         static int Goal(GameManager g,Piece piece=null)
         {
-            int center=Center(g);if(g.State.tiles[center].owner!=g.ActingPlayerId)return center;
-            int from=piece?.tileId??center;
+            int center=Center(g);int from=piece?.tileId??g.State.tiles.First(t=>t.baseOwner==g.ActingPlayerId).id;
+            var available=g.State.tiles.Where(ConquestManager.IsCenter).Where(t=>ConquestManager.EligibleOwner(g.State,t)!=g.ActingPlayerId).OrderBy(t=>BoardManager.Distance(g.State,from,t.id)).FirstOrDefault();
+            if(available!=null)return available.id;
             return g.State.tiles.Where(t=>t.baseOwner>=0&&t.baseOwner!=g.ActingPlayerId&&!g.State.players[t.baseOwner].eliminated)
                 .OrderBy(t=>BoardManager.AxialDistance(g.State.tiles[from],t)).Select(t=>t.id).DefaultIfEmpty(center).First();
         }
@@ -156,9 +157,6 @@ namespace WarConquer
                 var ash=g.State.tiles.FirstOrDefault(t=>t.owner==p.id&&t.baseOwner<0&&!t.IsOccupied&&TerrainManager.Normal(t));
                 if(ash!=null&&p.currentEnergy>=g.AshCost()){terraformActions++;return g.RevealAsh(ash.id);}
             }
-            int reserve=p.hand.Where(c=>g.Catalog[c.cardId].category==Category.Spell&&g.Catalog[c.cardId].allowedPhases.Contains(TurnStage.Assault))
-                .Select(c=>EnergyManager.Quote(p,g.Catalog[c.cardId],UseResources).energy).DefaultIfEmpty(0).Min();
-            if(p.currentEnergy-g.TerraformCost(biome)<reserve&&g.Allies(p.id).Any(u=>EnemyDistance(g,u.tileId)<=2))return false;
             if(p.currentEnergy<g.TerraformCost(biome))return false;
             var candidates=g.State.tiles.Where(t=>g.TerraformTarget(t.id)&&TerraformValue(g,t.id,biome)>-30).OrderByDescending(t=>TerraformValue(g,t.id,biome)).ToList();
             if(candidates.Count==0)return false;
@@ -179,6 +177,7 @@ namespace WarConquer
         }
         static float MoveValue(GameManager g,Piece p,int id)
         {
+            if(id==p.tileId&&(ConquestManager.IsCenter(g.State.tiles[id])||ConquestManager.EligibleOwner(g.State,g.State.tiles[id])==p.owner))return 1000;
             var t=g.State.tiles[id];float value=-Distance(g,id,Goal(g,p))*12;
             if(ConquestManager.IsCenter(t))value+=t.owner==p.owner?5:35;
             if(t.baseOwner>=0&&t.baseOwner!=p.owner)value+=15;

@@ -23,7 +23,7 @@ namespace WarConquer
                 if(effect.operation=="Spore") {g.ActingPlayer.spores+=effect.amount;continue;}
                 foreach(int id in targets)
                 {
-                    var t=s.tiles[id];var p=t.unit??t.structure;
+                    var t=s.tiles[id];var p=effect.target=="EnemyPiece"?(t.unit!=null&&t.unit.owner!=g.ActingPlayerId?t.unit:t.structure):t.unit??t.structure;
                     switch(effect.operation)
                     {
                         case "Terraform": TerrainManager.Terraform(g,id,effect.biome=="ChooseForestSwamp"?choice:(Biome)Enum.Parse(typeof(Biome),effect.biome),g.ActingPlayerId);break;
@@ -45,14 +45,14 @@ namespace WarConquer
         public static void Poison(GameManager g,Piece p,int amount,int source)
         {
             if(p==null||g.Data(p).IsStructure)return;
-            p.poison=Math.Max(p.poison,amount);p.poisonTurns=g.State.rules.poisonDuration;
+            if(p.poison==0){p.poison=1;p.poisonTurns=0;}p.poisonApplications++;
             Negative(g,p);
             if(g.HasTrait(source,"PoisonSpore"))g.State.players[source].spores++;
-            g.State.Log(g.Data(p).name+": Envenenado "+p.poison+" ("+p.poisonTurns+" turnos propios).");
+            g.State.Log(g.Data(p).name+": veneno progresivo · próximo daño "+p.poison+" (se duplica cada turno propio).");
         }
         public static void Sleep(GameManager g,Piece p,int source)
         {
-            p.sleepUntilTurn=g.NextTurnOf(p.owner);Negative(g,p);
+            p.sleepUntilTurn=g.NextTurnOf(p.owner);p.remainingMovement=0;Negative(g,p);
             var player=g.State.players[source];
             if(g.HasTrait(source,"SleepStep")&&player.dreamRound!=g.State.round){player.freeSteps++;player.dreamRound=g.State.round;}
             g.State.Log(g.Data(p).name+": Dormido durante su próximo turno.");
@@ -102,7 +102,7 @@ namespace WarConquer
             }
             if(c.Has("EnterTitan"))
                 foreach(var enemy in BoardManager.Nearby(s,t.id).Where(a=>a.owner!=p.owner&&g.Data(a).movementType=="Ground").ToList())
-                {int roll=s.Random(6)+1;s.Log("Titán de Ceniza: d6="+roll+" (5+ evita)");if(roll<5)CombatManager.Damage(g,enemy,3,false);}
+                {int roll=g.RollDie(enemy,s.tiles[enemy.tileId],5,"Titán de Ceniza");if(roll<5)CombatManager.Damage(g,enemy,3,false);}
             if(c.Has("BuriedCity"))
             {
                 t.permanentAsh=true;t.biome=Biome.AshLand;

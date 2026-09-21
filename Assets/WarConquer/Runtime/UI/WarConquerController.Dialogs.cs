@@ -50,7 +50,7 @@ namespace WarConquer
                 }
             }
             GrayboxUI.Button(body,"COMENZAR PARTIDA",26,642,1070,60,()=>StartMatch(false),GrayboxUI.Green);
-            GrayboxUI.Text(body,"Semilla "+seed+" · 87 hexágonos · "+participants+" mazos de 50",26,720,510,25,15,GrayboxUI.Muted);
+            GrayboxUI.Text(body,"Semilla "+seed+" · Mapa "+(participants==2?"duelo":participants==3?"hexagonal":"hueso")+" · "+participants+" mazos de 50",26,720,510,25,15,GrayboxUI.Muted);
             GrayboxUI.Button(body,"Cambiar semilla",552,715,213,35,()=>{seed=(seed*31+17)&0x7fffffff;ShowSetup();});
             GrayboxUI.Button(body,"Escenario de pruebas",780,715,316,35,()=>StartMatch(true));
         }
@@ -76,9 +76,9 @@ namespace WarConquer
         {
             var body=OpenModal("AYUDA DE PARTIDA");
             GrayboxUI.Text(body,"TURNO Y CARTAS",35,95,500,36,23,GrayboxUI.Ink,FontStyle.Bold);
-            GrayboxUI.Text(body,"Despliegue → Terraformación → Asalto. El botón de etapa permite avanzar.\n\nLas cartas oscuras no se pueden usar ahora. Su banda inferior indica la etapa de uso. Pasa el cursor para ampliarlas o selecciónalas y pulsa Ver carta completa.\n\nSelecciona una carta y un hexágono verde. El pago mixto permite elegir recursos compatibles. Resolver selección confirma los objetivos múltiples; Cancelar no consume recursos.",35,153,505,460,20,GrayboxUI.Muted);
+            GrayboxUI.Text(body,"Despliegue → Ataque → Terraformación. El botón de etapa permite avanzar.\n\nLas cartas oscuras no se pueden usar ahora. Su banda inferior indica la etapa de uso. Pasa el cursor para ampliarlas o selecciónalas y pulsa Ver carta completa.\n\nSelecciona una carta y un hexágono verde. El pago mixto permite elegir recursos compatibles. Resolver selección confirma los objetivos múltiples; Cancelar no consume recursos.",35,153,505,460,20,GrayboxUI.Muted);
             GrayboxUI.Text(body,"TABLERO Y VICTORIA",590,95,500,36,23,GrayboxUI.Ink,FontStyle.Bold);
-            GrayboxUI.Text(body,"Arrastra para desplazar, usa el botón derecho para girar y la rueda para acercar. 1:1 restablece la cámara. Ver datos muestra números de casilla y puntos de las bases.\n\nSelecciona una pieza para mover, atacar o usar su habilidad. Pulsa un marcador de jugador para consultar su mano y su Líder. Detalles muestra el control por territorio.\n\nEl centro y cada base enemiga conquistada dan +1 PC por ronda. Gana con 10 PC o con el último Líder en pie. Las pilas abren el mazo y descarte.",590,153,505,510,20,GrayboxUI.Muted);
+            GrayboxUI.Text(body,"Arrastra para desplazar, usa el botón derecho para girar y la rueda para acercar. 1:1 restablece la cámara. Ver datos muestra números de casilla y puntos de las bases.\n\nSelecciona una pieza para mover, atacar o usar su habilidad. Pulsa un marcador de jugador para consultar su mano y su Líder. Detalles muestra el control por territorio.\n\nHay 3 objetivos centrales separados. Cada uno y cada base enemiga vencida dan +1 PC al volver tu turno si mantuviste una unidad propia y el terreno terraformado. Salir, perder el bioma o recapturar reinicia la espera. Gana con 10 PC o con el último Líder en pie. Las pilas abren el mazo y descarte.",590,153,505,510,20,GrayboxUI.Muted);
             GrayboxUI.Button(body,"Volver al menú",35,714,1060,48,ShowMatchMenu);
         }
         void ShowLeaderDetails(Player player)

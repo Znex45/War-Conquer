@@ -7,33 +7,35 @@ namespace WarConquer
     public static class BoardManager
     {
         // One flat-top axial lattice: every connection crosses a shared hexagon edge.
-        public static void Create(GameState s)
+        public static void Create(GameState s,int participants=4)
         {
-            int[] halfHeights = { 10, 11, 10, 5, 4, 3 };
-            int[] baseQ = { 0, 4, 0, -4 }, baseR = { 4, -2, -4, 2 };
-            for (int territory = 0; territory < 5; territory++)
+            if(participants<2||participants>4)throw new ArgumentOutOfRangeException(nameof(participants));
+            s.mapPlayers=participants;s.tiles.Clear();s.connections.Clear();
+            var bases=participants==2?new[]{(-8,4),(8,-4)}:participants==3?new[]{(0,9),(-9,0),(9,-9)}:new[]{(-12,12),(12,0),(12,-12),(-12,0)};
+            // Three-player objectives face the gaps between bases, keeping all starts equally distant.
+            var sites=participants==3?new[]{(0,-2),(2,0),(-2,2)}:new[]{(0,-4),(0,0),(0,4)};
+            int Dist(int q,int r,int x,int y)=>(Math.Abs(q-x)+Math.Abs(r-y)+Math.Abs(q+r-x-y))/2;
+            for(int q=-14;q<=14;q++)for(int r=-18;r<=18;r++)
             {
-                for (int q = -5; q <= 5; q++) for (int r = -8; r <= 8; r++)
-                {
-                    int height = 2 * r + q;
-                    if (Math.Abs(height) > halfHeights[Math.Abs(q)]) continue;
-                    int region = Math.Max(Math.Abs(q), Math.Max(Math.Abs(r), Math.Abs(q+r))) <= 2 ? 4
-                        : Math.Abs(q) >= 3 || (Math.Abs(q) == 2 && Math.Abs(height) == 4) ? (q > 0 ? 1 : 3)
-                        : height > 0 ? 0 : 2;
-                    if (region != territory) continue;
-                    bool home = territory < 4;
-                    var t = new HexTile { id = s.tiles.Count, territory = territory, q = q, r = r,
-                        x = 1.2f * q, y = 1.385640646f * (r + q * .5f),
-                        owner = home ? territory : -1, biome = Biome.Neutral,
-                        baseOwner = home && q == baseQ[territory] && r == baseR[territory] ? territory : -1,
-                        resource = territory == 4 ? (q == 0 && r == 0 ? 2 : (Math.Abs(q + r) == 2 ? 1 : 0)) : 0,
-                        hiddenAsh = home ? q == baseQ[territory] && r == baseR[territory]+1 : q == 0 && r == 1,
-                        hiddenResource = territory == 4 && q == 1 && r == 0 };
-                    s.tiles.Add(t);
-                }
+                int h=2*r+q;
+                bool inside=participants==2?Math.Min(Dist(q,r,-4,2),Math.Min(Dist(q,r,0,0),Dist(q,r,4,-2)))<=6:
+                    participants==3?Dist(q,r,0,0)<=10:
+                    Math.Abs(q)<=14&&Math.Abs(h)<=(Math.Abs(q)<=4?12:Math.Abs(q)<=10?18:Math.Abs(q)<=12?16:14);
+                if(!inside)continue;
+                int owner=Array.FindIndex(bases,b=>Dist(q,r,b.Item1,b.Item2)<=1);
+                int baseOwner=Array.FindIndex(bases,b=>q==b.Item1&&r==b.Item2);
+                bool site=sites.Contains((q,r));
+                s.tiles.Add(new HexTile{q=q,r=r,x=1.2f*q,y=1.385640646f*(r+q*.5f),owner=owner,territory=owner<0?4:owner,
+                    baseOwner=baseOwner,biome=Biome.Neutral,conquestSite=site,resource=site?1:0,hiddenAsh=baseOwner>=0,hiddenResource=site});
             }
-            foreach (var a in s.tiles) foreach (var b in s.tiles.Where(b => b.id > a.id))
-                if (AxialDistance(a, b) == 1) Connect(s, a.id, b.id);
+            s.tiles=s.tiles.OrderBy(t=>t.territory).ThenBy(t=>t.q).ThenBy(t=>t.r).ToList();
+            for(int i=0;i<s.tiles.Count;i++)s.tiles[i].id=i;
+            var lattice=s.tiles.ToDictionary(t=>(t.q,t.r));
+            var directions=new[]{(1,0),(1,-1),(0,-1),(-1,0),(-1,1),(0,1)};
+            foreach(var a in s.tiles)foreach(var d in directions)
+                if(lattice.TryGetValue((a.q+d.Item1,a.r+d.Item2),out var b)&&b.id>a.id)Connect(s,a.id,b.id);
+            foreach(var tile in s.tiles)tile.neighbors.Sort();
+            s.connections=s.connections.OrderBy(c=>c.a).ThenBy(c=>c.b).ToList();
         }
         public static int AxialDistance(HexTile a, HexTile b) => (Math.Abs(a.q-b.q)+Math.Abs(a.r-b.r)+Math.Abs(a.q+a.r-b.q-b.r))/2;
         static void Connect(GameState s, int a, int b)

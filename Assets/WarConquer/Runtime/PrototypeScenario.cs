@@ -49,16 +49,20 @@ namespace WarConquer
     {
         public static string Validate(GameState s,CardCatalog catalog)
         {
-            if(s==null||s.version!=3||s.rules==null||s.players==null||s.players.Count!=4||s.tiles==null||s.tiles.Count!=87)return "Partida incompatible con las etapas y la puntuación. Inicia una nueva partida.";
+            if(s==null||s.version!=5||s.rules==null||s.players==null||s.players.Count!=4||s.tiles==null||s.mapPlayers<2||s.mapPlayers>4||s.tiles.Count<50)return "Partida incompatible con las etapas y la puntuación. Inicia una nueva partida.";
             if(s.activePlayer<0||s.activePlayer>3||s.turn<1)return "Turno inválido.";
-            if(s.players.Count(p=>!p.inactive)<2||s.players[s.activePlayer].inactive)return "Participantes inválidos.";
+            var expected=new GameState();BoardManager.Create(expected,s.mapPlayers);
+            if(s.tiles.Count!=expected.tiles.Count||s.tiles.Where((t,i)=>t.q!=expected.tiles[i].q||t.r!=expected.tiles[i].r||t.conquestSite!=expected.tiles[i].conquestSite||!t.neighbors.SequenceEqual(expected.tiles[i].neighbors)).Any())return "Geometría de mapa inválida.";
+            if(s.players.Count(p=>!p.inactive)!=s.mapPlayers||s.players[s.activePlayer].inactive)return "Participantes inválidos.";
+            if(s.diceRolls==null||s.nextRollId<1||s.diceRolls.Any(d=>d.id<1||d.id>=s.nextRollId||d.value<1||d.value>6||d.tileId<0||d.tileId>=s.tiles.Count)||s.diceRolls.Select(d=>d.id).Distinct().Count()!=s.diceRolls.Count)return "Historial de dados inválido.";
             if(!Enum.IsDefined(typeof(TurnStage),s.stage)||s.lastScoredRound>s.round||s.responsePlayer < -1||s.responsePlayer>3)return "Ventana o ronda inválida.";
-            if(s.battle!=null&&(s.stage!=TurnStage.Assault||s.battle.priorityPlayer<0||s.battle.priorityPlayer>3||s.battle.targetTile<0||s.battle.targetTile>=87||s.battle.order.Count!=4||s.battle.order.Distinct().Count()!=4||s.battle.priorityIndex<0||s.battle.priorityIndex>3))return "Batalla inválida.";
+            if(s.battle!=null&&(s.stage!=TurnStage.Assault||s.battle.priorityPlayer<0||s.battle.priorityPlayer>3||s.battle.targetTile<0||s.battle.targetTile>=s.tiles.Count||s.battle.order.Count!=4||s.battle.order.Distinct().Count()!=4||s.battle.priorityIndex<0||s.battle.priorityIndex>3))return "Batalla inválida.";
             var validCards=new HashSet<string>(catalog.All.Select(c=>c.id));var ids=new HashSet<int>();
-            for(int i=0;i<87;i++)
+            for(int i=0;i<s.tiles.Count;i++)
             {
-                var t=s.tiles[i];if(t.id!=i||t.owner<-1||t.owner>3||t.baseOwner<-1||t.baseOwner>3||t.neighbors.Any(n=>n<0||n>=87))return "Casilla inválida.";
+                var t=s.tiles[i];if(t.id!=i||t.owner<-1||t.owner>3||t.baseOwner<-1||t.baseOwner>3||t.neighbors.Any(n=>n<0||n>=s.tiles.Count))return "Casilla inválida.";
                 if((t.owner>=0&&s.players[t.owner].inactive)||(t.baseOwner>=0&&s.players[t.baseOwner].inactive))return "Casilla asignada a un puesto vacío.";
+                if(t.garrisonOwner < -1||t.garrisonOwner>3||t.garrisonSinceTurn>s.turn||t.lastConquestTurn>s.turn)return "Guarnición inválida.";
                 if(t.unit!=null&&t.structure!=null&&!catalog[t.structure.cardId].Has("Passable"))return "Casilla ocupada dos veces.";
                 foreach(var piece in new[]{t.unit,t.structure}.Where(p=>p!=null))
                 {if(!validCards.Contains(piece.cardId)||piece.tileId!=i||piece.owner<0||piece.owner>3||piece.health<=0||!ids.Add(piece.id))return "Pieza inválida o duplicada.";}
@@ -73,7 +77,7 @@ namespace WarConquer
                 if(all.Count!=50)return "J"+(p.id+1)+": no se conservan sus 50 cartas.";
                 foreach(var group in all.GroupBy(c=>c.cardId))if(group.Count()!=catalog[group.Key].quantity||catalog[group.Key].leader!=p.leader)return "Distribución de cartas alterada.";
             }
-            if(s.fastRoutes.Any(f=>f.a<0||f.a>=87||f.b<0||f.b>=87||f.a==f.b))return "Vía rápida inválida.";
+            if(s.fastRoutes.Any(f=>f.a<0||f.a>=s.tiles.Count||f.b<0||f.b>=s.tiles.Count||f.a==f.b))return "Vía rápida inválida.";
             return "";
         }
     }

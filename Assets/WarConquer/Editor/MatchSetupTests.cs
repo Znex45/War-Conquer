@@ -11,7 +11,7 @@ namespace WarConquer.Editor
         static readonly string[] Leaders={"ZUKGROK","SAHRIA","ZUKGROK","SAHRIA"};
         static GameManager New(CardCatalog cards,int humans,bool start=true,int seed=2026)
         {var g=new GameManager(cards);g.NewGame(Leaders,seed,CardCatalog.LoadRules(),humans,start);return g;}
-        static void End(GameManager g){while(g.State.stage!=TurnStage.Assault)g.AdvanceStage();g.EndTurn();}
+        static void End(GameManager g){while(g.State.stage!=TurnStage.Terraforming)g.AdvanceStage();g.EndTurn();}
         public static void RunAll(CardCatalog catalog,Action<string,Action> test)
         {
             test("Preparación pausada: no hay acciones, turnos ni decisiones de IA antes de comenzar",()=>{
@@ -21,7 +21,7 @@ namespace WarConquer.Editor
             });
             test("1 persona: un humano y una IA, bases opuestas y dos mazos exactos de 50",()=>{
                 var g=New(catalog,1);Check(g.State.players.Count(p=>!p.inactive)==2&&g.State.players[1].isAI&&!g.State.players[0].isAI,"Modo solo incorrecto.");
-                Check(g.State.tiles.Single(t=>t.baseOwner==0).territory==0&&g.State.tiles.Single(t=>t.baseOwner==1).territory==2,"Bases no opuestas.");
+                Check(g.State.tiles.Single(t=>t.baseOwner==0).territory==0&&g.State.tiles.Single(t=>t.baseOwner==1).territory==1,"Bases no opuestas.");
                 Check(g.State.tiles.Count(t=>t.baseOwner>=0)==2&&g.State.tiles.All(t=>t.owner<2),"Puestos vacíos conservan bases.");
                 Check(StateValidator.Validate(g.State,catalog)=="","Mazos o casillas inválidos.");
             });
@@ -91,7 +91,7 @@ namespace WarConquer.Editor
                 var g=new GameManager(new CardCatalog(cards));g.NewGame(new[]{"ZUKGROK","ZUKGROK"},2026,CardCatalog.LoadRules(),1);PrototypeScenario.Load(g);
                 foreach(var p in g.State.players.Where(p=>!p.inactive)){p.deck.AddRange(p.hand);p.hand.Clear();}
                 var response=PrototypeScenario.Take(g,1,"espora-somnifera");g.State.players[1].hand.Add(response);g.State.players[1].currentEnergy=3;
-                g.State.stage=TurnStage.Assault;var defender=g.State.tiles.First(ConquestManager.IsCenter).unit;
+                g.State.stage=TurnStage.Assault;var defender=g.Allies(1).First(p=>!g.Data(p).IsStructure);
                 var attacker=g.Allies(0).First(p=>!g.Data(p).IsStructure);int hp=defender.health;
                 Check(CombatManager.Attack(g,attacker,defender.tileId)&&g.ActingPlayerId==1,"No ofrece prioridad de defensa a la IA.");
                 Check(new AiPlayer().Step(g)&&g.State.players[1].currentEnergy==1&&g.IsSleeping(attacker),"Respuesta o coste de IA incorrectos.");

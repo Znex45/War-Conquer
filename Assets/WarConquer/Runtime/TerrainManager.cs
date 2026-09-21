@@ -7,10 +7,11 @@ namespace WarConquer
         public static bool Normal(HexTile t) => t.biome!=Biome.Neutral&&t.biome!=Biome.AshLand&&!t.permanentAsh;
         public static void Terraform(GameManager g,int tile,Biome biome,int owner)
         {
-            var t=g.State.tiles[tile]; if(t.permanentAsh) return;
+            var t=g.State.tiles[tile];
+            if(t.permanentAsh||t.blocked||(t.unit!=null&&t.unit.owner!=owner)||(t.structure!=null&&t.structure.owner!=owner)||(t.baseOwner>=0&&t.baseOwner!=owner&&!g.State.players[t.baseOwner].eliminated))return;
             t.biome=biome; t.owner=owner; t.specialEffect=null;
             if(t.unit!=null) t.unit.forestSinceTurn=biome==Biome.Forest?g.State.turn:-1;
-            MaintainRoutes(g); g.State.Log("Hex "+(tile+1)+" → "+Names.Biomes[(int)biome]);
+            MaintainRoutes(g);ConquestManager.Refresh(g.State); g.State.Log("Hex "+(tile+1)+" → "+Names.Biomes[(int)biome]);
         }
         public static void DestroyBiome(GameManager g,HexTile t)
         {
@@ -18,7 +19,7 @@ namespace WarConquer
             if(t.hiddenAsh&&g.State.rules.ashOnMarkedDestruction) { RevealAsh(g,t); return; }
             t.biome=Biome.Neutral; t.owner=t.unit!=null?t.unit.owner:t.structure!=null?t.structure.owner:t.baseOwner;
             t.specialEffect=null; if(t.unit!=null)t.unit.forestSinceTurn=-1; MaintainRoutes(g);
-            g.State.Log("Hex "+(t.id+1)+": bioma destruido, casilla neutra.");
+            ConquestManager.Refresh(g.State);g.State.Log("Hex "+(t.id+1)+": bioma destruido, casilla neutra.");
         }
         public static void RevealAsh(GameManager g,HexTile t)
         {
@@ -42,19 +43,29 @@ namespace WarConquer
         {
             var e=tile.specialEffect; var c=g.Data(p);
             if(e==null||(exiting&&!e.onExit)||c.movementType=="Flying"||c.Has("IgnoreUnstable")||c.Tag(e.compatibleTag)) return true;
-            int die=g.State.Random(6)+1; bool passed=die>=e.threshold;
-            g.State.Log(c.name+": d6="+die+" / "+e.threshold+"+ "+(exiting?"al salir":"al entrar")+(passed?" · supera":" · falla"));
+            int die=g.RollDie(p,tile,e.threshold,c.name+(exiting?" al salir":" al entrar")); bool passed=die>=e.threshold;
             if(!passed)
             {
                 p.remainingMovement=0;
                 if(!exiting)
                 {
-                    CombatManager.Damage(g,p,e.damage+e.bonusDamage,false);
-                    if(e.bonusGroup>0)foreach(var t in g.State.tiles.Where(t=>t.specialEffect!=null&&t.specialEffect.bonusGroup==e.bonusGroup))t.specialEffect.bonusDamage=0;
-                    e.bonusDamage=0;
+                    FailDamage(g,p,e);
                 }
             }
             return passed;
+        }
+        public static bool CheckAction(GameManager g,Piece p,string action)
+        {
+            var t=g.State.tiles[p.tileId];var e=t.specialEffect;var c=g.Data(p);
+            if(e==null||c.movementType=="Flying"||c.Has("IgnoreUnstable")||c.Tag(e.compatibleTag))return true;
+            bool passed=g.RollDie(p,t,e.threshold,c.name+" · "+action)>=e.threshold;
+            if(!passed){p.remainingMovement=0;FailDamage(g,p,e);}return passed&&p.health>0;
+        }
+        static void FailDamage(GameManager g,Piece p,TerrainEffect e)
+        {
+            CombatManager.Damage(g,p,e.damage+e.bonusDamage,false);
+            if(e.bonusGroup>0)foreach(var t in g.State.tiles.Where(t=>t.specialEffect!=null&&t.specialEffect.bonusGroup==e.bonusGroup))t.specialEffect.bonusDamage=0;
+            e.bonusDamage=0;
         }
     }
 }

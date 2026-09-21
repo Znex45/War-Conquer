@@ -65,9 +65,10 @@ namespace WarConquer
         public static void Relocate(GameManager g,Piece p,int destination)
         {
             var from=g.State.tiles[p.tileId]; if(from.unit==p)from.unit=null;
+            ConquestManager.Refresh(g.State);
             var to=g.State.tiles[destination]; p.tileId=destination; p.moved=true; to.unit=p; to.owner=p.owner;
             p.forestSinceTurn=-1;
-            TerrainManager.MaintainRoutes(g); EffectManager.OnTileEnter(g,p);
+            TerrainManager.MaintainRoutes(g); EffectManager.OnTileEnter(g,p);ConquestManager.Refresh(g.State);
             g.State.Log(g.Data(p).name+" → hex "+(destination+1));
         }
         public static bool FreeStep(GameManager g,Piece p,int destination)

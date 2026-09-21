@@ -45,6 +45,7 @@ namespace WarConquer
             var background=canvasObject.GetComponent<RectTransform>();background.gameObject.AddComponent<Image>().color=GrayboxUI.Background;
             root=GrayboxUI.Rect(background,"Graybox",0,0,1600,1000);root.anchorMin=root.anchorMax=new Vector2(.5f,.5f);root.pivot=new Vector2(.5f,.5f);root.anchoredPosition=Vector2.zero;
             matchRoot=GrayboxUI.Rect(root,"Interfaz de partida",0,0,1600,1000);
+            matchRoot.gameObject.AddComponent<CanvasGroup>();
             header=GrayboxUI.Rect(matchRoot,"Header",0,0,1600,66);
             left=GrayboxUI.Box(matchRoot,"Acciones de etapa",16,76,238,326,GrayboxUI.Panel);
             leaderPanel=GrayboxUI.Box(matchRoot,"Líder independiente",16,412,238,312,GrayboxUI.Panel);
@@ -58,6 +59,7 @@ namespace WarConquer
             if(root==null)return;var canvas=root.GetComponentInParent<CanvasScaler>();float scale=Mathf.Min(Screen.width/1600f,Screen.height/1000f);
             if(Mathf.Abs(canvas.scaleFactor-scale)>.001f)canvas.scaleFactor=scale;
             board?.Tick();
+            matchRoot.GetComponent<CanvasGroup>().interactable=!board.World.IsAnimating;
             UpdateAI();
         }
         public void Render()
@@ -76,7 +78,7 @@ namespace WarConquer
             GrayboxUI.Button(chrome,board.World.ShowLabels?"Ocultar datos":"Ver datos",573,11,107,30,()=>{board.World.ShowLabels=!board.World.ShowLabels;Render();});
             GrayboxUI.Button(chrome,"Girar -",690,11,72,30,()=>board.Rotate(-30));GrayboxUI.Button(chrome,"Girar +",771,11,72,30,()=>board.Rotate(30));
             GrayboxUI.Button(chrome,"−",854,11,33,30,()=>{board.Zoom=Mathf.Max(1,board.Zoom-.25f);Render();});
-            GrayboxUI.Button(chrome,"+",892,11,33,30,()=>{board.Zoom=Mathf.Min(2.5f,board.Zoom+.25f);Render();});
+            GrayboxUI.Button(chrome,"+",892,11,33,30,()=>{board.Zoom=Mathf.Min(5f,board.Zoom+.25f);Render();});
             GrayboxUI.Button(chrome,"1:1",930,11,42,30,()=>{board.Reset();Render();});
             if(board.Zoom>1)
             {
@@ -109,7 +111,7 @@ namespace WarConquer
                 case "move": return MovementManager.Paths(Game,selectedPiece).Keys.ToList();
                 case "attack":return CombatManager.Targets(Game,selectedPiece);
                 case "terraform":if(!Game.CanTakeTurnAction(TurnStage.Terraforming)||Game.ActingPlayer.currentEnergy<Game.TerraformCost(chosenBiome))return new List<int>();return Game.State.tiles.Where(t=>Game.TerraformTarget(t.id)&&t.biome!=chosenBiome).Select(t=>t.id).ToList();
-                case "ash":if(!Game.CanTakeTurnAction(TurnStage.Terraforming)||Game.ActingPlayer.currentEnergy<Game.AshCost())return new List<int>();return Game.State.tiles.Where(t=>t.owner==Game.ActingPlayerId&&TerrainManager.Normal(t)).Select(t=>t.id).ToList();
+                case "ash":if(!Game.CanTakeTurnAction(TurnStage.Terraforming)||Game.ActingPlayer.currentEnergy<Game.AshCost())return new List<int>();return Game.State.tiles.Where(t=>t.owner==Game.ActingPlayerId&&TerrainManager.Normal(t)&&Game.TerraformTarget(t.id)).Select(t=>t.id).ToList();
                 case "leader":return AbilityManager.LeaderTargets(Game).Except(targets).ToList();
                 case "ability":return AbilityManager.Targets(Game,selectedPiece).Except(targets).ToList();
                 case "step":return selectedPiece==null?new List<int>():Game.State.tiles[selectedPiece.tileId].neighbors.Where(n=>!Game.State.tiles[n].IsOccupied&&!Game.State.tiles[n].blocked&&Game.State.tiles[n].baseOwner<0).ToList();
@@ -121,7 +123,7 @@ namespace WarConquer
         void ClearAction(){mode="inspect";selectedCard=-1;selectedPiece=null;targets.Clear();}
         public void TileClick(int id)
         {
-            if(!Game.CanAct||Game.ActingPlayer.isAI)return;
+            if(!Game.CanAct||Game.ActingPlayer.isAI||board.World.IsAnimating)return;
             if(ValidTargets().Contains(id))
             {
                 bool done=false;

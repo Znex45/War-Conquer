@@ -75,14 +75,14 @@ namespace WarConquer.Editor
             {
                 Application.runInBackground=true;
                 var ui=UnityEngine.Object.FindAnyObjectByType<WarConquerController>();Check(ui?.Game!=null,"No hay partida 3D activa.");
-                InterfacePlayModeTests.Run();
+                InterfacePlayModeTests.Run();RevisionPlayTests.Run(ui);
                 typeof(WarConquerController).GetField("humanPlayers",Flags).SetValue(ui,4);Invoke(ui,"StartMatch",false);
                 var world=ui.GetComponentInChildren<Board3DScene>();var input=ui.GetComponentInChildren<BoardViewportInput>();Canvas.ForceUpdateCanvases();
                 Check(world!=null&&world.Texture!=null&&world.Texture.IsCreated()&&input!=null,"No existe la vista 3D interactiva.");
                 var card=ui.Game.State.Active.hand.First(c=>c.cardId=="bestia-micelial");Invoke(ui,"SelectCard",card,ui.Game.State.Active);
                 int target=ui.Game.CardTargets(ui.Game.Catalog[card.cardId]).First(id=>world.Pick(world.ViewportOf(id))==id);
                 Click(world,input,target);Check(ui.Game.State.tiles[target].unit!=null&&ui.Game.State.Active.currentEnergy==0,"El clic 3D no coloca ni paga la carta.");
-                var piece=ui.Game.State.tiles[target].unit;ui.Game.AdvanceStage();ui.Game.AdvanceStage();Click(world,input,target,.9f);
+                var piece=ui.Game.State.tiles[target].unit;ui.Game.AdvanceStage();Click(world,input,target,.9f);
                 int destination=MovementManager.Paths(ui.Game,piece).Keys.First(id=>world.Pick(world.ViewportOf(id))==id);
                 Click(world,input,destination);Check(piece.tileId==destination&&world.PieceCount==1,"El clic 3D no mueve la unidad.");
                 Invoke(ui,"StartMatch",true);var g=ui.Game;
@@ -121,7 +121,7 @@ namespace WarConquer.Editor
                 // Unity queues this capture at the end of the frame, after GameView resizes.
                 ScreenCapture.CaptureScreenshot(Path.Combine(folder,"interfaz-3d.png"));
                 Debug.Log("WAR_CONQUER_3D_PLAY_PASSED: cámara renderizada, modelos, interfaz, colocación y movimiento con clic 3D. "+folder);
-                if(SessionState.GetBool(Batch,false)){SessionState.SetBool(Batch,false);EditorApplication.Exit(0);}
+                bool exit=SessionState.GetBool(Batch,false);SessionState.SetBool(Batch,false);RevisionVisualPreview.Begin(UnityEngine.Object.FindAnyObjectByType<WarConquerController>(),exit);
             }
             catch(Exception e){Debug.LogException(e);if(SessionState.GetBool(Batch,false))EditorApplication.Exit(1);}
         }

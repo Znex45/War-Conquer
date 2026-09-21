@@ -36,7 +36,8 @@ namespace WarConquer
         {
             if(Game.ActingPlayer.isAI){ShowCardModal(Game.Catalog[instance.cardId],player);return;}
             ClearAction();selectedCard=instance.instanceId;mode="card";chosenBiome=Biome.Forest;
-            Game.Notify(viewedPlayer==Game.ActingPlayerId?"Selecciona un objetivo válido.":"Consulta de la mano de J"+(player.id+1)+".");
+            string why=viewedPlayer==Game.ActingPlayerId?Game.CardBlockReason(instance,useResources):"Consulta de otra mano.";
+            Game.Notify(why.Length>0?why:"Selecciona las casillas verdes según el texto de la carta. Resolver selección permite confirmar menos objetivos.");
             if(Touchscreen.current!=null&&Touchscreen.current.primaryTouch.press.isPressed)ShowCardModal(Game.Catalog[instance.cardId],player);
         }
         void ShowTooltip(CardData card,Player player)

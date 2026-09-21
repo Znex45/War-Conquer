@@ -32,14 +32,14 @@ namespace WarConquer.Editor
                 foreach(string leader in new[]{"ZUKGROK","SAHRIA"})Check(catalog.All.Where(c=>c.leader==leader).Sum(c=>c.quantity)==50,"Conteo de mazo incorrecto.");
                 Check(catalog.All.All(c=>c.category==Category.Spell?c.effects.Length>0:c.traits.Length>0),"Carta sin efecto o rasgo implementado.");
             });
-            Test("87 casillas neutras, 4 territorios de 17 y centro de 19",()=>{
-                var g=New();Check(g.State.tiles.Count==87&&g.State.tiles.All(t=>t.biome==Biome.Neutral),"Tablero inicial incorrecto.");
-                for(int i=0;i<5;i++)Check(g.State.tiles.Count(t=>t.territory==i)==(i==4?19:17),"Distribución incorrecta.");
-                Check(g.State.tiles.Count(t=>t.baseOwner>=0)==4,"Bases incorrectas.");Valid(g);
+            Test("Mapa nuevo neutral con bases de siete casillas",()=>{
+                var g=New();Check(g.State.tiles.All(t=>t.biome==Biome.Neutral),"Bioma inicial incorrecto.");
+                for(int i=0;i<4;i++)Check(g.State.tiles.Count(t=>t.owner==i)==7,"Base sin siete casillas.");
+                Check(g.State.tiles.Count(t=>t.baseOwner>=0)==4&&g.State.tiles.Count(ConquestManager.IsCenter)==3,"Bases u objetivos incorrectos.");Valid(g);
             });
             Test("Mapa continuo: aristas compartidas, sin puentes, sin huecos",()=>{
                 var s=New().State;Check(s.connections.All(c=>!c.bridge),"El mapa no debe contener puentes.");
-                Check(s.tiles.Select(t=>(t.q,t.r)).Distinct().Count()==87,"Hay casillas superpuestas.");
+                Check(s.tiles.Select(t=>(t.q,t.r)).Distinct().Count()==s.tiles.Count,"Hay casillas superpuestas.");
                 foreach(var a in s.tiles)foreach(var b in s.tiles.Where(t=>t.id>a.id))
                 {
                     bool adjacent=BoardManager.AxialDistance(a,b)==1;
@@ -49,25 +49,12 @@ namespace WarConquer.Editor
                 }
                 foreach(var column in s.tiles.GroupBy(t=>t.q))Check(column.Count()==column.Max(t=>t.r)-column.Min(t=>t.r)+1,"Hueco en la retícula.");
             });
-            Test("Entradas múltiples por territorio y sin un único punto de corte",()=>{
+            Test("Bases conectadas y mapa sin un único punto de corte",()=>{
                 var s=New().State;
-                for(int territory=0;territory<4;territory++)
-                {
-                    foreach(int destination in new[]{4,(territory+1)%4,(territory+3)%4})
-                    {
-                        var entrances=s.tiles.Where(t=>t.territory==territory&&t.neighbors.Any(n=>s.tiles[n].territory==destination)).ToList();
-                        Check(entrances.Count>=2,"Faltan accesos compartidos desde "+territory+" a "+destination);
-                    }
-                    var region=s.tiles.Where(t=>t.territory==territory).ToList();var reached=new HashSet<int>();var pending=new Queue<int>();pending.Enqueue(region[0].id);
-                    while(pending.Count>0){int id=pending.Dequeue();if(!reached.Add(id))continue;foreach(int n in s.tiles[id].neighbors.Where(n=>s.tiles[n].territory==territory))pending.Enqueue(n);}
-                    Check(reached.Count==17,"Territorio inicial dividido.");
-                }
-                foreach(var removed in s.tiles)
-                {
-                    var queue=new Queue<int>();var seen=new HashSet<int>();queue.Enqueue(removed.id==0?1:0);
+                foreach(var home in s.tiles.Where(t=>t.baseOwner>=0))Check(home.neighbors.Count==6&&home.neighbors.All(n=>s.tiles[n].owner==home.baseOwner),"Anillo inicial incompleto.");
+                foreach(var removed in s.tiles){var queue=new Queue<int>();var seen=new HashSet<int>();queue.Enqueue(removed.id==0?1:0);
                     while(queue.Count>0){int id=queue.Dequeue();if(id==removed.id||!seen.Add(id))continue;foreach(int n in s.tiles[id].neighbors)queue.Enqueue(n);}
-                    Check(seen.Count==86,"Punto de corte en "+removed.id);
-                }
+                    Check(seen.Count==s.tiles.Count-1,"Punto de corte.");}
             });
             Test("Renderizadores de casillas y fichas disponibles en Unity",()=>{
                 var hex=new GameObject("Test hex",typeof(RectTransform));var piece=new GameObject("Test piece",typeof(RectTransform));
@@ -106,7 +93,7 @@ namespace WarConquer.Editor
                 Check(g.State.tiles[id].biome==Biome.Forest&&g.State.Active.discardPile.Contains(c),"Efecto o descarte incorrecto.");Valid(g);
             });
             Test("Terraformación múltiple exige adyacencia",()=>{
-                var g=New();Energy(g);var c=Hand(g,"crecimiento-descontrolado");int a=Home(g),b=Home(g,0,15);int e=g.State.Active.currentEnergy;
+                var g=New();Energy(g);var c=Hand(g,"crecimiento-descontrolado");int a=Home(g),b=Home(g,0,5);int e=g.State.Active.currentEnergy;
                 Check(!g.Play(c.instanceId,new[]{a,b}),"Permitió dos casillas no adyacentes.");Check(e==g.State.Active.currentEnergy,"Cobró acción rechazada.");
                 b=g.State.tiles[a].neighbors.First(n=>g.TerraformTarget(n));Check(g.Play(c.instanceId,new[]{a,b},false,Biome.Swamp),"Terraformación doble no funciona.");Check(g.State.tiles[a].biome==Biome.Swamp&&g.State.tiles[b].biome==Biome.Swamp,"Bioma incorrecto.");Valid(g);
             });
@@ -120,7 +107,7 @@ namespace WarConquer.Editor
             });
             Test("Destruir bioma conserva hex y revela ceniza marcada",()=>{
                 var g=New();var a=g.State.tiles[Home(g)];a.biome=Biome.Forest;a.hiddenAsh=false;TerrainManager.DestroyBiome(g,a);Check(a.biome==Biome.Neutral,"No neutraliza.");
-                a.biome=Biome.Forest;a.hiddenAsh=true;TerrainManager.DestroyBiome(g,a);Check(a.biome==Biome.AshLand&&g.State.tiles.Count==87,"Ceniza o casillas incorrectas.");
+                a.biome=Biome.Forest;a.hiddenAsh=true;TerrainManager.DestroyBiome(g,a);Check(a.biome==Biome.AshLand&&g.State.tiles.Count>50,"Ceniza o casillas incorrectas.");
             });
             Test("Recursos solo pagan cartas con etiqueta compatible",()=>{
                 var g=New();g.State.Active.currentEnergy=0;EnergyManager.AddResource(g.State,g.State.Active,Biome.Desert,5);var c=Hand(g,"bestia-micelial");
@@ -134,9 +121,9 @@ namespace WarConquer.Editor
                 var g=New();var p=PrototypeScenario.Spawn(g,1,"nomada-de-arena",Home(g,1));EffectManager.Sleep(g,p,0);FinishTurn(g);
                 Check(g.IsSleeping(p)&&Paths(g,p).Count==0&&CombatManager.Targets(g,p).Count==0,"Dormido permite acciones.");FinishTurn(g);Check(p.sleepUntilTurn==0,"Dormido no expira.");Valid(g);
             });
-            Test("Veneno se resuelve en turnos propios y expira",()=>{
+            Test("Veneno se duplica en turnos propios hasta la muerte",()=>{
                 var g=New();var p=PrototypeScenario.Spawn(g,1,"guardian-del-obelisco",Home(g,1));int hp=p.health;EffectManager.Poison(g,p,1,0);FinishTurn(g);Check(p.health==hp-1,"Primer daño de veneno incorrecto.");
-                for(int i=0;i<4;i++)FinishTurn(g);Check(p.health==hp-2&&p.poison==0,"Duración del veneno incorrecta.");Valid(g);
+                for(int i=0;i<4;i++)FinishTurn(g);Check(p.health==hp-3&&p.poison==4,"Duración del veneno incorrecta.");Valid(g);
             });
             Test("Movimiento respeta ocupación, alcance y coste",()=>{
                 var g=New();var p=PrototypeScenario.Spawn(g,0,"recolector-de-esporas",Home(g));int from=p.tileId;
@@ -248,14 +235,14 @@ namespace WarConquer.Editor
             });
             InterfaceRulesTests.RunAll(catalog,Test);
             MatchSetupTests.RunAll(catalog,Test);
-            Board3DTests.RunAll(catalog,Test);
+            Board3DTests.RunAll(catalog,Test);RevisionRulesTests.RunAll(catalog,Test);
             Debug.Log("WAR_CONQUER_TESTS_PASSED "+passed);
             string report=Environment.GetEnvironmentVariable("WAR_CONQUER_TEST_REPORT");if(!string.IsNullOrEmpty(report))System.IO.File.WriteAllText(report,string.Join("\n",results)+"\nTOTAL "+passed+" passed\n");
         }
         static bool FinishTurn(GameManager g)
         {
             while(g.State.battle!=null)BattleManager.Pass(g,g.ActingPlayerId);
-            while(g.State.stage!=TurnStage.Assault&&g.CanAct)g.AdvanceStage();
+            while(g.State.stage!=TurnStage.Terraforming&&g.CanAct)g.AdvanceStage();
             return g.EndTurn();
         }
         static Dictionary<int,List<int>> Paths(GameManager g,Piece p){g.State.stage=TurnStage.Assault;return MovementManager.Paths(g,p);}

@@ -9,7 +9,7 @@ namespace WarConquer
         void UpdateAI()
         {
             // Opening any dialog pauses the AI, including the new-match/deck chooser.
-            if(modal!=null||Game==null||!Game.CanAct||!Game.ActingPlayer.isAI)
+            if(modal!=null||Game==null||!Game.CanAct||!Game.ActingPlayer.isAI||board.World.IsAnimating)
             {nextAiAction=Time.unscaledTime+.75f;return;}
             if(Time.unscaledTime<nextAiAction)return;
             nextAiAction=Time.unscaledTime+.65f;

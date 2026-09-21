@@ -7,7 +7,8 @@ namespace WarConquer
     {
         public static void Start(GameManager g)
         {
-            var s=g.State;var p=s.Active;s.phase=Phase.Start;p.turnsTaken++;
+            var s=g.State;var p=s.Active;s.phase=Phase.Start;
+            ConquestManager.ScoreStart(s,p.id);if(s.phase==Phase.Finished)return;p.turnsTaken++;
             p.maxEnergy=Math.Min(s.rules.maxEnergy,s.rules.initialEnergy+(p.turnsTaken-1)*s.rules.energyGrowth);
             p.currentEnergy=p.maxEnergy;p.terraformDiscountUsed=false;p.towerUsed=false;p.structureDiscount=0;
             foreach(var tile in s.tiles)
@@ -19,7 +20,8 @@ namespace WarConquer
                 var c=g.Data(unit);unit.attacked=false;unit.abilityUsed=false;unit.bonusAttack=0;unit.moved=false;unit.fastBonusUsed=false;
                 if(unit.poison>0)
                 {
-                    CombatManager.Damage(g,unit,unit.poison,false);unit.poisonTurns--;if(unit.poisonTurns<=0)unit.poison=0;
+                    CombatManager.PoisonDamage(g,unit,unit.poison);unit.poisonTurns++;
+                    unit.poison=unit.poison>int.MaxValue/2?int.MaxValue:unit.poison*2;
                     if(unit.health<=0)continue;
                 }
                 if(c.Has("Evolve")&&!unit.evolved&&unit.forestSinceTurn>=0&&s.turn-unit.forestSinceTurn>=4&&s.tiles[unit.tileId].biome==Biome.Forest)
