@@ -7,7 +7,8 @@ namespace WarConquer
 {
     public static class GrayboxUI
     {
-        public static readonly Color Background=new Color32(15,19,27,255), Panel=new Color32(25,32,44,255), Muted=new Color32(158,175,193,255), Ink=new Color32(234,240,248,255);
+        public static readonly Color Background=new Color32(8,12,19,255), Panel=new Color32(19,27,40,255), Muted=new Color32(167,183,203,255), Ink=new Color32(240,244,250,255);
+        public static readonly Color Action=new Color32(188,210,232,255), ActionInk=new Color32(15,24,39,255), Disabled=new Color32(43,53,69,255);
         public static readonly Color Purple=new Color32(184,119,244,255), Yellow=new Color32(245,203,76,255), Green=new Color32(104,220,171,255);
         static Font font;
         public static Font Font => font ? font : (font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
@@ -31,9 +32,10 @@ namespace WarConquer
         }
         public static Button Button(Transform parent,string label,float x,float y,float w,float h,Action click,Color? color=null,bool enabled=true)
         {
-            var r=Box(parent,label,x,y,w,h,color??new Color32(44,55,72,255));var b=r.gameObject.AddComponent<Button>();b.targetGraphic=r.GetComponent<Image>();b.onClick.AddListener(()=>click());b.interactable=enabled;
-            var colors=b.colors;colors.highlightedColor=new Color(1.25f,1.25f,1.25f);colors.disabledColor=new Color(.55f,.55f,.55f,.7f);b.colors=colors;
-            var t=Text(r,label,5,3,w-10,h-6,15);t.alignment=TextAnchor.MiddleCenter;return b;
+            var surface=enabled?(color.HasValue?Color.Lerp(color.Value,Color.white,.56f):Action):Disabled;
+            var r=Box(parent,label,x,y,w,h,surface);var b=r.gameObject.AddComponent<Button>();b.targetGraphic=r.GetComponent<Image>();b.onClick.AddListener(()=>click());b.interactable=enabled;
+            var colors=b.colors;colors.normalColor=Color.white;colors.highlightedColor=new Color(1.12f,1.12f,1.12f);colors.selectedColor=colors.highlightedColor;colors.pressedColor=new Color(.82f,.86f,.92f);colors.disabledColor=Color.white;b.colors=colors;
+            var t=Text(r,label,5,3,w-10,h-6,15,enabled?ActionInk:new Color32(117,132,153,255));t.alignment=TextAnchor.MiddleCenter;return b;
         }
         public static void Clear(Transform root){for(int i=root.childCount-1;i>=0;i--){var go=root.GetChild(i).gameObject;go.SetActive(false);UnityEngine.Object.Destroy(go);}}
         public static Color BiomeColor(Biome b)=>new[]{new Color32(65,74,84,255),new Color32(44,99,74,255),new Color32(53,83,91,255),new Color32(116,162,179,255),new Color32(141,67,52,255),new Color32(151,124,59,255),new Color32(83,49,102,255),new Color32(99,93,88,255)}[(int)b];

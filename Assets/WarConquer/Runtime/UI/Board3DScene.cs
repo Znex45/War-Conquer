@@ -48,7 +48,7 @@ namespace WarConquer
             previousMain=Camera.main;if(previousMain!=null){previousMask=previousMain.cullingMask;previousMain.cullingMask&=~(1<<BoardMeshFactory.Layer);}
             var cameraRoot=mesh.Group(transform,"Cámara del tablero 3D",Vector3.zero);
             BoardCamera=cameraRoot.gameObject.AddComponent<Camera>();BoardCamera.orthographic=true;BoardCamera.clearFlags=CameraClearFlags.SolidColor;
-            BoardCamera.backgroundColor=new Color(.055f,.078f,.1f);BoardCamera.nearClipPlane=.1f;BoardCamera.farClipPlane=100;BoardCamera.cullingMask=1<<BoardMeshFactory.Layer;
+            BoardCamera.backgroundColor=new Color(.025f,.035f,.05f);BoardCamera.nearClipPlane=.1f;BoardCamera.farClipPlane=100;BoardCamera.cullingMask=1<<BoardMeshFactory.Layer;
             BoardCamera.allowHDR=false;BoardCamera.allowMSAA=true;BoardCamera.depth=-2;
             var cameraData=cameraRoot.gameObject.AddComponent<UniversalAdditionalCameraData>();cameraData.renderPostProcessing=false;cameraData.renderShadows=true;
             BoardCamera.enabled=false;
@@ -56,7 +56,7 @@ namespace WarConquer
             var light=key.gameObject.AddComponent<Light>();light.type=LightType.Directional;light.color=new Color(1,.93f,.81f);light.intensity=1.15f;light.shadows=LightShadows.Soft;light.shadowBias=.04f;light.shadowNormalBias=.2f;light.cullingMask=1<<BoardMeshFactory.Layer;
             var fill=mesh.Group(transform,"Luz de relleno",Vector3.zero);fill.rotation=Quaternion.Euler(32,145,0);
             var fillLight=fill.gameObject.AddComponent<Light>();fillLight.type=LightType.Directional;fillLight.color=new Color(.64f,.77f,1);fillLight.intensity=.45f;fillLight.cullingMask=1<<BoardMeshFactory.Layer;
-            mesh.Part(transform,"Suelo bajo el tablero",mesh.Cube,new Vector3(0,-.2f,0),new Vector3(28,.22f,28),new Color(.09f,.13f,.16f));
+            mesh.Part(transform,"Suelo bajo el tablero",mesh.Cube,new Vector3(0,-.2f,0),new Vector3(28,.22f,28),new Color(.035f,.05f,.075f));
         }
         public void ResizeTexture(int width,int height)
         {

@@ -30,7 +30,7 @@ namespace WarConquer
             for(int n=1;n<=4;n++)
             {
                 int count=n;string label=n==1?"1 PERSONA · VS IA":n+" PERSONAS";
-                GrayboxUI.Button(body,label,26+(n-1)*274,113,255,48,()=>{humanPlayers=count;ShowSetup();},humanPlayers==n?Color.Lerp(GrayboxUI.Green,GrayboxUI.Panel,.5f):edge);
+                GrayboxUI.Button(body,label,26+(n-1)*274,113,255,48,()=>{humanPlayers=count;ShowSetup();},humanPlayers==n?GrayboxUI.Green:edge);
             }
             int participants=humanPlayers==1?2:humanPlayers;
             GrayboxUI.Text(body,humanPlayers==1?"Tú contra una IA. Elige tu mazo y el de tu rival.":humanPlayers+" personas · turnos locales en este equipo · sin IA.",26,178,1072,31,19,GrayboxUI.Ink);
@@ -38,18 +38,18 @@ namespace WarConquer
             for(int i=0;i<participants;i++)
             {
                 int id=i;float y=254+i*90;
-                var row=GrayboxUI.Box(body,"Mazo de J"+(i+1),26,y,1070,80,new Color32(32,42,56,255));
+                var row=GrayboxUI.Box(body,"Mazo de J"+(i+1),26,y,1070,80,new Color32(27,36,51,255));
                 GrayboxUI.Text(row,"JUGADOR "+(i+1)+(humanPlayers==1&&i==1?" · IA":""),12,12,204,26,18,GrayboxUI.Ink,FontStyle.Bold);
                 GrayboxUI.Text(row,humanPlayers==1&&i==1?"Rival automático":"Persona",12,44,195,22,14,GrayboxUI.Muted);
                 foreach(string deck in new[]{"ZUKGROK","SAHRIA"})
                 {
                     bool fungus=deck=="ZUKGROK",chosen=leaders[id]==deck;var color=fungus?GrayboxUI.Purple:GrayboxUI.Yellow;
                     float x=fungus?225:641;
-                    GrayboxUI.Button(row,(chosen?"✓ ":"")+deck+" · 50 cartas",x,8,404,34,()=>{leaders[id]=deck;ShowSetup();},Color.Lerp(color,GrayboxUI.Panel,chosen?.35f:.82f));
+                    GrayboxUI.Button(row,(chosen?"✓ ":"")+deck+" · 50 cartas",x,8,404,34,()=>{leaders[id]=deck;ShowSetup();},Color.Lerp(color,GrayboxUI.Panel,chosen?0f:.65f));
                     GrayboxUI.Text(row,fungus?"MICELIAL · Bosque, Esporas y veneno":"SOLAR · Desierto y control del terreno",x+7,49,390,24,14,color);
                 }
             }
-            GrayboxUI.Button(body,"COMENZAR PARTIDA",26,642,1070,60,()=>StartMatch(false),Color.Lerp(GrayboxUI.Green,GrayboxUI.Panel,.45f));
+            GrayboxUI.Button(body,"COMENZAR PARTIDA",26,642,1070,60,()=>StartMatch(false),GrayboxUI.Green);
             GrayboxUI.Text(body,"Semilla "+seed+" · 87 hexágonos · "+participants+" mazos de 50",26,720,510,25,15,GrayboxUI.Muted);
             GrayboxUI.Button(body,"Cambiar semilla",552,715,213,35,()=>{seed=(seed*31+17)&0x7fffffff;ShowSetup();});
             GrayboxUI.Button(body,"Escenario de pruebas",780,715,316,35,()=>StartMatch(true));
@@ -65,7 +65,7 @@ namespace WarConquer
         {
             HideTooltip();var body=OpenModal("PARTIDA EN PAUSA");
             GrayboxUI.Text(body,"Opciones de partida",70,100,990,40,24,GrayboxUI.Ink,FontStyle.Bold);
-            GrayboxUI.Button(body,"Continuar partida",70,173,990,66,CloseModal,Color.Lerp(GrayboxUI.Green,GrayboxUI.Panel,.55f));
+            GrayboxUI.Button(body,"Continuar partida",70,173,990,66,CloseModal,GrayboxUI.Green);
             GrayboxUI.Button(body,"Guardar",70,274,474,66,()=>{CloseModal();Save();});
             GrayboxUI.Button(body,"Cargar",586,274,474,66,()=>{CloseModal();Load();});
             GrayboxUI.Button(body,"Registro",70,370,474,66,ShowLog);
