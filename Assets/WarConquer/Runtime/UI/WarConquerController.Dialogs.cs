@@ -7,7 +7,16 @@ namespace WarConquer
 {
     public partial class WarConquerController
     {
-        void CloseModal(){if(modal!=null){modal.gameObject.SetActive(false);Destroy(modal.gameObject);modal=null;}}
+        void SetMatchVisible(bool visible)
+        {
+            if(matchRoot!=null)matchRoot.gameObject.SetActive(visible);
+            if(board?.World!=null)board.World.gameObject.SetActive(visible);
+        }
+        void CloseModal()
+        {
+            if(modal!=null){modal.gameObject.SetActive(false);Destroy(modal.gameObject);modal=null;}
+            setupVisible=false;SetMatchVisible(Game?.State!=null&&Game.State.phase!=Phase.Setup);
+        }
         RectTransform OpenModal(string title,bool closable=true)
         {
             CloseModal();modal=GrayboxUI.Box(root,"Modal",0,0,1600,1000,new Color(0,0,0,.88f));
@@ -16,6 +25,7 @@ namespace WarConquer
         void ShowSetup()
         {
             HideTooltip();var body=OpenModal("PREPARAR PARTIDA",Game.State.phase!=Phase.Setup);
+            setupVisible=true;SetMatchVisible(false);modal.GetComponent<UnityEngine.UI.Image>().color=GrayboxUI.Background;
             GrayboxUI.Text(body,"¿Cuántas personas van a jugar?",26,72,1050,30,21,GrayboxUI.Ink,FontStyle.Bold);
             for(int n=1;n<=4;n++)
             {
@@ -46,10 +56,38 @@ namespace WarConquer
         }
         void StartMatch(bool scenario)
         {
-            CloseModal();ClearAction();lastActor=-1;viewedPlayer=0;focus=-1;page=0;handFilter="Todas";useResources=false;board.Zoom=1;board.Pan=Vector2.zero;
+            CloseModal();ClearAction();lastActor=-1;viewedPlayer=0;focus=-1;page=0;handFilter="Todas";useResources=false;board.Reset();
             aiPlayer=new AiPlayer();nextAiAction=Time.unscaledTime+1;
             Game.NewGame(leaders,seed,CardCatalog.LoadRules(),humanPlayers);
             if(scenario){PrototypeScenario.Load(Game);Game.Notify("Escenario de pruebas: biomas y unidades preparadas. No es el inicio normal de partida.");}
+        }
+        void ShowMatchMenu()
+        {
+            HideTooltip();var body=OpenModal("PARTIDA EN PAUSA");
+            GrayboxUI.Text(body,"Opciones de partida",70,100,990,40,24,GrayboxUI.Ink,FontStyle.Bold);
+            GrayboxUI.Button(body,"Continuar partida",70,173,990,66,CloseModal,Color.Lerp(GrayboxUI.Green,GrayboxUI.Panel,.55f));
+            GrayboxUI.Button(body,"Guardar",70,274,474,66,()=>{CloseModal();Save();});
+            GrayboxUI.Button(body,"Cargar",586,274,474,66,()=>{CloseModal();Load();});
+            GrayboxUI.Button(body,"Registro",70,370,474,66,ShowLog);
+            GrayboxUI.Button(body,"Ayuda",586,370,474,66,ShowHelp);
+            GrayboxUI.Button(body,"Nueva partida",70,534,990,66,ShowSetup);
+        }
+        void ShowHelp()
+        {
+            var body=OpenModal("AYUDA DE PARTIDA");
+            GrayboxUI.Text(body,"TURNO Y CARTAS",35,95,500,36,23,GrayboxUI.Ink,FontStyle.Bold);
+            GrayboxUI.Text(body,"Despliegue → Terraformación → Asalto. El botón de etapa permite avanzar.\n\nLas cartas oscuras no se pueden usar ahora. Su banda inferior indica la etapa de uso. Pasa el cursor para ampliarlas o selecciónalas y pulsa Ver carta completa.\n\nSelecciona una carta y un hexágono verde. El pago mixto permite elegir recursos compatibles. Resolver selección confirma los objetivos múltiples; Cancelar no consume recursos.",35,153,505,460,20,GrayboxUI.Muted);
+            GrayboxUI.Text(body,"TABLERO Y VICTORIA",590,95,500,36,23,GrayboxUI.Ink,FontStyle.Bold);
+            GrayboxUI.Text(body,"Arrastra para desplazar, usa el botón derecho para girar y la rueda para acercar. 1:1 restablece la cámara. Ver datos muestra números de casilla y puntos de las bases.\n\nSelecciona una pieza para mover, atacar o usar su habilidad. Pulsa un marcador de jugador para consultar su mano y su Líder. Detalles muestra el control por territorio.\n\nEl centro y cada base enemiga conquistada dan +1 PC por ronda. Gana con 10 PC o con el último Líder en pie. Las pilas abren el mazo y descarte.",590,153,505,510,20,GrayboxUI.Muted);
+            GrayboxUI.Button(body,"Volver al menú",35,714,1060,48,ShowMatchMenu);
+        }
+        void ShowLeaderDetails(Player player)
+        {
+            bool fungus=player.leader=="ZUKGROK";var body=OpenModal(player.leader+" · HABILIDAD DEL LÍDER");
+            GrayboxUI.Text(body,fungus?"INFLUENCIA MICELIAL":"DOMINIO DE LAS ARENAS",40,115,1030,60,29,GrayboxUI.PlayerColor(player.id),FontStyle.Bold);
+            GrayboxUI.Text(body,fungus?"Envenena 1 a un enemigo en Bosque conectado a tu red y crea una Espora adyacente.":"Hasta 2 Desiertos propios se vuelven inestables (4+). Un fallo causa 1 daño adicional, una sola vez entre ambos.",40,223,1010,190,27,GrayboxUI.Ink);
+            GrayboxUI.Text(body,TimingRules.StageName(TimingRules.LeaderStage(player))+" · COSTE "+Game.State.rules.leaderAbilityCost+" E",40,460,1030,50,25,GrayboxUI.PlayerColor(player.id),FontStyle.Bold);
+            GrayboxUI.Text(body,"Actívala desde el panel de tu Líder cuando haya objetivos válidos y energía suficiente.",40,566,1030,85,23,GrayboxUI.Muted);
         }
         void ShowLog(){var body=OpenModal("Registro de la partida");GrayboxUI.Text(body,string.Join("\n",Game.State.log.Skip(Math.Max(0,Game.State.log.Count-29))),26,80,1070,684,19,GrayboxUI.Muted);}
         void Save(){try{File.WriteAllText(SavePath,GamePersistence.Serialize(Game.State));Game.Notify("Partida guardada localmente.");}catch(Exception e){Game.Notify("No se pudo guardar: "+e.Message);}}

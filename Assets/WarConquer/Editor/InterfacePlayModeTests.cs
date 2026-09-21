@@ -37,6 +37,7 @@ namespace WarConquer.Editor
         }
         static void RunRequestedCheck()
         {
+            if(File.Exists("Temp/WarConquer.3DCheck.request"))return;
             // Optional local test request, consumed once after an editor script import.
             const string request="Temp/WarConquer.InterfaceCheck.request";
             if(!File.Exists(request))return;
@@ -79,7 +80,7 @@ namespace WarConquer.Editor
                 string before=GamePersistence.Serialize(g.State);
                 Invoke(ui,"ShowCardModal",g.Catalog["bestia-micelial"],g.State.Active);
                 Check(Has(ui,"VENTANAS DE USO")&&before==GamePersistence.Serialize(g.State),"La consulta de carta modifica la partida.");
-                Invoke(ui,"CloseModal");SetupPlayModeTests.Run(ui);
+                Invoke(ui,"CloseModal");SetupPlayModeTests.Run(ui);InterfaceRefinementTests.Run(ui);
                 Debug.Log("WAR_CONQUER_UI_PASSED: Canvas, cuatro jugadores, tres etapas, Líderes, dos pantallas de victoria y consulta sin mutación.");
             }
             finally

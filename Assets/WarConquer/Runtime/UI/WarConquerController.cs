@@ -12,7 +12,8 @@ namespace WarConquer
     public partial class WarConquerController : MonoBehaviour
     {
         public GameManager Game { get; private set; }
-        RectTransform root,header,left,leaderPanel,boardPanel,inspector,hand,piles,modal,tooltip;
+        RectTransform root,matchRoot,header,left,leaderPanel,boardPanel,inspector,hand,piles,modal,tooltip;
+        bool setupVisible,scoreDetails;
         BoardView board;
         string mode="inspect",handFilter="Todas";
         int viewedPlayer,focus=-1,selectedCard=-1,page,lastActor=-1;
@@ -31,7 +32,7 @@ namespace WarConquer
             Game=new GameManager(CardCatalog.Load());CreateUI();Game.Changed+=Render;
             Game.NewGame(leaders,seed,CardCatalog.LoadRules(),4,false);ShowSetup();
         }
-        void OnDestroy(){if(Game!=null)Game.Changed-=Render;}
+        void OnDestroy(){if(Game!=null)Game.Changed-=Render;board?.Dispose();}
         void CreateUI()
         {
             if(FindAnyObjectByType<EventSystem>()==null)
@@ -43,23 +44,26 @@ namespace WarConquer
             var scaler=canvasObject.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ConstantPixelSize;scaler.scaleFactor=Mathf.Min(Screen.width/1600f,Screen.height/1000f);
             var background=canvasObject.GetComponent<RectTransform>();background.gameObject.AddComponent<Image>().color=GrayboxUI.Background;
             root=GrayboxUI.Rect(background,"Graybox",0,0,1600,1000);root.anchorMin=root.anchorMax=new Vector2(.5f,.5f);root.pivot=new Vector2(.5f,.5f);root.anchoredPosition=Vector2.zero;
-            header=GrayboxUI.Rect(root,"Header",0,0,1600,66);
-            left=GrayboxUI.Box(root,"Acciones de etapa",16,76,238,326,GrayboxUI.Panel);
-            leaderPanel=GrayboxUI.Box(root,"Líder independiente",16,412,238,312,GrayboxUI.Panel);
-            boardPanel=GrayboxUI.Box(root,"Board",266,76,982,648,new Color32(17,29,38,255));boardPanel.gameObject.AddComponent<RectMask2D>();board=new BoardView(boardPanel,this);
-            inspector=GrayboxUI.Box(root,"Puntuación y selección",1260,76,324,648,GrayboxUI.Panel);
-            hand=GrayboxUI.Box(root,"Hand",16,736,1268,248,GrayboxUI.Panel);
-            piles=GrayboxUI.Box(root,"Mazo y descarte",1296,736,288,248,GrayboxUI.Panel);
+            matchRoot=GrayboxUI.Rect(root,"Interfaz de partida",0,0,1600,1000);
+            header=GrayboxUI.Rect(matchRoot,"Header",0,0,1600,66);
+            left=GrayboxUI.Box(matchRoot,"Acciones de etapa",16,76,238,326,GrayboxUI.Panel);
+            leaderPanel=GrayboxUI.Box(matchRoot,"Líder independiente",16,412,238,312,GrayboxUI.Panel);
+            boardPanel=GrayboxUI.Box(matchRoot,"Board",266,76,982,648,new Color32(17,29,38,255));boardPanel.gameObject.AddComponent<RectMask2D>();board=new BoardView(boardPanel,this);
+            inspector=GrayboxUI.Box(matchRoot,"Puntuación y selección",1260,76,324,648,GrayboxUI.Panel);
+            hand=GrayboxUI.Box(matchRoot,"Hand",16,736,1268,248,GrayboxUI.Panel);
+            piles=GrayboxUI.Box(matchRoot,"Mazo y descarte",1296,736,288,248,GrayboxUI.Panel);
         }
         void Update()
         {
             if(root==null)return;var canvas=root.GetComponentInParent<CanvasScaler>();float scale=Mathf.Min(Screen.width/1600f,Screen.height/1000f);
             if(Mathf.Abs(canvas.scaleFactor-scale)>.001f)canvas.scaleFactor=scale;
+            board?.Tick();
             UpdateAI();
         }
         public void Render()
         {
             if(Game?.State==null)return;
+            SetMatchVisible(!setupVisible&&Game.State.phase!=Phase.Setup);
             int actor=Game.ActingPlayerId;
             if(actor!=lastActor){lastActor=actor;viewedPlayer=actor;page=0;handFilter="Todas";useResources=Game.ActingPlayer.isAI&&AiPlayer.UseResources;ClearAction();focus=-1;nextAiAction=Time.unscaledTime+1;}
             if(selectedPiece!=null&&!BoardManager.Pieces(Game.State).Contains(selectedPiece))ClearAction();
@@ -67,19 +71,22 @@ namespace WarConquer
             var s=Game.State;GrayboxUI.PlayerLeaders=s.players.Select(p=>p.leader).ToArray();var player=s.players[viewedPlayer];
             DrawHeader();DrawTurnActions();DrawLeader(player);DrawScoreboard();DrawSelection();DrawHand(player);DrawPiles(player);
             board.Render(Game,new HashSet<int>(ValidTargets()),new HashSet<int>(targets),focus);
-            GrayboxUI.Text(boardPanel,"87 HEXÁGONOS · SIN PUENTES",16,12,420,22,12,GrayboxUI.Muted);
-            GrayboxUI.Button(boardPanel,"−",854,11,33,30,()=>{board.Zoom=Mathf.Max(1,board.Zoom-.25f);Render();});
-            GrayboxUI.Button(boardPanel,"+",892,11,33,30,()=>{board.Zoom=Mathf.Min(2,board.Zoom+.25f);Render();});
-            GrayboxUI.Button(boardPanel,"1:1",930,11,42,30,()=>{board.Zoom=1;board.Pan=Vector2.zero;Render();});
+            var chrome=board.Overlay;
+            GrayboxUI.Text(chrome,"TABLERO",16,16,200,22,12,GrayboxUI.Muted);
+            GrayboxUI.Button(chrome,board.World.ShowLabels?"Ocultar datos":"Ver datos",573,11,107,30,()=>{board.World.ShowLabels=!board.World.ShowLabels;Render();});
+            GrayboxUI.Button(chrome,"Girar -",690,11,72,30,()=>board.Rotate(-30));GrayboxUI.Button(chrome,"Girar +",771,11,72,30,()=>board.Rotate(30));
+            GrayboxUI.Button(chrome,"−",854,11,33,30,()=>{board.Zoom=Mathf.Max(1,board.Zoom-.25f);Render();});
+            GrayboxUI.Button(chrome,"+",892,11,33,30,()=>{board.Zoom=Mathf.Min(2.5f,board.Zoom+.25f);Render();});
+            GrayboxUI.Button(chrome,"1:1",930,11,42,30,()=>{board.Reset();Render();});
             if(board.Zoom>1)
             {
-                GrayboxUI.Button(boardPanel,"←",840,48,30,28,()=>{board.Pan.x+=80;Render();});GrayboxUI.Button(boardPanel,"→",875,48,30,28,()=>{board.Pan.x-=80;Render();});
-                GrayboxUI.Button(boardPanel,"↑",910,48,30,28,()=>{board.Pan.y+=80;Render();});GrayboxUI.Button(boardPanel,"↓",945,48,30,28,()=>{board.Pan.y-=80;Render();});
+                GrayboxUI.Button(chrome,"←",840,48,30,28,()=>{board.Pan+=new Vector2(80,0);Render();});GrayboxUI.Button(chrome,"→",875,48,30,28,()=>{board.Pan-=new Vector2(80,0);Render();});
+                GrayboxUI.Button(chrome,"↑",910,48,30,28,()=>{board.Pan+=new Vector2(0,80);Render();});GrayboxUI.Button(chrome,"↓",945,48,30,28,()=>{board.Pan-=new Vector2(0,80);Render();});
             }
-            GrayboxUI.Text(boardPanel,"Círculo: unidad · Rombo: estructura · Borde verde: objetivo · R: vía rápida",16,620,950,20,12,GrayboxUI.Muted);
+            GrayboxUI.Text(chrome,"Arrastrar: desplazar · Botón derecho: girar · Rueda: acercar · Borde verde: objetivo válido",16,620,950,20,12,GrayboxUI.Muted);
             if(s.battle!=null)
             {
-                var b=s.battle;var banner=GrayboxUI.Box(boardPanel,"Batalla",210,42,570,46,new Color32(85,49,65,255));
+                var b=s.battle;var banner=GrayboxUI.Box(chrome,"Batalla",210,42,570,46,new Color32(85,49,65,255));
                 GrayboxUI.Text(banner,"BATALLA  J"+(b.attackerOwner+1)+" → J"+(b.defenderOwner+1)+"   ·   RESPONDE J"+(b.priorityPlayer+1),12,10,546,28,18,GrayboxUI.Ink,FontStyle.Bold);
             }
             if(s.phase==Phase.Finished)ShowVictory();
@@ -91,7 +98,7 @@ namespace WarConquer
             GrayboxUI.Text(header,s.phase==Phase.Setup?"PREPARACIÓN · PARTIDA EN PAUSA":"RONDA "+s.round+" · TURNO J"+(s.activePlayer+1)+(s.Active.isAI?" (IA)":"")+" · "+TimingRules.StageName(s.stage),340,12,595,27,18,GrayboxUI.PlayerColor(s.activePlayer),FontStyle.Bold);
             GrayboxUI.Text(header,"J"+(actor.id+1)+" · ENERGÍA "+actor.currentEnergy+" / "+actor.maxEnergy,960,10,325,28,21,GrayboxUI.PlayerColor(actor.id),FontStyle.Bold);
             GrayboxUI.Text(header,string.Join(" · ",actor.resources.Where(r=>r.amount>0).Select(r=>Names.Biomes[(int)r.biome]+" "+r.amount))+"  Esporas "+actor.spores,960,39,380,20,11,GrayboxUI.Muted);
-            GrayboxUI.Button(header,"Nueva partida",1402,14,182,36,ShowSetup);
+            GrayboxUI.Button(header,"Menú",1402,14,182,36,ShowMatchMenu);
         }
         List<int> ValidTargets()
         {

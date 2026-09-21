@@ -26,7 +26,7 @@ namespace WarConquer.Editor
         [MenuItem("War & Conquer/Ejecutar pruebas de reglas")]
         public static void RunAll()
         {
-            passed=0;results.Clear();catalog=CardCatalog.Load();
+            Board3DAssets.Ensure();passed=0;results.Clear();catalog=CardCatalog.Load();
             Test("Mazos finales: 50 + 50, copias y todos los efectos definidos",()=>{
                 Check(catalog.All.Count(c=>c.quantity>0)==58,"Deben existir 58 diseños del documento final.");
                 foreach(string leader in new[]{"ZUKGROK","SAHRIA"})Check(catalog.All.Where(c=>c.leader==leader).Sum(c=>c.quantity)==50,"Conteo de mazo incorrecto.");
@@ -248,6 +248,7 @@ namespace WarConquer.Editor
             });
             InterfaceRulesTests.RunAll(catalog,Test);
             MatchSetupTests.RunAll(catalog,Test);
+            Board3DTests.RunAll(catalog,Test);
             Debug.Log("WAR_CONQUER_TESTS_PASSED "+passed);
             string report=Environment.GetEnvironmentVariable("WAR_CONQUER_TEST_REPORT");if(!string.IsNullOrEmpty(report))System.IO.File.WriteAllText(report,string.Join("\n",results)+"\nTOTAL "+passed+" passed\n");
         }

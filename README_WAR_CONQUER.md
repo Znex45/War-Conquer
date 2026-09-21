@@ -4,10 +4,10 @@
 
 1. Abre este proyecto en **Unity 6000.6.2f1**.
 2. En el menú superior elige **War & Conquer → Abrir Graybox**. También puedes abrir `Assets/WarConquer/Scenes/WarConquer_Graybox.unity`.
-3. Pulsa **Play**. La pantalla de preparación mantiene la partida en pausa hasta pulsar **COMENZAR PARTIDA**.
+3. Pulsa **Play**. La pantalla de preparación mantiene la partida en pausa y oculta completamente la interfaz y el tablero hasta pulsar **COMENZAR PARTIDA**. Al abrirla durante una partida, Cerrar permite volver a la partida anterior.
 4. Elige **1, 2, 3 o 4 personas**. Una persona juega contra una IA; las otras opciones son partidas locales con ese número de personas, sin rellenar puestos con IA. Elige Zukgrok o Sahria para cada participante, incluido el rival automático. Cada mazo conserva sus 50 cartas.
 5. Los duelos usan las bases norte y sur. Los puestos sin participante quedan libres, no reciben turnos ni cuentan para la victoria. Se conservan los cinco territorios y los 87 hexágonos.
-6. Para comprobar combate y efectos sin esperar varios turnos: **Nueva partida → Escenario de pruebas**. Este escenario prepara explícitamente unidades, biomas, una red y ceniza; el inicio normal sigue siendo completamente neutro.
+6. Para comprobar combate y efectos sin esperar varios turnos: **Menú → Nueva partida → Escenario de pruebas**. Este escenario prepara explícitamente unidades, biomas, una red y ceniza; el inicio normal sigue siendo completamente neutro.
 
 El juego es local por turnos compartiendo pantalla. Los controles de jugador permiten consultar las manos de los participantes; solo el jugador activo puede ejecutar acciones. El morado identifica a Zukgrok y el amarillo a Sahria, incluso si se cambia la selección de Líder. Los números J1–J4 distinguen a jugadores con el mismo mazo. La IA decide despliegues, terraformación, habilidades, movimiento y ataques con las mismas reglas y costes, sin consultar manos rivales ni el orden de robo. Se detiene al abrir un diálogo y reanuda al cerrarlo. El guardado conserva los participantes, sus mazos y quién controla cada puesto.
 
@@ -23,24 +23,26 @@ El juego es local por turnos compartiendo pantalla. Los controles de jugador per
 - **Marcha Micelial:** elige una unidad situada en un extremo de una vía rápida y después el destino. Puedes resolver un par o añadir otra unidad y su destino.
 - **Solo energía / Pago mixto:** por defecto se paga exactamente la energía indicada. El pago mixto es una elección explícita; la carta muestra el coste original → energía final y su vista ampliada desglosa recursos y descuentos. Solo se admiten recursos compatibles con las etiquetas.
 - **Despliegue → Terraformación → Asalto → Finalizar turno:** avanza mediante el botón izquierdo; al finalizar se resuelve el fin de turno, rota de jugador, genera energía, resuelve veneno/producción y roba automáticamente.
-- **Guardar/Cargar:** conserva la partida completa en `Application.persistentDataPath/war-conquer-save.json`, incluidos mazos, instancias, rutas, turnos y estado aleatorio.
+- **Menú:** reúne Nueva partida, Guardar, Cargar, Registro y Ayuda. Pausa las decisiones de la IA mientras está abierto. Guardar/Cargar conserva la partida completa en `Application.persistentDataPath/war-conquer-save.json`, incluidos mazos, instancias, rutas, turnos y estado aleatorio.
 - **Registro:** muestra cartas resueltas, daño, tiradas, movimiento, producción y cambios de turno.
-- **+ / − / flechas / 1:1:** amplían y desplazan el tablero sin alterar las casillas.
+- **Rueda / + / −:** acercan o alejan la cámara 3D. Arrastra con el botón izquierdo para desplazarla y con el derecho para girarla; también puedes usar las flechas y **Girar − / +**. **1:1** restablece la vista completa.
 
 ## Tablero
 
 El tablero es una retícula continua de **87 hexágonos que comparten sus bordes**, sin puentes ni separaciones de agua. J1 ocupa el norte (verde), J2 el este (amarillo), J3 el sur (rojo), J4 el oeste (azul), y el centro es gris cálido. Los territorios iniciales tienen **17 casillas** cada uno y el centro **19**. Cada zona comparte múltiples accesos con el centro y sus dos vecinos laterales.
 
-Los colores iniciales distinguen territorios: todas las casillas siguen **sin bioma** hasta terraformarse. Al terraformar, el relleno muestra el bioma; la marca J1–J4 indica el control actual. Las unidades y los mazos conservan morado para Zukgrok y amarillo para Sahria. Los círculos son unidades, los cuadrados estructuras, `Vn` indica veneno, `Zz` sueño, `!` terreno inestable y `+1/+2` recurso estratégico central. Las vías rápidas se identifican con el mismo número `R` en ambos extremos, sin dibujar puentes.
+El tablero tiene casillas hexagonales con volumen, iluminación y sombras. Las unidades son miniaturas 3D y las estructuras y bases son edificios 3D. Los colores iniciales distinguen territorios: todas las casillas siguen **sin bioma** hasta terraformarse. Al terraformar, el terreno y su decoración muestran el bioma; la marca J1–J4 indica el control actual. Las unidades y los mazos conservan morado para Zukgrok y amarillo para Sahria. Los rótulos muestran vida, veneno `Vn` y sueño `Zz`; el inspector conserva el detalle completo. Las vías rápidas aparecen como líneas sobre el suelo, sin puentes.
+
+La interfaz de cartas e información se conserva sobre una vista de cámara 3D. Tanto los hexágonos como las miniaturas responden a clics para seleccionar, desplegar, mover y atacar. `Board3DScene` sincroniza los modelos con la partida y `BoardMeshFactory` genera las mallas compartidas del graybox. El escenario de pruebas permite ver unidades y estructuras de las dos facciones desde el inicio.
 
 **War & Conquer → Ver mapa en escena** permite inspeccionar el mapa antes de pulsar Play. Los guardados antiguos del mapa de islas no se cargan en esta versión; se conservan en disco y se puede iniciar una partida nueva.
 
 ## Interfaz y reglas de etapas
 
 - Izquierda: etapa activa y acciones legales; debajo, ficha independiente del Líder con vida, facción, retrato graybox, habilidad, coste, condición y disponibilidad.
-- Centro: tablero continuo; cada rótulo de territorio muestra los puntos de su jugador.
-- Derecha: los cuatro marcadores de Conquista, vida y casillas controladas por zona, siempre visibles; detalle de selección debajo.
-- Abajo: mano de seis cartas por página, coste/vida arriba, fuerza/movimiento debajo del área central y texto/etiquetas al pie. Hover abre una carta ampliada sin modificar el estado. En pantalla táctil, tocar abre el detalle y permite seleccionar objetivos desde allí.
+- Centro: tablero continuo con los datos esenciales. **Ver datos** recupera números y control de casillas, y puntos sobre las bases; los objetivos seleccionados siempre conservan su indicación.
+- Derecha: cuatro marcadores compactos de Conquista y vida; **Detalles** despliega el control por zona y los puntos restantes. El detalle de selección aparece debajo. **Ver habilidad** abre el texto completo del Líder sin cambiar sus reglas ni su botón de activación.
+- Abajo: mano de seis cartas por página, coste/vida arriba, fuerza/movimiento debajo del área central y una banda destacada con la etapa de uso. Las cartas no disponibles se oscurecen más, manteniendo legible la etapa y disponible su consulta. Hover abre una carta ampliada con todos los biomas y etiquetas sin modificar el estado. En pantalla táctil, tocar abre el detalle y permite seleccionar objetivos desde allí.
 - Esquina inferior derecha: mazo y descarte como pilas, contador real y carta superior del descarte. Al pulsar una pila se abre una galería paginada. El mazo no revela su orden de robo. Robar fuera de la ventana correspondiente se rechaza.
 - La pantalla de victoria indica ganador y motivo; no se pueden ejecutar más acciones.
 

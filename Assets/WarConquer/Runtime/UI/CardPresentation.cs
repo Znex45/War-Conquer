@@ -33,9 +33,15 @@ namespace WarConquer
             }
             else
             {
-                GrayboxUI.Text(root,card.description,9,footer+24,w-18,h-footer-58,11,GrayboxUI.Ink);
-                GrayboxUI.Text(root,card.factionTag+" · "+string.Join(" / ",card.biomes.Select(b=>Names.Biomes[(int)b])),9,h-31,w-18,14,9,color);
-                GrayboxUI.Text(root,string.Join(" / ",(card.allowedPhases??Array.Empty<TurnStage>()).Select(TimingRules.StageName)),9,h-16,w-18,13,9,GrayboxUI.Muted);
+                GrayboxUI.Text(root,card.description,9,footer+24,w-18,h-footer-61,11,GrayboxUI.Ink);
+                var phases=card.allowedPhases??Array.Empty<TurnStage>();
+                bool current=phases.Contains(game.State.stage);
+                var badge=GrayboxUI.Box(root,"Etapa de uso",6,h-32,w-12,27,current?new Color32(40,81,75,255):new Color32(46,57,76,255));
+                // Keep the usage window readable even when the rest of the card is dimmed.
+                badge.gameObject.AddComponent<CanvasGroup>().ignoreParentGroups=true;
+                GrayboxUI.Box(badge,"Indicador",0,0,3,27,current?GrayboxUI.Green:GrayboxUI.Muted);
+                string stages=string.Join(" / ",phases.Select(TimingRules.StageName));
+                var timing=GrayboxUI.Text(badge,stages,6,2,w-24,23,phases.Length>1?11:13,GrayboxUI.Ink,FontStyle.Bold);timing.alignment=TextAnchor.MiddleCenter;
             }
             if(click!=null){var button=root.gameObject.AddComponent<Button>();button.targetGraphic=root.GetComponent<Image>();button.onClick.AddListener(()=>click());}
             if(enter!=null||exit!=null){var hover=root.gameObject.AddComponent<CardHover>();hover.enter=enter;hover.exit=exit;}

@@ -18,6 +18,8 @@ namespace WarConquer.Editor
         public static void Run(WarConquerController ui)
         {
             Set(ui,"humanPlayers",1);Invoke(ui,"ShowSetup");string before=GamePersistence.Serialize(ui.Game.State);
+            var match=ui.GetComponentsInChildren<RectTransform>(true).First(r=>r.name=="Interfaz de partida");
+            Check(!match.gameObject.activeInHierarchy&&!ui.GetComponentInChildren<Board3DScene>(true).gameObject.activeInHierarchy,"El setup deja visible la interfaz o el mundo de partida.");
             foreach(string label in new[]{"1 PERSONA · VS IA","2 PERSONAS","3 PERSONAS","4 PERSONAS"})
                 Check(ui.GetComponentsInChildren<Button>().Any(b=>b.name==label),"Falta selector de personas.");
             foreach(int count in new[]{2,3,4,1})
@@ -33,12 +35,14 @@ namespace WarConquer.Editor
             aiRow.GetComponentsInChildren<Button>().First(b=>b.name.Contains("ZUKGROK")).onClick.Invoke();
             Check(GamePersistence.Serialize(ui.Game.State)==before,"Elegir mazos modifica la partida actual.");
             Click(ui,"COMENZAR PARTIDA");
+            Check(match.gameObject.activeInHierarchy&&ui.GetComponentInChildren<Board3DScene>()!=null,"Comenzar no revela la interfaz y el tablero.");
             Check(ui.Game.State.players[0].leader=="SAHRIA"&&ui.Game.State.players[1].leader=="ZUKGROK"&&ui.Game.State.players[1].isAI,"No aplica los mazos elegidos.");
             ui.Game.AdvanceStage();ui.Game.AdvanceStage();ui.Game.EndTurn();
             Check(ui.GetComponentsInChildren<Text>().Any(t=>t.text=="TURNO DE LA IA"),"Falta indicador de rival automático.");
             before=GamePersistence.Serialize(ui.Game.State);Invoke(ui,"ShowSetup");Set(ui,"nextAiAction",0f);Invoke(ui,"UpdateAI");
             Check(before==GamePersistence.Serialize(ui.Game.State),"La IA juega detrás de la pantalla de preparación.");
             Invoke(ui,"CloseModal");Set(ui,"nextAiAction",0f);Invoke(ui,"UpdateAI");
+            Check(match.gameObject.activeInHierarchy,"Cerrar preparación no recupera la partida.");
             Check(before!=GamePersistence.Serialize(ui.Game.State),"La IA no reanuda automáticamente.");
             // Return the original deck defaults after checking the actual button callbacks.
             Set(ui,"leaders",new[]{"ZUKGROK","SAHRIA","ZUKGROK","SAHRIA"});

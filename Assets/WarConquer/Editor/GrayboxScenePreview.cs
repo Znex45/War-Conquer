@@ -13,20 +13,21 @@ namespace WarConquer.Editor
         {
             if(Application.isPlaying)return;
             if(preview==null){preview=new GameState();BoardManager.Create(preview);}
-            var previousColor=Handles.color;
+            var previousColor=Handles.color;var previousDepth=Handles.zTest;Handles.zTest=UnityEngine.Rendering.CompareFunction.LessEqual;
             var label=new GUIStyle(EditorStyles.boldLabel){alignment=TextAnchor.MiddleCenter};label.normal.textColor=Color.white;
             foreach(var tile in preview.tiles)
             {
-                var center=new Vector3(tile.x,tile.y,0);
+                var center=Board3DScene.Position(tile);
                 var polygon=new Vector3[6];
-                for(int i=0;i<6;i++){float angle=i*Mathf.PI/3;polygon[i]=center+new Vector3(Mathf.Cos(angle),Mathf.Sin(angle),0)*.8f;}
-                Handles.color=GrayboxUI.Background;Handles.DrawAAConvexPolygon(polygon);
-                for(int i=0;i<6;i++)polygon[i]=center+(polygon[i]-center)*.94f;
+                for(int i=0;i<6;i++){float angle=i*Mathf.PI/3;polygon[i]=center+new Vector3(Mathf.Cos(angle)*.8f,BoardMeshFactory.Surface,Mathf.Sin(angle)*.8f);}
+                Handles.color=Color.Lerp(GrayboxUI.TerritoryColor(tile.territory),Color.black,.5f);
+                for(int i=0;i<6;i++)Handles.DrawAAConvexPolygon(polygon[i],polygon[(i+1)%6],polygon[(i+1)%6]-Vector3.up*BoardMeshFactory.Surface,polygon[i]-Vector3.up*BoardMeshFactory.Surface);
+                for(int i=0;i<6;i++)polygon[i]=center+Vector3.up*BoardMeshFactory.Surface+(polygon[i]-center-Vector3.up*BoardMeshFactory.Surface)*.955f;
                 Handles.color=GrayboxUI.TerritoryColor(tile.territory);Handles.DrawAAConvexPolygon(polygon);
-                if(tile.baseOwner>=0)Handles.Label(center,"J"+(tile.baseOwner+1),label);
-                else if(tile.territory==4&&tile.q==0&&tile.r==0)Handles.Label(center,"CENTRO",label);
+                if(tile.baseOwner>=0){Handles.color=GrayboxUI.PlayerColor(tile.baseOwner);Handles.CubeHandleCap(0,center+Vector3.up*.67f,Quaternion.identity,.55f,EventType.Repaint);Handles.Label(center+Vector3.up*1.05f,"J"+(tile.baseOwner+1),label);}
+                else if(tile.territory==4&&tile.q==0&&tile.r==0)Handles.Label(center+Vector3.up*.4f,"CENTRO",label);
             }
-            Handles.color=previousColor;
+            Handles.color=previousColor;Handles.zTest=previousDepth;
         }
 
         [MenuItem("War & Conquer/Ver mapa en escena")]
@@ -37,7 +38,7 @@ namespace WarConquer.Editor
             if(controller==null)return;
             Selection.activeGameObject=controller.gameObject;
             var view=SceneView.lastActiveSceneView??EditorWindow.GetWindow<SceneView>();
-            view.drawGizmos=true;view.LookAt(Vector3.zero,Quaternion.identity,9.5f,true);view.Focus();view.Repaint();
+            view.in2DMode=false;view.drawGizmos=true;view.LookAt(Vector3.zero,Quaternion.Euler(53,0,0),9.5f,true);view.Focus();view.Repaint();
         }
     }
 }

@@ -78,11 +78,11 @@ namespace WarConquer
             GrayboxUI.Text(leaderPanel,player.factionTag+" · J"+(player.id+1),88,45,140,24,12,GrayboxUI.Muted);
             GrayboxUI.Text(leaderPanel,"VIDA "+player.leaderHealth+" / "+Game.State.rules.leaderHealth+(player.eliminated?" · FUERA":""),14,83,214,26,18,color,FontStyle.Bold);
             GrayboxUI.Text(leaderPanel,fungus?"INFLUENCIA MICELIAL":"DOMINIO DE LAS ARENAS",14,119,214,27,13,GrayboxUI.Ink,FontStyle.Bold);
-            GrayboxUI.Text(leaderPanel,fungus?"Envenena 1 a un enemigo en Bosque conectado a tu red y crea una Espora adyacente.":"Hasta 2 Desiertos propios se vuelven inestables (4+). Un fallo causa 1 daño adicional, una sola vez entre ambos.",14,149,210,67,13,GrayboxUI.Muted);
-            GrayboxUI.Text(leaderPanel,TimingRules.StageName(TimingRules.LeaderStage(player))+" · COSTE "+Game.State.rules.leaderAbilityCost+" E",14,221,214,22,13,color,FontStyle.Bold);
+            GrayboxUI.Text(leaderPanel,TimingRules.StageName(TimingRules.LeaderStage(player))+" · COSTE "+Game.State.rules.leaderAbilityCost+" E",14,158,214,22,13,color,FontStyle.Bold);
             bool own=player.id==Game.ActingPlayerId;bool ready=own&&!player.isAI&&AbilityManager.LeaderTargets(Game).Count>0;
             string condition=player.eliminated?"Líder eliminado":player.isAI?"Controlado por IA":!own?"Espera tu turno":!TimingRules.LeaderAllowed(Game)?"Disponible en "+TimingRules.StageName(TimingRules.LeaderStage(player)):player.currentEnergy<Game.State.rules.leaderAbilityCost?"Energía insuficiente":ready?"Habilidad disponible":fungus?"Requiere red y enemigo en Bosque":"Requiere Desierto propio";
-            GrayboxUI.Text(leaderPanel,condition,14,246,212,21,11,GrayboxUI.Muted);
+            GrayboxUI.Text(leaderPanel,condition,14,188,212,38,12,GrayboxUI.Muted);
+            GrayboxUI.Button(leaderPanel,"Ver habilidad",12,230,214,30,()=>ShowLeaderDetails(player));
             GrayboxUI.Button(leaderPanel,"Activar habilidad",12,275,214,27,()=>Begin("leader"),Color.Lerp(color,GrayboxUI.Panel,.55f),ready);
         }
     }

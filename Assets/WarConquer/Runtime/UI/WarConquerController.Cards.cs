@@ -9,10 +9,9 @@ namespace WarConquer
     {
         void DrawHand(Player player)
         {
-            GrayboxUI.Text(hand,"MANO J"+(player.id+1)+" · "+player.hand.Count+" CARTAS · "+handFilter.ToUpperInvariant(),12,9,470,23,14,GrayboxUI.PlayerColor(player.id),FontStyle.Bold);
-            GrayboxUI.Button(hand,"Todas",498,5,65,27,()=>FilterHand("Todas"));
-            GrayboxUI.Button(hand,useResources?"Pago mixto":"Solo energía",570,5,126,27,()=>{useResources=!useResources;Render();},null,!Game.ActingPlayer.isAI);
-            GrayboxUI.Button(hand,"Registro",707,5,89,27,ShowLog);GrayboxUI.Button(hand,"Guardar",802,5,89,27,Save);GrayboxUI.Button(hand,"Cargar",897,5,89,27,Load);
+            GrayboxUI.Text(hand,"MANO J"+(player.id+1)+" · "+player.hand.Count+" CARTAS",12,9,300,23,14,GrayboxUI.PlayerColor(player.id),FontStyle.Bold);
+            GrayboxUI.Button(hand,handFilter=="Todas"?"Todas":"Filtro: "+handFilter,580,5,210,27,()=>FilterHand("Todas"));
+            GrayboxUI.Button(hand,useResources?"Pago mixto":"Solo energía",802,5,166,27,()=>{useResources=!useResources;Render();},null,!Game.ActingPlayer.isAI);
             var cards=player.hand.Where(c=>HandMatches(Game.Catalog[c.cardId],c)).ToList();int pages=Math.Max(1,(cards.Count+5)/6);page=Math.Clamp(page,0,pages-1);
             GrayboxUI.Button(hand,"<",1030,5,35,27,()=>{page=Math.Max(0,page-1);Render();});GrayboxUI.Text(hand,(page+1)+" / "+pages,1073,9,80,22,13);GrayboxUI.Button(hand,">",1157,5,35,27,()=>{page=Math.Min(pages-1,page+1);Render();});
             int index=0;
@@ -21,7 +20,7 @@ namespace WarConquer
                 var card=Game.Catalog[instance.cardId];int id=instance.instanceId;
                 var view=CardPresentation.Draw(hand,Game,card,player,12+index*208,38,198,201,useResources,false,
                     ()=>SelectCard(instance,player),()=>ShowTooltip(card,player),HideTooltip);
-                if(player.id!=Game.ActingPlayerId||Game.CardBlockReason(instance,useResources)!="")view.gameObject.AddComponent<CanvasGroup>().alpha=.55f;
+                if(player.id!=Game.ActingPlayerId||Game.CardBlockReason(instance,useResources)!="")view.gameObject.AddComponent<CanvasGroup>().alpha=.40f;
                 if(id==selectedCard)GrayboxUI.Box(view,"Selección",0,0,198,5,Color.white);
                 index++;
             }
