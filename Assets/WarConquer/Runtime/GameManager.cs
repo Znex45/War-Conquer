@@ -21,7 +21,8 @@ namespace WarConquer
             for(int i=0;i<4;i++)
             {
                 bool inactive=i>=participants;string leader=inactive?"ZUKGROK":leaders[i];
-                var p=new Player {id=i,leader=leader,factionTag=leader=="ZUKGROK"?"MICELIAL":leader=="FAUNAR"?"FAUNAR":"SOLAR",leaderHealth=inactive?0:rules.leaderHealth,inactive=inactive,eliminated=inactive,isAI=humanPlayers==1&&i==1};
+                var p=new Player {id=i,leader=leader,factionTag=leader,leaderHealth=inactive?0:rules.leaderHealth,inactive=inactive,eliminated=inactive,isAI=humanPlayers==1&&i==1};
+                foreach(var t in State.tiles.Where(t=>t.owner==i))t.setBy=i;
                 State.players.Add(p);if(!inactive)DeckManager.Build(State,p,Catalog);
             }
             State.Log("Partida local • "+humanPlayers+" persona(s)"+(humanPlayers==1?" + IA":"")+" • semilla "+seed+" • "+participants+" mazos de 50.");
@@ -89,8 +90,7 @@ namespace WarConquer
             var ids=selected??new List<int>();
             var special=GenericCardRules.SpecialTargets(this,c,ids);if(special!=null)return special;
             if(c.category!=Category.Spell)
-                return State.tiles.Where(t=>!t.IsOccupied&&!t.blocked&&t.baseOwner<0&&(t.owner==ActingPlayerId||GenericCardRules.BuildExtension(this,c,t))
-                    &&(c.requiresAshLand?t.biome==Biome.AshLand:((t.biome==Biome.Neutral&&State.rules.allowNeutralDeployment) || c.biomes.Contains(t.biome))))
+                return State.tiles.Where(t=>FactionCardRules.CanDeploy(this,c,t))
                     .Select(t=>t.id).ToList();
             var e=c.effects[0];
             if(e.operation=="March")
@@ -140,7 +140,7 @@ namespace WarConquer
             if(card.effects.Any(e=>e.operation=="SporeDamage")&&targets.Count>ActingPlayer.spores) return Fail("No hay suficientes Esporas para esos objetivos.");
             var previous=new List<int>();
             foreach(int target in targets) { if(!CardTargets(card,previous).Contains(target)) return Fail("Objetivo inválido, ocupado, incompatible o fuera de alcance."); previous.Add(target); }
-            if(card.id=="terraform"?(choice==Biome.Neutral||choice==Biome.AshLand||!Enum.IsDefined(typeof(Biome),choice)):(choice!=Biome.Forest&&choice!=Biome.Swamp)) return Fail("Elige Bosque o Pantano.");
+            if(card.effects.Any(e=>e.operation=="GenericTerraform")?(choice==Biome.Neutral||choice==Biome.AshLand||!Enum.IsDefined(typeof(Biome),choice)):(choice!=Biome.Forest&&choice!=Biome.Swamp)) return Fail("Elige Bosque o Pantano.");
             var payer=ActingPlayer;EnergyManager.Pay(payer,card,useResources); payer.hand.Remove(instance);
             if(card.category==Category.Spell)
             { EffectManager.ResolveSpell(this,card,targets,choice); payer.discardPile.Add(instance); }
@@ -151,12 +151,12 @@ namespace WarConquer
         public Piece Place(string cardId,int owner,int tile,int id=0,bool token=true)
         {
             var c=Catalog[cardId]; var piece=new Piece {id=id==0?State.nextId++:id,cardId=cardId,owner=owner,tileId=tile,health=c.health,token=token,
-                remainingMovement=State.rules.summoningSickness?0:c.movement,attacked=State.rules.summoningSickness};
+                playedTurn=State.turn,playedInWasteland=State.tiles[tile].biome==Biome.Wasteland,remainingMovement=State.rules.summoningSickness?0:c.movement,attacked=State.rules.summoningSickness};
             if(c.IsStructure) State.tiles[tile].structure=piece; else State.tiles[tile].unit=piece;
             if(c.Has("Evolve")&&State.tiles[tile].biome==Biome.Forest) piece.forestSinceTurn=State.turn;
             GenericCardRules.SyncAuras(this);return piece;
         }
-        public int MaxHealth(Piece p) => (p.evolved?State.rules.evolvedHealth:Data(p).health)+GenericCardRules.ForestHealth(this,p);
+        public int MaxHealth(Piece p) => (p.evolved?State.rules.evolvedHealth:Data(p).health)+GenericCardRules.ForestHealth(this,p)+p.statBonuses.Sum(b=>b.hp);
         public bool IsSleeping(Piece p) => p.sleepUntilTurn>=State.turn;
         public int NextTurnOf(int player) { int delta=(player-State.activePlayer+4)%4; return State.turn+(delta==0?4:delta); }
         public int TerraformCost(Biome biome)

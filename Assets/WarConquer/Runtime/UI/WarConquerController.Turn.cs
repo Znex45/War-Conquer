@@ -84,13 +84,11 @@ namespace WarConquer
                 GrayboxUI.Text(leaderPanel,player.firstStructureUsed?"USED":"AVAILABLE",14,188,212,24,18,player.firstStructureUsed?GrayboxUI.Muted:color,FontStyle.Bold);
                 GrayboxUI.Button(leaderPanel,"Ver habilidad",12,230,214,30,()=>ShowLeaderDetails(player));return;
             }
-            GrayboxUI.Text(leaderPanel,fungus?"INFLUENCIA MICELIAL":"DOMINIO DE LAS ARENAS",14,119,214,27,13,GrayboxUI.Ink,FontStyle.Bold);
-            GrayboxUI.Text(leaderPanel,TimingRules.StageName(TimingRules.LeaderStage(player))+" · COSTE "+Game.State.rules.leaderAbilityCost+" E",14,158,214,22,13,color,FontStyle.Bold);
-            bool own=player.id==Game.ActingPlayerId;bool ready=own&&!player.isAI&&AbilityManager.LeaderTargets(Game).Count>0;
-            string condition=player.eliminated?"Líder eliminado":player.isAI?"Controlado por IA":!own?"Espera tu turno":!TimingRules.LeaderAllowed(Game)?"Disponible en "+TimingRules.StageName(TimingRules.LeaderStage(player)):player.currentEnergy<Game.State.rules.leaderAbilityCost?"Energía insuficiente":ready?"Habilidad disponible":fungus?"Requiere red y enemigo en Bosque":"Requiere Desierto propio";
-            GrayboxUI.Text(leaderPanel,condition,14,188,212,38,12,GrayboxUI.Muted);
+            GrayboxUI.Text(leaderPanel,fungus?"MUERTE DE TOKEN → TERRAFORMAR":"DESPLIEGUE EN TERRITORIO PROPIO",14,119,214,36,12,GrayboxUI.Ink,FontStyle.Bold);
+            GrayboxUI.Text(leaderPanel,fungus?"AUTOMÁTICA · 0 ENERGÍA":"OPCIONAL · UNIDAD +1 ENERGÍA",14,162,214,28,12,color,FontStyle.Bold);
+            GrayboxUI.Text(leaderPanel,fungus?"Al morir un Token propio, elige el bioma de su casilla.":"Usa una casilla que hayas establecido. El coste se muestra en la carta.",14,191,212,38,12,GrayboxUI.Muted);
             GrayboxUI.Button(leaderPanel,"Ver habilidad",12,230,214,30,()=>ShowLeaderDetails(player));
-            GrayboxUI.Button(leaderPanel,"Activar habilidad",12,275,214,27,()=>Begin("leader"),Color.Lerp(color,GrayboxUI.Panel,.55f),ready);
+            if(!fungus)GrayboxUI.Button(leaderPanel,player.sahriaDeployment?"SAHRIA +1 E · ACTIVADO":"Usar SAHRIA +1 E",12,275,214,27,()=>{player.sahriaDeployment=!player.sahriaDeployment;ClearAction();Render();},player.sahriaDeployment?color:edge,player.id==Game.ActingPlayerId&&!player.isAI&&Game.CanTakeTurnAction(TurnStage.Deployment));
         }
     }
 }

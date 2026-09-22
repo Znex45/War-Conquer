@@ -143,7 +143,7 @@ namespace WarConquer
                 }
                 v.target.tileId=p.tileId;v.root.localPosition=Position(state.tiles[p.tileId])+Vector3.up*BoardMeshFactory.Surface;
                 string shortName=string.Concat(card.name.Split(' ').Where(w=>w.Length>2).Take(2).Select(w=>w[0]));
-                v.label.text=shortName+" · "+p.health+" ♥"+(p.poison>0?" · VEN "+p.poison:"");
+                v.label.text=shortName+" · "+p.health+" ♥"+(p.poison>0?" · VEN "+FactionCardRules.PoisonDamage(game,p):"");
                 v.label.color=p.poison>0?new Color(.8f,.56f,1):Color.white;v.status.Sync(game,p);
             }
             foreach(int id in pieces.Keys.Where(id=>!alive.Contains(id)).ToList()){labels.Remove(pieces[id].label);BoardMeshFactory.Release(pieces[id].root.gameObject);pieces.Remove(id);}

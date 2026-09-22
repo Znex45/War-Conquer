@@ -15,10 +15,13 @@ namespace WarConquer
         public string trigger, operation, target, biome;
         public int amount = 1, count = 1, duration = 1;
     }
+    [Serializable] public class DeckCopies { public string leader; public int count; }
+    [Serializable] public class StatBonus { public int hp,attack,expiresTurn; }
     [Serializable] public class CardData
     {
         public string id, name, leader, factionTag, movementType, description;
         public Category category;
+        public DeckCopies[] deckCopies;
         public string[] subtypes, terrainTags, traits;
         public Biome[] biomes;
         public EffectData[] effects;
@@ -40,7 +43,9 @@ namespace WarConquer
         public bool token, attacked, abilityUsed, moved, evolved, fastBonusUsed;
         public int poison, poisonTurns, sleepUntilTurn, slow, slowUntilTurn, protectionRound = -1, forestSinceTurn = -1;
         public int poisonApplications;
-        public int terrainHealthBonus, movementAura, temporaryMovement, movementExpiresTurn=-1;
+        public int playedTurn; public bool playedInWasteland;
+        public List<StatBonus> statBonuses=new List<StatBonus>();
+        public int terrainHealthBonus, movementAura, movementAuraDebt, temporaryMovement, movementExpiresTurn=-1;
     }
     [Serializable] public class ResourcePool
     {
@@ -58,6 +63,7 @@ namespace WarConquer
     {
         public int id, territory, owner = -1, baseOwner = -1, q, r, resource;
         public float x, y;
+        public int setBy=-1;
         public Biome biome;
         public bool blocked, hiddenAsh, permanentAsh, hiddenResource;
         public bool conquestSite;
@@ -79,7 +85,7 @@ namespace WarConquer
         public int id, leaderHealth, currentEnergy, maxEnergy, turnsTaken, spores, centerScore;
         public string leader, factionTag;
         public bool eliminated, terraformDiscountUsed, towerUsed;
-        public bool inactive, isAI, firstStructureUsed;
+        public bool inactive, isAI, firstStructureUsed, sahriaDeployment;
         public int structureDiscount, dreamRound = -1, freeSteps;
         public int conquestPoints, pendingDraw;
         public List<CardInstance> deck = new List<CardInstance>(), hand = new List<CardInstance>(), discardPile = new List<CardInstance>();
@@ -95,7 +101,7 @@ namespace WarConquer
     }
     [Serializable] public class GameState
     {
-        public int version = 6, seed, randomState, activePlayer, turn = 1, round = 1, nextId = 1, winner = -1;
+        public int version = 7, seed, randomState, activePlayer, turn = 1, round = 1, nextId = 1, winner = -1;
         public int mapPlayers=4, nextRollId=1, lastStartedTurn=-1;
         public List<PendingChoice> pendingChoices=new List<PendingChoice>();
         public List<DiceRoll> diceRolls=new List<DiceRoll>();

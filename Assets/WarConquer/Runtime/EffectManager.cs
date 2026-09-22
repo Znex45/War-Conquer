@@ -34,7 +34,7 @@ namespace WarConquer
                         case "SleepPoisonDamage": if(p!=null){bool poisoned=p.poison>0;Sleep(g,p,g.ActingPlayerId);if(poisoned)CombatManager.Damage(g,p,1,false);}break;
                         case "SporeDamage": g.ActingPlayer.spores--;if(p!=null)CombatManager.Damage(g,p,1,false);break;
                         case "Damage": if(p!=null)CombatManager.Damage(g,p,effect.amount,false);break;
-                        case "Heal": if(p!=null)p.health=Math.Min(g.MaxHealth(p),p.health+effect.amount);break;
+                        case "Heal": GenericCardRules.Heal(g,p,effect.amount);break;
                         case "Slow": if(p!=null){p.slow=effect.amount;p.slowUntilTurn=g.NextTurnOf(p.owner);Negative(g,p);}break;
                         case "DestroyBiome": TerrainManager.DestroyBiome(g,t);break;
                         case "Reactivate": if(t.structure!=null)t.structure.abilityUsed=false;break;
@@ -45,11 +45,11 @@ namespace WarConquer
         }
         public static void Poison(GameManager g,Piece p,int amount,int source)
         {
-            if(p==null||g.Data(p).IsStructure)return;
+            if(p==null||p.health<=0||g.Data(p).IsStructure)return;
             if(p.poison==0){p.poison=1;p.poisonTurns=0;}p.poisonApplications++;
             Negative(g,p);
             if(g.HasTrait(source,"PoisonSpore"))g.State.players[source].spores++;
-            g.State.Log(g.Data(p).name+": veneno progresivo · próximo daño "+p.poison+" (se duplica cada turno propio).");
+            g.State.Log(g.Data(p).name+": Poison · "+FactionCardRules.PoisonDamage(g,p)+" daño al inicio de su turno, sin acumulación.");
         }
         public static void Sleep(GameManager g,Piece p,int source)
         {

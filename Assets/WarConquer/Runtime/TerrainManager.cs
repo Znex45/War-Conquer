@@ -9,7 +9,7 @@ namespace WarConquer
         {
             var t=g.State.tiles[tile];
             if(t.permanentAsh||t.blocked||(t.unit!=null&&t.unit.owner!=owner)||(t.structure!=null&&t.structure.owner!=owner)||(t.baseOwner>=0&&t.baseOwner!=owner&&!g.State.players[t.baseOwner].eliminated))return;
-            t.biome=biome; t.owner=owner; t.specialEffect=null;
+            t.biome=biome; t.owner=owner; t.setBy=owner; t.specialEffect=null;
             if(t.unit!=null) t.unit.forestSinceTurn=biome==Biome.Forest?g.State.turn:-1;
             MaintainRoutes(g);GenericCardRules.SyncAuras(g);ConquestManager.Refresh(g.State); g.State.Log("Hex "+(tile+1)+" → "+Names.Biomes[(int)biome]);
         }
@@ -17,7 +17,7 @@ namespace WarConquer
         {
             if(!Normal(t)) return;
             if(t.hiddenAsh&&g.State.rules.ashOnMarkedDestruction) { RevealAsh(g,t); return; }
-            t.biome=Biome.Neutral; t.owner=t.unit!=null?t.unit.owner:t.structure!=null?t.structure.owner:t.baseOwner;
+            t.biome=Biome.Neutral; t.setBy=-1; t.owner=t.unit!=null?t.unit.owner:t.structure!=null?t.structure.owner:t.baseOwner;
             t.specialEffect=null; if(t.unit!=null)t.unit.forestSinceTurn=-1; MaintainRoutes(g);GenericCardRules.SyncAuras(g);
             ConquestManager.Refresh(g.State);g.State.Log("Hex "+(t.id+1)+": bioma destruido, casilla neutra.");
         }

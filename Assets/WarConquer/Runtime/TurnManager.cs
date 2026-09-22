@@ -10,24 +10,24 @@ namespace WarConquer
             var s=g.State;if(s.lastStartedTurn==s.turn)return;s.lastStartedTurn=s.turn;var p=s.Active;s.phase=Phase.Start;
             ConquestManager.ScoreStart(s,p.id);if(s.phase==Phase.Finished)return;p.turnsTaken++;
             p.maxEnergy=Math.Min(s.rules.maxEnergy,s.rules.initialEnergy+(p.turnsTaken-1)*s.rules.energyGrowth);
-            p.currentEnergy=p.maxEnergy;p.firstStructureUsed=false;p.terraformDiscountUsed=false;p.towerUsed=false;p.structureDiscount=0;
+            p.currentEnergy=p.maxEnergy;p.sahriaDeployment=false;p.firstStructureUsed=false;p.terraformDiscountUsed=false;p.towerUsed=false;p.structureDiscount=0;
             foreach(var tile in s.tiles)
             {
                 var e=tile.specialEffect;if(e!=null&&((e.expiresTurn>=0&&s.turn>=e.expiresTurn)||(e.expiresRound>=0&&s.round>=e.expiresRound)))tile.specialEffect=null;
             }
+            FactionCardRules.ExpireBonuses(g);
             foreach(var unit in g.Allies(p.id).ToList())
             {
                 var c=g.Data(unit);unit.attacked=false;unit.abilityUsed=false;unit.bonusAttack=0;unit.moved=false;unit.fastBonusUsed=false;
                 if(unit.poison>0)
                 {
-                    CombatManager.PoisonDamage(g,unit,unit.poison);unit.poisonTurns++;
-                    unit.poison=unit.poison>int.MaxValue/2?int.MaxValue:unit.poison*2;
+                    CombatManager.PoisonDamage(g,unit,FactionCardRules.PoisonDamage(g,unit));unit.poisonTurns++;unit.poison=1;
                     if(unit.health<=0)continue;
                 }
                 if(c.Has("Evolve")&&!unit.evolved&&unit.forestSinceTurn>=0&&s.turn-unit.forestSinceTurn>=4&&s.tiles[unit.tileId].biome==Biome.Forest)
                 {unit.evolved=true;unit.health+=s.rules.evolvedHealth-c.health;s.Log("Larva Micelial → Espora Evolucionada.");}
                 int aura=BoardManager.Nearby(s,unit.tileId).Count(a=>a.owner==p.id&&g.Data(a).Has("NomadAura")&&c.subtypes.Contains("Nómada")&&s.tiles[unit.tileId].biome==Biome.Desert);
-                unit.movementAura=GenericCardRules.MovementAura(g,unit);
+                unit.movementAura=GenericCardRules.MovementAura(g,unit);unit.movementAuraDebt=0;
                 unit.remainingMovement=g.IsSleeping(unit)?0:Math.Max(0,(unit.evolved?s.rules.evolvedMovement:c.movement)+aura+unit.movementAura-(unit.slowUntilTurn>=s.turn?unit.slow:0));
                 if(c.Has("Evolve")&&s.tiles[unit.tileId].biome==Biome.Forest&&unit.forestSinceTurn<0)unit.forestSinceTurn=s.turn;
             }

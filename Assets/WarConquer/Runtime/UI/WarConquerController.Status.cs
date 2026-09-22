@@ -45,7 +45,7 @@ namespace WarConquer
                     GrayboxUI.Button(box,"+1 paso",202,187,98,29,()=>Begin("step"),null,Game.ActingPlayer.freeSteps>0);
                 }
                 else if(instance!=null)GrayboxUI.Text(box,viewedPlayer!=Game.ActingPlayerId?"Consulta de otra mano.":Game.CardBlockReason(instance,useResources),0,188,300,38,12,GrayboxUI.Yellow);
-                if(selectedPiece!=null)GrayboxUI.Text(box,Game.IsSleeping(selectedPiece)?"DORMIDO · No puede mover ni atacar":selectedPiece.attacked?"ATAQUE YA USADO":CombatManager.Targets(Game,selectedPiece).Count>0?"PUEDE ATACAR": "SIN ATAQUE DISPONIBLE",0,218,300,18,11,Game.IsSleeping(selectedPiece)?GrayboxUI.Yellow:GrayboxUI.Green);
+                if(selectedPiece!=null)GrayboxUI.Text(box,Game.IsSleeping(selectedPiece)?"DORMIDO · No puede mover ni atacar":!FactionCardRules.CanAttack(Game,selectedPiece)?"NO ATACA EL TURNO EN QUE SE JUEGA":selectedPiece.attacked?"ATAQUE YA USADO":CombatManager.Targets(Game,selectedPiece).Count>0?"PUEDE ATACAR": "SIN ATAQUE DISPONIBLE",0,218,300,18,11,Game.IsSleeping(selectedPiece)?GrayboxUI.Yellow:GrayboxUI.Green);
             }
             else if(mode=="terraform")
             {

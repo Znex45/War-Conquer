@@ -5,9 +5,9 @@ namespace WarConquer
 {
     public static class AbilityManager
     {
-        public static bool HasActive(CardData c) => new[]{"FastNetwork","StructureDiscount","CampStep","DestroyBiome","ExtendBuff","MedCamp","RestingCamp","VigilantTower","ForestLeap"}.Any(c.Has);
+        public static bool HasActive(CardData c) => new[]{"FastNetwork","StructureDiscount","CampStep","DestroyBiome","ExtendBuff","MedCamp","RestingCamp","VigilantTower","ForestLeap","WanderingBeast","MushroomToken","FireflyToken"}.Any(c.Has);
         public static int TargetCount(CardData c) => c.Has("MedCamp")?4:c.Has("FastNetwork")?2:c.Has("StructureDiscount")||c.Has("RestingCamp")?0:1;
-        public static string Label(CardData c) => c.Has("MedCamp")?"Curar hasta 4 aliados":c.Has("RestingCamp")?"Curar aliados a 4rad":c.Has("VigilantTower")?"Infligir 1 a 6rad":c.Has("ForestLeap")?"Saltar junto a Bosque": c.Has("FastNetwork")?"Conectar 2 casillas":c.Has("StructureDiscount")?"Descuento de estructura":c.Has("CampStep")?"Dar +1 MOV":c.Has("DestroyBiome")?"Destruir bioma":c.Has("ExtendBuff")?"Extender mejora (1 Espora)":"Sin habilidad activa";
+        public static string Label(CardData c) => c.Has("WanderingBeast")?"Infligir 2 a 3rad":c.Has("MushroomToken")?"Envenenar (radio por Tokens)":c.Has("FireflyToken")?"Sacrificar y envenenar a 2rad": c.Has("MedCamp")?"Curar hasta 4 aliados":c.Has("RestingCamp")?"Curar aliados a 4rad":c.Has("VigilantTower")?"Infligir 1 a 6rad":c.Has("ForestLeap")?"Saltar junto a Bosque": c.Has("FastNetwork")?"Conectar 2 casillas":c.Has("StructureDiscount")?"Descuento de estructura":c.Has("CampStep")?"Dar +1 MOV":c.Has("DestroyBiome")?"Destruir bioma":c.Has("ExtendBuff")?"Extender mejora (1 Espora)":"Sin habilidad activa";
         public static List<int> Targets(GameManager g,Piece source)
         {
             if(source==null||!TimingRules.AbilityAllowed(g,source)||source.abilityUsed||g.IsSleeping(source))return new List<int>();
@@ -43,33 +43,7 @@ namespace WarConquer
             if(c.Has("DestroyBiome"))TerrainManager.DestroyBiome(g,g.State.tiles[targets[0]]);
             p.abilityUsed=true;BattleManager.AfterResponse(g);g.Notify("Habilidad de "+c.name+" resuelta.");return true;
         }
-        public static List<int> LeaderTargets(GameManager g)
-        {
-            if(!TimingRules.LeaderAllowed(g)||g.ActingPlayer.currentEnergy<g.State.rules.leaderAbilityCost)return new List<int>();
-            if(g.ActingPlayer.leader=="SAHRIA")return g.State.tiles.Where(t=>t.owner==g.ActingPlayerId&&t.biome==Biome.Desert).Select(t=>t.id).ToList();
-            var connected=new HashSet<int>();
-            foreach(var route in g.State.fastRoutes.Where(f=>f.owner==g.ActingPlayerId))
-                foreach(int id in BoardManager.ConnectedBiome(g.State,route.a,g.ActingPlayerId,Biome.Forest,Biome.Swamp))connected.Add(id);
-            return g.State.tiles.Where(t=>t.unit!=null&&t.unit.owner!=g.ActingPlayerId&&t.biome==Biome.Forest&&(connected.Contains(t.id)||t.neighbors.Any(connected.Contains))).Select(t=>t.id).ToList();
-        }
-        public static bool Leader(GameManager g,IList<int> targets)
-        {
-            int max=g.ActingPlayer.leader=="SAHRIA"?2:1;
-            if(targets.Count<1||targets.Count>max||targets.Distinct().Count()!=targets.Count||targets.Any(t=>!LeaderTargets(g).Contains(t)))return g.Fail("Habilidad de Líder: energía o selección inválida.");
-            g.ActingPlayer.currentEnergy-=g.State.rules.leaderAbilityCost;
-            int bonusGroup=g.State.nextId++;
-            foreach(int id in targets)
-            {
-                var t=g.State.tiles[id];
-                if(g.ActingPlayer.leader=="ZUKGROK")
-                {
-                    EffectManager.Poison(g,t.unit,1,g.ActingPlayerId);
-                    int free=t.neighbors.FirstOrDefault(n=>!g.State.tiles[n].IsOccupied&&!g.State.tiles[n].blocked&&g.State.tiles[n].baseOwner<0,-1);
-                    if(free>=0){g.State.tiles[free].owner=g.ActingPlayerId;g.Place("espora",g.ActingPlayerId,free);}
-                }
-                else t.specialEffect=new TerrainEffect {threshold=4,damage=1,bonusDamage=1,bonusGroup=bonusGroup,expiresTurn=g.State.turn+4};
-            }
-            g.Notify("Habilidad de "+g.ActingPlayer.leader+" resuelta.");return true;
-        }
+        public static List<int> LeaderTargets(GameManager g)=>new List<int>();
+        public static bool Leader(GameManager g,IList<int> targets)=>g.Fail("La habilidad del Líder se resuelve con su condición, no como ataque activo.");
     }
 }

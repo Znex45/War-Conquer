@@ -106,7 +106,7 @@ namespace WarConquer
         List<int> ValidTargets()
         {
             if(!Game.CanAct||Game.ActingPlayer.isAI)return new List<int>();
-            if(Game.State.pendingChoices.Count>0)return Game.State.pendingChoices[0].kind=="Discard"?new List<int>():ChoiceManager.Targets(Game,Game.State.pendingChoices[0]);
+            if(Game.State.pendingChoices.Count>0)return !ChoiceManager.BoardChoice(Game.State.pendingChoices[0])?new List<int>():ChoiceManager.Targets(Game,Game.State.pendingChoices[0]);
             if(viewedPlayer!=Game.ActingPlayerId)return new List<int>();
             switch(mode)
             {

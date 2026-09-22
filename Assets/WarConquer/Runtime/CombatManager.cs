@@ -19,11 +19,11 @@ namespace WarConquer
                 if(aura.Has("NomadAura")&&c.subtypes.Contains("Nómada")&&t.biome==Biome.Desert)attack++;
             }
             if(!c.IsStructure)attack+=g.Allies(p.owner).Count(a=>g.Data(a).Has("GlobalAttack"));
-            return Math.Max(0,attack);
+            return Math.Max(0,attack+FactionCardRules.AttackBonus(g,p)+p.statBonuses.Sum(b=>b.attack));
         }
         public static List<int> Targets(GameManager g,Piece p)
         {
-            if(p==null||!g.CanTakeTurnAction(TurnStage.Assault)||p.owner!=g.State.activePlayer||p.attacked||g.IsSleeping(p)||g.Data(p).IsStructure) return new List<int>();
+            if(p==null||!g.CanTakeTurnAction(TurnStage.Assault)||p.owner!=g.State.activePlayer||p.attacked||!FactionCardRules.CanAttack(g,p)||g.IsSleeping(p)||g.Data(p).IsStructure) return new List<int>();
             return g.State.tiles.Where(t=>((t.unit!=null&&t.unit.owner!=p.owner)||(t.structure!=null&&t.structure.owner!=p.owner)||(t.baseOwner>=0&&t.baseOwner!=p.owner&&!g.State.players[t.baseOwner].eliminated))&&BoardManager.Distance(g.State,p.tileId,t.id,g.Data(p).range)<=g.Data(p).range).Select(t=>t.id).ToList();
         }
         public static bool Attack(GameManager g,Piece attacker,int target)
@@ -36,7 +36,7 @@ namespace WarConquer
         internal static void ResolvePending(GameManager g,PendingBattle battle)
         {
             var attacker=BoardManager.Pieces(g.State).FirstOrDefault(p=>p.id==battle.attackerId);
-            if(attacker==null||g.IsSleeping(attacker)||BoardManager.Distance(g.State,attacker.tileId,battle.targetTile)>g.Data(attacker).range)
+            if(attacker==null||!FactionCardRules.CanAttack(g,attacker)||g.IsSleeping(attacker)||BoardManager.Distance(g.State,attacker.tileId,battle.targetTile)>g.Data(attacker).range)
             {g.State.Log("Ataque cancelado: el atacante ya no puede resolverlo.");return;}
             var tile=g.State.tiles[battle.targetTile];
             var victim=BoardManager.Pieces(g.State).FirstOrDefault(p=>p.id==battle.victimId&&p.tileId==battle.targetTile);
@@ -44,6 +44,7 @@ namespace WarConquer
             int damage=AttackValue(g,attacker,victim);
             if(victim!=null)
             {
+                if(g.Data(attacker).Has("FrogToken"))EffectManager.Poison(g,victim,1,attacker.owner);
                 Damage(g,victim,damage,true);GenericCardRules.OnKill(g,attacker,victim);
                 if(victim.health>0&&g.Data(attacker).Has("PoisonAttack")&&(g.State.tiles[attacker.tileId].biome==Biome.Forest||g.State.tiles[attacker.tileId].biome==Biome.Swamp))EffectManager.Poison(g,victim,1,attacker.owner);
             }
@@ -73,15 +74,15 @@ namespace WarConquer
         {if(p==null||p.health<=0)return;p.health-=Math.Max(0,amount);g.State.Log(g.Data(p).name+" recibe "+amount+" daño directo.");if(p.health<=0){Remove(g,p);GenericCardRules.OnKill(g,source,p);}}
         public static void PoisonDamage(GameManager g,Piece p,int amount)
         {
-            p.health-=Math.Min(p.health,amount);g.State.Log(g.Data(p).name+": pierde "+amount+" VIDA por veneno progresivo.");
+            p.health-=Math.Min(p.health,amount);g.State.Log(g.Data(p).name+": pierde "+amount+" VIDA por veneno.");
             if(p.health<=0)Remove(g,p);
         }
-        public static void Remove(GameManager g,Piece p)
+        public static void Remove(GameManager g,Piece p,int poisonAfterId=-1)
         {
             if(p==null)return;var t=g.State.tiles[p.tileId];if(t.unit!=p&&t.structure!=p)return;p.health=0;if(t.unit==p)t.unit=null;if(t.structure==p)t.structure=null;
             if(t.specialEffect!=null&&t.specialEffect.sourceId==p.id)t.specialEffect=null;
-            if(!p.token)g.State.players[p.owner].discardPile.Add(new CardInstance {instanceId=p.id,cardId=p.cardId});
-            GenericCardRules.OnDestroyed(g,p);GenericCardRules.SyncAuras(g);TerrainManager.MaintainRoutes(g);ConquestManager.Refresh(g.State);g.State.Log(g.Data(p).name+" destruida"+(p.token?".":" → descarte."));
+            if(!p.token&&!g.Data(p).Has("BabyPhoenix"))g.State.players[p.owner].discardPile.Add(new CardInstance {instanceId=p.id,cardId=p.cardId});
+            FactionCardRules.OnDestroyed(g,p,poisonAfterId);GenericCardRules.OnDestroyed(g,p);GenericCardRules.SyncAuras(g);TerrainManager.MaintainRoutes(g);ConquestManager.Refresh(g.State);g.State.Log(g.Data(p).name+" destruida"+(p.token?".":g.Data(p).Has("BabyPhoenix")?" → retorno a mano pendiente.":" → descarte."));
         }
         static void Eliminate(GameManager g,Player player)
         {

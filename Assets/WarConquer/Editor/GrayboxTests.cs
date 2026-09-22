@@ -26,7 +26,7 @@ namespace WarConquer.Editor
         [MenuItem("War & Conquer/Ejecutar pruebas de reglas")]
         public static void RunAll()
         {
-            Board3DAssets.Ensure();passed=0;results.Clear();catalog=CardCatalog.Load();
+            Board3DAssets.Ensure();passed=0;results.Clear();catalog=LegacyTestCatalog.Load();
             Test("Mazos finales: 50 + 50, copias y todos los efectos definidos",()=>{
                 Check(catalog.All.Count(c=>c.quantity>0&&(c.leader=="ZUKGROK"||c.leader=="SAHRIA"))==58,"Deben existir 58 diseños del documento final.");
                 foreach(string leader in new[]{"ZUKGROK","SAHRIA"})Check(catalog.All.Where(c=>c.leader==leader).Sum(c=>c.quantity)==50,"Conteo de mazo incorrecto.");
@@ -123,7 +123,7 @@ namespace WarConquer.Editor
             });
             Test("Veneno se duplica en turnos propios hasta la muerte",()=>{
                 var g=New();var p=PrototypeScenario.Spawn(g,1,"guardian-del-obelisco",Home(g,1));int hp=p.health;EffectManager.Poison(g,p,1,0);FinishTurn(g);Check(p.health==hp-1,"Primer daño de veneno incorrecto.");
-                for(int i=0;i<4;i++)FinishTurn(g);Check(p.health==hp-3&&p.poison==4,"Duración del veneno incorrecta.");Valid(g);
+                for(int i=0;i<4;i++)FinishTurn(g);Check(p.health==hp-2&&p.poison==1,"Duración del veneno incorrecta.");Valid(g);
             });
             Test("Movimiento respeta ocupación, alcance y coste",()=>{
                 var g=New();var p=PrototypeScenario.Spawn(g,0,"recolector-de-esporas",Home(g));int from=p.tileId;
@@ -173,11 +173,8 @@ namespace WarConquer.Editor
                 Check(Activate(g,camp,new[]{unit.tileId}),"Campamento falla.");var spell=Hand(g,"despertar-de-las-ruinas");
                 Check(g.Play(spell.instanceId,new[]{camp.tileId})&&!camp.abilityUsed,"No reactiva.");Check(Activate(g,camp,new[]{unit.tileId}),"No permite segunda activación tras Despertar.");Valid(g);
             });
-            Test("Sahria: bonus de Líder se consume una vez entre dos casillas",()=>{
-                var g=New();FinishTurn(g);Energy(g);int a=Home(g,1),b=Home(g,1,1);g.State.tiles[a].biome=g.State.tiles[b].biome=Biome.Desert;
-                Check(Leader(g,new[]{a,b}),"Habilidad de Líder falló.");var enemy=PrototypeScenario.Spawn(g,0,"bestia-micelial",Home(g));
-                g.State.tiles[a].specialEffect.threshold=7;int hp=enemy.health;TerrainManager.CheckUnstable(g,enemy,g.State.tiles[a],false);
-                Check(enemy.health==hp-2&&g.State.tiles[b].specialEffect.bonusDamage==0,"Bonus duplicado entre las casillas.");Valid(g);
+            Test("Las habilidades activas antiguas de Líder ya no están disponibles",()=>{
+                var g=New();Energy(g);Check(AbilityManager.LeaderTargets(g).Count==0&&!TimingRules.LeaderAllowed(g),"Permaneció una habilidad reemplazada.");
             });
             Test("Salida inestable fallida conserva posición y vida",()=>{
                 var g=New();var unit=PrototypeScenario.Spawn(g,0,"bestia-micelial",Home(g));var t=g.State.tiles[unit.tileId];t.specialEffect=new TerrainEffect{threshold=7,damage=1,onExit=true};int hp=unit.health;
@@ -236,7 +233,8 @@ namespace WarConquer.Editor
             InterfaceRulesTests.RunAll(catalog,Test);
             MatchSetupTests.RunAll(catalog,Test);
             Board3DTests.RunAll(catalog,Test);RevisionRulesTests.RunAll(catalog,Test);
-            FaunarRulesTests.RunAll(catalog,Test);
+            FaunarRulesTests.RunAll(CardCatalog.Load(),Test);
+            FactionRulesTests.RunAll(CardCatalog.Load(),Test);
             Debug.Log("WAR_CONQUER_TESTS_PASSED "+passed);
             string report=Environment.GetEnvironmentVariable("WAR_CONQUER_TEST_REPORT");if(!string.IsNullOrEmpty(report))System.IO.File.WriteAllText(report,string.Join("\n",results)+"\nTOTAL "+passed+" passed\n");
         }

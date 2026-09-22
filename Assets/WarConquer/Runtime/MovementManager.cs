@@ -62,13 +62,13 @@ namespace WarConquer
             }
             g.Notify(g.Data(p).name+" · movimiento resuelto. Revisa el registro si hubo tiradas."); return true;
         }
-        public static void Relocate(GameManager g,Piece p,int destination)
+        public static void Relocate(GameManager g,Piece p,int destination,bool carried=false)
         {
             var from=g.State.tiles[p.tileId]; if(from.unit==p)from.unit=null;
             ConquestManager.Refresh(g.State);
             var to=g.State.tiles[destination]; p.tileId=destination; p.moved=true; to.unit=p; to.owner=p.owner;
             p.forestSinceTurn=-1;
-            TerrainManager.MaintainRoutes(g);GenericCardRules.SyncAuras(g);if(p.health>0){EffectManager.OnTileEnter(g,p);GenericCardRules.OnMove(g,p,from.biome);}ConquestManager.Refresh(g.State);
+            TerrainManager.MaintainRoutes(g);GenericCardRules.SyncAuras(g);if(p.health>0){EffectManager.OnTileEnter(g,p);GenericCardRules.OnMove(g,p,from.biome);FactionCardRules.OnMove(g,p,from,carried);}ConquestManager.Refresh(g.State);
             g.State.Log(g.Data(p).name+" → hex "+(destination+1));
         }
         public static bool FreeStep(GameManager g,Piece p,int destination)

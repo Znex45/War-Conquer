@@ -29,7 +29,7 @@
         "PANTANO"
       ],
       "description": "Al entrar en Bosque aliado, puede aplicar Envenenado 1 a una unidad enemiga adyacente.",
-      "quantity": 0,
+      "quantity": 3,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -45,8 +45,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "hongo-explorador",
@@ -75,7 +74,7 @@
         "BOSQUE"
       ],
       "description": "Puede moverse 1 casilla adicional al desplazarse mediante una Vía Rápida de Bosque.",
-      "quantity": 0,
+      "quantity": 3,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -91,8 +90,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "larva-micelial",
@@ -121,7 +119,7 @@
         "BOSQUE"
       ],
       "description": "Si permanece sobre Bosque durante todo el turno, puede convertirse en una Espora Evolucionada al siguiente turno.",
-      "quantity": 0,
+      "quantity": 3,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -137,8 +135,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "bestia-micelial",
@@ -170,7 +167,7 @@
         "PANTANO"
       ],
       "description": "Mientras esté sobre Bosque o Pantano, sus ataques aplican Envenenado 1.",
-      "quantity": 0,
+      "quantity": 3,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -186,8 +183,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "guardian-del-bosque",
@@ -216,7 +212,7 @@
         "BOSQUE"
       ],
       "description": "Las unidades aliadas adyacentes reciben 1 punto menos de daño del primer ataque que reciban cada ronda.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -232,8 +228,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "cazador-de-esporas",
@@ -265,7 +260,7 @@
         "PANTANO"
       ],
       "description": "Si ataca a una unidad Envenenada, obtiene +1 ATQ durante ese combate.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -281,8 +276,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "chaman-micelial",
@@ -314,7 +308,7 @@
         "PANTANO"
       ],
       "description": "Puede retirar 1 Espora una vez por turno para extender un efecto de una carta de Zukgrok a una unidad aliada adyacente.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -330,8 +324,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "coloso-de-esporas",
@@ -362,7 +355,7 @@
         "PANTANO"
       ],
       "description": "Las unidades Hongo aliadas adyacentes reciben +1 ATQ.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -378,8 +371,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "matriarca-micelial",
@@ -409,7 +401,7 @@
         "BOSQUE"
       ],
       "description": "Al inicio de tu turno genera 1 Espora si está sobre Bosque.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -425,8 +417,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "ancestro-micelial",
@@ -455,7 +446,7 @@
         "BOSQUE"
       ],
       "description": "Al entrar puede terraformar una casilla adyacente a Bosque.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -471,8 +462,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "ciervo-de-esporas",
@@ -501,7 +491,7 @@
         "BOSQUE"
       ],
       "description": "Puede atravesar una Vía Rápida sin gastar movimiento adicional.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -517,8 +507,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "semillero-micelial",
@@ -549,7 +538,7 @@
         "PANTANO"
       ],
       "description": "Al inicio de tu turno crea 1 Espora en una casilla adyacente libre.",
-      "quantity": 0,
+      "quantity": 3,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -565,8 +554,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "nido-de-esporas",
@@ -595,7 +583,7 @@
         "BOSQUE"
       ],
       "description": "Las unidades Hongo aliadas adyacentes obtienen +1 defensa.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -611,8 +599,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "santuario-del-bosque",
@@ -641,7 +628,7 @@
         "BOSQUE"
       ],
       "description": "La primera terraformación de Bosque de cada turno cuesta 1 Energía menos.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -657,8 +644,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "jardin-micelial",
@@ -689,7 +675,7 @@
         "PANTANO"
       ],
       "description": "Cuando una unidad aliada es afectada por un efecto negativo, genera 1 Espora. Máximo una por evento.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -705,8 +691,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "red-micelial",
@@ -737,7 +722,7 @@
         "PANTANO"
       ],
       "description": "Conecta dos casillas de Bosque o Pantano y permite tratarlas como parte de la misma Vía Rápida.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -753,8 +738,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "torre-de-esporas",
@@ -783,7 +767,7 @@
         "BOSQUE"
       ],
       "description": "Una Magia que aplique Envenenado puede alcanzar 1 casilla adicional una vez por turno.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -799,8 +783,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "corazon-del-hongo",
@@ -830,7 +813,7 @@
         "BOSQUE"
       ],
       "description": "Cada vez que una unidad enemiga sea Envenenada, obtienes 1 Espora.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -846,8 +829,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "santuario-del-sueno",
@@ -878,7 +860,7 @@
         "PANTANO"
       ],
       "description": "Una vez por ronda, cuando una unidad enemiga queda Dormida, puedes mover 1 unidad aliada una casilla.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -894,8 +876,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "arbol-madre",
@@ -924,7 +905,7 @@
         "BOSQUE"
       ],
       "description": "Al inicio de tu turno, si controlas tres o más Bosques conectados, genera 2 Esporas.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -940,8 +921,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "brote-repentino",
@@ -969,7 +949,7 @@
         "BOSQUE"
       ],
       "description": "Terraformar una casilla válida convirtiéndola en Bosque.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [],
@@ -993,8 +973,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "lluvia-de-esporas",
@@ -1025,7 +1004,7 @@
         "PANTANO"
       ],
       "description": "Crea 1 Espora y una unidad aliada obtiene +1 ATQ durante este turno.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [],
@@ -1058,8 +1037,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "espora-somnifera",
@@ -1090,7 +1068,7 @@
         "PANTANO"
       ],
       "description": "Una unidad enemiga sobre Bosque o Pantano queda Dormida durante su próximo turno.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [],
@@ -1114,8 +1092,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "nube-de-esporas",
@@ -1144,7 +1121,7 @@
         "BOSQUE"
       ],
       "description": "Hasta 2 unidades enemigas dentro de un Bosque reciben Envenenado 1.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [],
@@ -1168,8 +1145,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "crecimiento-descontrolado",
@@ -1200,7 +1176,7 @@
         "PANTANO"
       ],
       "description": "Convierte hasta 2 casillas adyacentes válidas en Bosque o Pantano.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [],
@@ -1224,8 +1200,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "marcha-micelial",
@@ -1254,7 +1229,7 @@
         "BOSQUE"
       ],
       "description": "Mueve hasta 2 unidades aliadas utilizando una Vía Rápida sin consumir su movimiento normal.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [],
@@ -1278,8 +1253,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "sueno-micelial",
@@ -1310,7 +1284,7 @@
         "PANTANO"
       ],
       "description": "Una unidad enemiga queda Dormida. Si estaba Envenenada, recibe además 1 daño.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [],
@@ -1334,8 +1308,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "explosion-de-esporas",
@@ -1366,7 +1339,7 @@
         "PANTANO"
       ],
       "description": "Consume hasta 3 Esporas. Por cada una consumida, una unidad enemiga adyacente recibe 1 daño.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [],
@@ -1390,8 +1363,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "rey-micelial",
@@ -1422,7 +1394,7 @@
         "CENIZA"
       ],
       "description": "Solo puede jugarse desde Tierra Ceniza. Al entrar, las unidades Hongo aliadas obtienen +1 ATQ y las unidades enemigas sobre Bosque reciben Envenenado 1.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": true,
       "traits": [
@@ -1438,8 +1410,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "bosque-eterno",
@@ -1469,7 +1440,7 @@
         "CENIZA"
       ],
       "description": "Solo puede jugarse desde Tierra Ceniza. Convierte hasta 3 casillas adyacentes en Bosque. Las Vías Rápidas conectadas no pueden ser destruidas mediante efectos normales.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": true,
       "traits": [
@@ -1485,8 +1456,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "nomada-de-arena",
@@ -1514,7 +1484,7 @@
         "NÓMADA"
       ],
       "description": "Puede moverse por Desierto sin realizar la tirada de Terreno Inestable.",
-      "quantity": 0,
+      "quantity": 3,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -1530,8 +1500,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "escorpion-solar",
@@ -1559,7 +1528,7 @@
         "INMUNIDAD"
       ],
       "description": "Una vez por turno puede ignorar una tirada de Terreno Inestable.",
-      "quantity": 0,
+      "quantity": 3,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -1575,8 +1544,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "guardian-del-obelisco",
@@ -1604,7 +1572,7 @@
         "ESTRUCTURAS"
       ],
       "description": "Mientras esté junto a una Estructura, obtiene +1 defensa.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -1620,8 +1588,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "sacerdote-solar",
@@ -1649,7 +1616,7 @@
         "ENERGÍA"
       ],
       "description": "Una vez por turno reduce en 1 el coste de la siguiente Estructura que juegues.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -1665,8 +1632,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "bestia-de-las-dunas",
@@ -1695,7 +1661,7 @@
         "PESADA"
       ],
       "description": "Obtiene +2 ATQ mientras esté sobre Desierto controlado por Sahria.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -1711,8 +1677,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "avatar-del-sol",
@@ -1741,7 +1706,7 @@
         "TERRAFORMACIÓN"
       ],
       "description": "Al entrar puede convertir una casilla adyacente en Desierto. Ignora Terreno Inestable.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -1757,8 +1722,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "obelisco-solar",
@@ -1786,7 +1750,7 @@
         "ATAQUE"
       ],
       "description": "Las unidades Sahria adyacentes reciben +1 ATQ.",
-      "quantity": 0,
+      "quantity": 3,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -1802,8 +1766,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "campamento-nomada",
@@ -1831,7 +1794,7 @@
         "NÓMADA"
       ],
       "description": "Una unidad aliada puede reposicionarse 1 casilla adicional por turno.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -1847,8 +1810,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "santuario-de-arena",
@@ -1876,7 +1838,7 @@
         "DESCUENTO"
       ],
       "description": "La primera terraformación de Desierto de cada turno cuesta 1 Energía menos.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -1892,8 +1854,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "obelisco-de-ruptura",
@@ -1921,7 +1882,7 @@
         "NEUTRO"
       ],
       "description": "Permite destruir un bioma normal adyacente y convertirlo en Neutro.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -1937,8 +1898,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "templo-de-ceniza",
@@ -1968,7 +1928,7 @@
         "YERMO"
       ],
       "description": "Reduce en 1 el coste necesario para revelar Tierra Ceniza en una casilla compatible.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -1984,8 +1944,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "trono-solar",
@@ -2014,7 +1973,7 @@
         "MOTOR"
       ],
       "description": "Las Estructuras de Desierto aliadas conectadas reciben +1 defensa y generan 1 Energía adicional al inicio de tu turno.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -2030,8 +1989,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "arena-profunda",
@@ -2059,7 +2017,7 @@
         "ARENA"
       ],
       "description": "Las unidades terrestres que no compartan la etiqueta compatible lanzan 1d6 al entrar: 4+ entra; 1–3 recibe 2 daño y termina movimiento. Voladoras ignoran.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -2076,8 +2034,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "dunas-movedizas",
@@ -2105,7 +2062,7 @@
         "MOVIMIENTO"
       ],
       "description": "Las unidades terrestres no compatibles lanzan 1d6 al entrar y salir: 4+ supera; 1–3 recibe 1 daño al entrar o permanece al intentar salir. Voladoras ignoran.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -2122,8 +2079,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "tormenta-de-arena",
@@ -2151,7 +2107,7 @@
         "MOVIMIENTO"
       ],
       "description": "Una unidad terrestre enemiga tiene -1 MOV durante este turno.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [],
@@ -2175,8 +2131,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "terraformacion-solar",
@@ -2203,7 +2158,7 @@
         "TERRAFORMACIÓN"
       ],
       "description": "Convierte una casilla válida en Desierto.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [],
@@ -2227,8 +2182,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "erosion",
@@ -2253,7 +2207,7 @@
         "DESGASTE"
       ],
       "description": "Una unidad o Estructura enemiga recibe 2 de daño.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [],
@@ -2277,8 +2231,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "ruptura-del-terreno",
@@ -2303,7 +2256,7 @@
         "NEUTRO"
       ],
       "description": "Destruye un bioma normal enemigo y convierte la casilla en Neutro.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [],
@@ -2327,8 +2280,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "despertar-de-las-ruinas",
@@ -2357,7 +2309,7 @@
         "DESIERTO"
       ],
       "description": "Activa nuevamente la habilidad de una Estructura de Sahria utilizada este turno.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [],
@@ -2382,8 +2334,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "mar-de-arena",
@@ -2411,7 +2362,7 @@
         "ÁREA"
       ],
       "description": "Convierte hasta 2 casillas de Desierto en Mar de Arena durante dos rondas. Las unidades terrestres no compatibles necesitan 5+ para entrar y salir. Voladoras ignoran.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [],
@@ -2435,8 +2386,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "llamado-del-oasis",
@@ -2464,7 +2414,7 @@
         "CURACIÓN"
       ],
       "description": "Una unidad Sahria sobre Desierto recupera 2 de vida, sin superar su vida máxima.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [],
@@ -2488,8 +2438,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "guardian-del-oasis",
@@ -2518,7 +2467,7 @@
         "DEFENSA"
       ],
       "description": "Mientras esté en una casilla de Oasis, reduce en 1 el primer daño que reciba cada ronda.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -2534,8 +2483,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "halconero-solar",
@@ -2563,7 +2511,7 @@
         "EXPLORADOR"
       ],
       "description": "Puede ignorar Terreno Inestable y, al entrar al centro, revelar un recurso oculto de la casilla.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -2579,8 +2527,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "escarabajo-de-cobre",
@@ -2609,7 +2556,7 @@
         "RECURSO"
       ],
       "description": "Cuando ocupa una casilla con recurso, genera 1 Recurso Solar adicional una vez por turno.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -2625,8 +2572,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "emperador-de-las-dunas",
@@ -2656,7 +2602,7 @@
         "NÓMADA"
       ],
       "description": "Las unidades Nómada aliadas adyacentes reciben +1 MOV y +1 ATQ mientras estén sobre Desierto.",
-      "quantity": 0,
+      "quantity": 2,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -2672,8 +2618,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "oasis-de-cristal",
@@ -2701,7 +2646,7 @@
         "RECURSO"
       ],
       "description": "Al inicio de tu turno genera 1 Recurso Solar si permanece bajo tu control.",
-      "quantity": 0,
+      "quantity": 3,
       "maxCopies": 3,
       "requiresAshLand": false,
       "traits": [
@@ -2719,8 +2664,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "titan-de-ceniza",
@@ -2750,7 +2694,7 @@
         "CONTROL"
       ],
       "description": "Solo puede jugarse desde Tierra Ceniza. Las unidades terrestres enemigas adyacentes lanzan 1d6: 5+ evita el efecto; 1–4 recibe 3 daño.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": true,
       "traits": [
@@ -2766,8 +2710,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "ciudad-sepultada",
@@ -2797,7 +2740,7 @@
         "CENIZA"
       ],
       "description": "Solo puede jugarse desde Tierra Ceniza. Crea dos Obeliscos de Arena en casillas libres adyacentes y convierte la casilla central en Tierra Ceniza permanente.",
-      "quantity": 0,
+      "quantity": 1,
       "maxCopies": 3,
       "requiresAshLand": true,
       "traits": [
@@ -2813,8 +2756,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "espora",
@@ -2858,8 +2800,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "obelisco-de-arena",
@@ -2901,8 +2842,7 @@
       "canRespond": false,
       "canInterrupt": false,
       "canReact": false,
-      "timingPermissionText": "",
-      "deckCopies": []
+      "timingPermissionText": ""
     },
     {
       "id": "terraform",
@@ -2953,21 +2893,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 3
-        },
-        {
-          "leader": "ZUKGROK",
-          "count": 3
-        },
-        {
-          "leader": "FAUNAR",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "clearing-space",
@@ -3018,17 +2944,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 3
-        },
-        {
-          "leader": "ZUKGROK",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "cleansing-conquest",
@@ -3079,13 +2995,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "its-a-trap",
@@ -3138,13 +3048,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "FAUNAR",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "one-for-the-team",
@@ -3195,21 +3099,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 3
-        },
-        {
-          "leader": "ZUKGROK",
-          "count": 3
-        },
-        {
-          "leader": "FAUNAR",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "a-price-to-pay",
@@ -3260,21 +3150,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 3
-        },
-        {
-          "leader": "ZUKGROK",
-          "count": 3
-        },
-        {
-          "leader": "FAUNAR",
-          "count": 1
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "from-the-ashes",
@@ -3325,17 +3201,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 1
-        },
-        {
-          "leader": "ZUKGROK",
-          "count": 1
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "resourceful-replenish",
@@ -3386,17 +3252,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "ZUKGROK",
-          "count": 3
-        },
-        {
-          "leader": "FAUNAR",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "last-gift",
@@ -3447,17 +3303,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "ZUKGROK",
-          "count": 3
-        },
-        {
-          "leader": "FAUNAR",
-          "count": 2
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "engage",
@@ -3512,17 +3358,7 @@
       "canReact": true,
       "combatSpell": true,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 3
-        },
-        {
-          "leader": "ZUKGROK",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "time-to-move",
@@ -3577,21 +3413,7 @@
       "canReact": true,
       "combatSpell": true,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 3
-        },
-        {
-          "leader": "ZUKGROK",
-          "count": 3
-        },
-        {
-          "leader": "FAUNAR",
-          "count": 2
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "bomb",
@@ -3646,21 +3468,7 @@
       "canReact": true,
       "combatSpell": true,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 2
-        },
-        {
-          "leader": "ZUKGROK",
-          "count": 2
-        },
-        {
-          "leader": "FAUNAR",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "valiant-seal",
@@ -3703,21 +3511,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 2
-        },
-        {
-          "leader": "ZUKGROK",
-          "count": 3
-        },
-        {
-          "leader": "FAUNAR",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "courage-seal",
@@ -3760,21 +3554,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 2
-        },
-        {
-          "leader": "ZUKGROK",
-          "count": 3
-        },
-        {
-          "leader": "FAUNAR",
-          "count": 2
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "med-camp",
@@ -3817,13 +3597,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 2
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "resting-camp",
@@ -3866,17 +3640,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 1
-        },
-        {
-          "leader": "FAUNAR",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "vigilant-tower",
@@ -3919,21 +3683,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 2
-        },
-        {
-          "leader": "ZUKGROK",
-          "count": 3
-        },
-        {
-          "leader": "FAUNAR",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "emergency-seal",
@@ -3976,17 +3726,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 1
-        },
-        {
-          "leader": "FAUNAR",
-          "count": 1
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "mana-pool",
@@ -4029,17 +3769,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "ZUKGROK",
-          "count": 1
-        },
-        {
-          "leader": "FAUNAR",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "berry-bush",
@@ -4080,13 +3810,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "FAUNAR",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "charming-mongoose",
@@ -4129,13 +3853,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "FAUNAR",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "ferret-eluding-hunter",
@@ -4179,13 +3897,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "FAUNAR",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "bober-reinforcer",
@@ -4229,13 +3941,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "FAUNAR",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "panther-stealthy-assassin",
@@ -4278,13 +3984,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": [
-        {
-          "leader": "FAUNAR",
-          "count": 3
-        }
-      ]
+      "requiresAshLand": false
     },
     {
       "id": "rabbit-token",
@@ -4328,714 +4028,7 @@
       "canReact": false,
       "combatSpell": false,
       "timingPermissionText": "",
-      "requiresAshLand": false,
-      "deckCopies": []
-    },
-    {
-      "id": "sandy-anthill",
-      "name": "Sandy Anthill",
-      "leader": "SAHRIA",
-      "factionTag": "SAHRIA",
-      "category": 1,
-      "subtypes": [
-        "Animal",
-        "Ant"
-      ],
-      "energyCost": 2,
-      "movement": 0,
-      "health": 3,
-      "attack": 0,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Fixed",
-      "biomes": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        7
-      ],
-      "terrainTags": [
-        "SAHRIA"
-      ],
-      "traits": [
-        "AntProducer"
-      ],
-      "description": "Al entrar: invoca un Battle Ant Token en un Slab adyacente.",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 3
-        }
-      ]
-    },
-    {
-      "id": "battle-ant-token",
-      "name": "Battle Ant Token",
-      "leader": "SAHRIA",
-      "factionTag": "SAHRIA",
-      "category": 0,
-      "subtypes": [
-        "Animal",
-        "Ant"
-      ],
-      "energyCost": 0,
-      "movement": 1,
-      "health": 1,
-      "attack": 2,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Ground",
-      "biomes": [
-        5,
-        7
-      ],
-      "terrainTags": [
-        "SAHRIA",
-        "DESIERTO"
-      ],
-      "traits": [
-        "AntTogether",
-        "Token"
-      ],
-      "description": "1/1/2. Si hay otra Ant a 3rad, +1 ATK (una sola vez).",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": []
-    },
-    {
-      "id": "sandy-ember",
-      "name": "Sandy Ember",
-      "leader": "SAHRIA",
-      "factionTag": "SAHRIA",
-      "category": 0,
-      "subtypes": [
-        "Desert",
-        "Ember"
-      ],
-      "energyCost": 2,
-      "movement": 3,
-      "health": 2,
-      "attack": 2,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Ground",
-      "biomes": [
-        5,
-        7
-      ],
-      "terrainTags": [
-        "SAHRIA",
-        "DESIERTO"
-      ],
-      "traits": [
-        "SandyEmber"
-      ],
-      "description": "Al jugar: elige cualquier Structure en Desierto e inflige 1 daño. Si no hay ninguna, elige y descarta 1 carta.",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 3
-        }
-      ]
-    },
-    {
-      "id": "dune-cammel",
-      "name": "Dune Cammel",
-      "leader": "SAHRIA",
-      "factionTag": "SAHRIA",
-      "category": 0,
-      "subtypes": [
-        "Desert",
-        "Animal"
-      ],
-      "energyCost": 2,
-      "movement": 4,
-      "health": 2,
-      "attack": 1,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Ground",
-      "biomes": [
-        5,
-        7
-      ],
-      "terrainTags": [
-        "SAHRIA",
-        "DESIERTO"
-      ],
-      "traits": [
-        "DuneCammel"
-      ],
-      "description": "Al moverse: puedes desplazar una Unit a 1rad en la misma dirección. Al salir de Desierto, aliados a 1rad del origen ganan +1 HP y +1 ATK hasta tu próximo turno.",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 3
-        }
-      ]
-    },
-    {
-      "id": "old-mummy",
-      "name": "Old Mummy",
-      "leader": "SAHRIA",
-      "factionTag": "SAHRIA",
-      "category": 0,
-      "subtypes": [
-        "Desert",
-        "Undead"
-      ],
-      "energyCost": 4,
-      "movement": 0,
-      "health": 5,
-      "attack": 4,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Ground",
-      "biomes": [
-        5,
-        7
-      ],
-      "terrainTags": [
-        "SAHRIA",
-        "DESIERTO"
-      ],
-      "traits": [
-        "OldMummy"
-      ],
-      "description": "Al inicio de tu turno en Desierto: se cura y recibe +1 MOV durante ese turno, sin acumulación permanente.",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 3
-        }
-      ]
-    },
-    {
-      "id": "wandering-beast",
-      "name": "Wandering Beast",
-      "leader": "SAHRIA",
-      "factionTag": "SAHRIA",
-      "category": 0,
-      "subtypes": [
-        "Desert",
-        "Beast"
-      ],
-      "energyCost": 4,
-      "movement": 2,
-      "health": 5,
-      "attack": 5,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Ground",
-      "biomes": [
-        7
-      ],
-      "terrainTags": [
-        "SAHRIA",
-        "DESIERTO"
-      ],
-      "traits": [
-        "WanderingBeast"
-      ],
-      "description": "Solo puede jugarse en Yermo. Una vez por turno: 2 daño a cualquier Unit/Structure a 3rad. Al morir: roba 4.",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 3
-        }
-      ]
-    },
-    {
-      "id": "baby-phoenix",
-      "name": "Baby Phoenix",
-      "leader": "SAHRIA",
-      "factionTag": "SAHRIA",
-      "category": 0,
-      "subtypes": [
-        "Desert",
-        "Flying",
-        "Phoenix"
-      ],
-      "energyCost": 6,
-      "movement": 2,
-      "health": 1,
-      "attack": 7,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Flying",
-      "biomes": [
-        5,
-        7
-      ],
-      "terrainTags": [
-        "SAHRIA",
-        "DESIERTO"
-      ],
-      "traits": [
-        "BabyPhoenix"
-      ],
-      "description": "Al morir: terraforma su Slab y vuelve a tu mano. No ataca el turno en que se juega, salvo si fue jugado en Yermo.",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": [
-        {
-          "leader": "SAHRIA",
-          "count": 1
-        }
-      ]
-    },
-    {
-      "id": "frogpit",
-      "name": "Frogpit",
-      "leader": "ZUKGROK",
-      "factionTag": "ZUKGROK",
-      "category": 1,
-      "subtypes": [
-        "Swamp",
-        "Frog"
-      ],
-      "energyCost": 3,
-      "movement": 0,
-      "health": 4,
-      "attack": 0,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Fixed",
-      "biomes": [
-        2,
-        7
-      ],
-      "terrainTags": [
-        "ZUKGROK",
-        "PANTANO"
-      ],
-      "traits": [
-        "FrogProducer"
-      ],
-      "description": "Al entrar: invoca un Frog Token adyacente.",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": [
-        {
-          "leader": "ZUKGROK",
-          "count": 3
-        }
-      ]
-    },
-    {
-      "id": "micelium-root",
-      "name": "Micelium Root",
-      "leader": "ZUKGROK",
-      "factionTag": "ZUKGROK",
-      "category": 1,
-      "subtypes": [
-        "Swamp",
-        "Mushroom"
-      ],
-      "energyCost": 3,
-      "movement": 0,
-      "health": 3,
-      "attack": 0,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Fixed",
-      "biomes": [
-        2,
-        7
-      ],
-      "terrainTags": [
-        "ZUKGROK",
-        "PANTANO"
-      ],
-      "traits": [
-        "MushroomProducer"
-      ],
-      "description": "Al entrar: invoca un Mushroom Token adyacente.",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": [
-        {
-          "leader": "ZUKGROK",
-          "count": 3
-        }
-      ]
-    },
-    {
-      "id": "firefly-nest",
-      "name": "Firefly Nest",
-      "leader": "ZUKGROK",
-      "factionTag": "ZUKGROK",
-      "category": 1,
-      "subtypes": [
-        "Swamp",
-        "Insect"
-      ],
-      "energyCost": 3,
-      "movement": 0,
-      "health": 3,
-      "attack": 0,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Fixed",
-      "biomes": [
-        2,
-        7
-      ],
-      "terrainTags": [
-        "ZUKGROK",
-        "PANTANO"
-      ],
-      "traits": [
-        "FireflyProducer"
-      ],
-      "description": "Al entrar: invoca 2 Firefly Tokens en Slabs adyacentes libres.",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": [
-        {
-          "leader": "ZUKGROK",
-          "count": 2
-        }
-      ]
-    },
-    {
-      "id": "frog-token",
-      "name": "Frog Token",
-      "leader": "ZUKGROK",
-      "factionTag": "ZUKGROK",
-      "category": 0,
-      "subtypes": [
-        "Swamp",
-        "Frog"
-      ],
-      "energyCost": 0,
-      "movement": 2,
-      "health": 2,
-      "attack": 2,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Ground",
-      "biomes": [
-        2,
-        7
-      ],
-      "terrainTags": [
-        "ZUKGROK",
-        "PANTANO"
-      ],
-      "traits": [
-        "FrogToken",
-        "Token"
-      ],
-      "description": "2/2/2. Al atacar, envenena al objetivo. Mientras esté en Pantano: +2 MOV, sin acumular.",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": []
-    },
-    {
-      "id": "mushroom-token",
-      "name": "Mushroom Token",
-      "leader": "ZUKGROK",
-      "factionTag": "ZUKGROK",
-      "category": 0,
-      "subtypes": [
-        "Swamp",
-        "Mushroom"
-      ],
-      "energyCost": 0,
-      "movement": 1,
-      "health": 2,
-      "attack": 2,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Ground",
-      "biomes": [
-        2,
-        7
-      ],
-      "terrainTags": [
-        "ZUKGROK",
-        "PANTANO"
-      ],
-      "traits": [
-        "MushroomToken",
-        "Token"
-      ],
-      "description": "Una vez por turno: envenena una Unit a 2rad, +1rad por cada OTRO Mushroom Token propio.",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": []
-    },
-    {
-      "id": "firefly-token",
-      "name": "Firefly Token",
-      "leader": "ZUKGROK",
-      "factionTag": "ZUKGROK",
-      "category": 0,
-      "subtypes": [
-        "Swamp",
-        "Insect"
-      ],
-      "energyCost": 0,
-      "movement": 4,
-      "health": 1,
-      "attack": 1,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Ground",
-      "biomes": [
-        2,
-        7
-      ],
-      "terrainTags": [
-        "ZUKGROK",
-        "PANTANO"
-      ],
-      "traits": [
-        "FireflyToken",
-        "Token"
-      ],
-      "description": "Puede sacrificarse para envenenar una Unit a 2rad. Su muerte activa la terraformación gratuita de Zukgrok.",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": []
-    },
-    {
-      "id": "lushroom",
-      "name": "Lushroom",
-      "leader": "ZUKGROK",
-      "factionTag": "ZUKGROK",
-      "category": 0,
-      "subtypes": [
-        "Swamp",
-        "Mushroom"
-      ],
-      "energyCost": 3,
-      "movement": 0,
-      "health": 5,
-      "attack": 1,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Ground",
-      "biomes": [
-        2,
-        7
-      ],
-      "terrainTags": [
-        "ZUKGROK",
-        "PANTANO"
-      ],
-      "traits": [
-        "Lushroom"
-      ],
-      "description": "Mientras esté en Pantano: el veneno enemigo inflige +1 daño por turno. Las Units enemigas envenenadas en Pantano no pueden curarse.",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": [
-        {
-          "leader": "ZUKGROK",
-          "count": 2
-        }
-      ]
-    },
-    {
-      "id": "alligator-revengeful-bite",
-      "name": "Alligator, Revengeful Bite",
-      "leader": "ZUKGROK",
-      "factionTag": "ZUKGROK",
-      "category": 0,
-      "subtypes": [
-        "Swamp",
-        "Animal",
-        "Reptile"
-      ],
-      "energyCost": 5,
-      "movement": 1,
-      "health": 4,
-      "attack": 1,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Ground",
-      "biomes": [
-        2,
-        7
-      ],
-      "terrainTags": [
-        "ZUKGROK",
-        "PANTANO"
-      ],
-      "traits": [
-        "Alligator"
-      ],
-      "description": "Cuando muere una Unit no Token: cura 1 HP. +1 HP y +1 ATK por Token propio. Al matar una Unit, puedes invocar un Alligator Token.",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": [
-        {
-          "leader": "ZUKGROK",
-          "count": 3
-        }
-      ]
-    },
-    {
-      "id": "alligator-token",
-      "name": "Alligator Token",
-      "leader": "ZUKGROK",
-      "factionTag": "ZUKGROK",
-      "category": 0,
-      "subtypes": [
-        "Swamp",
-        "Animal",
-        "Reptile"
-      ],
-      "energyCost": 0,
-      "movement": 1,
-      "health": 1,
-      "attack": 1,
-      "range": 1,
-      "quantity": 0,
-      "maxCopies": 3,
-      "movementType": "Ground",
-      "biomes": [
-        2,
-        7
-      ],
-      "terrainTags": [
-        "ZUKGROK",
-        "PANTANO"
-      ],
-      "traits": [
-        "AlligatorToken",
-        "Token"
-      ],
-      "description": "1/1/1. En Pantano: +3 MOV. Efecto de muerte «give +1hp»: incompleto, pendiente de definición.",
-      "effects": [],
-      "allowedPhases": [
-        0
-      ],
-      "allowedTiming": [
-        0
-      ],
-      "combatSpell": false,
-      "deckCopies": []
+      "requiresAshLand": false
     }
   ]
 }

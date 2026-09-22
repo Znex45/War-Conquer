@@ -64,12 +64,12 @@ namespace WarConquer.Editor
                 Invoke(ui,"StartMatch",false);var g=ui.Game;
                 Check(Has(ui,"ETAPAS · J1")&&Has(ui,"ENERGÍA 3 / 3"),"Estado inicial no reflejado en Canvas.");
                 for(int i=0;i<4;i++)Check(Has(ui,"J"+(i+1)+" "+g.State.players[i].leader),"Falta un jugador en la puntuación.");
-                Check(Has(ui,"INFLUENCIA MICELIAL")&&Has(ui,"COSTE 3 E"),"Falta la habilidad o coste del Líder.");
+                Check(Has(ui,"MUERTE DE TOKEN")&&Has(ui,"0 ENERGÍA"),"Falta la habilidad o coste del Líder.");
                 g.AdvanceStage();Check(Has(ui,"IR A ASALTO")&&Has(ui,"Terraformar casilla"),"Terraformación ausente.");
                 g.AdvanceStage();Check(Has(ui,"FINALIZAR TURNO"),"Asalto ausente.");
-                g.EndTurn();Check(Has(ui,"ETAPAS · J2")&&Has(ui,"DOMINIO DE LAS ARENAS"),"Interfaz no sigue el turno del jugador.");
+                g.EndTurn();Check(Has(ui,"ETAPAS · J2")&&Has(ui,"DESPLIEGUE EN TERRITORIO"),"Interfaz no sigue el turno del jugador.");
                 Invoke(ui,"StartMatch",false);g=ui.Game;
-                g.State.players[0].conquestPoints=9;var site=g.State.tiles.First(ConquestManager.IsCenter);site.biome=Biome.Forest;PrototypeScenario.Spawn(g,0,"bestia-micelial",site.id);ConquestManager.Refresh(g.State);g.State.turn+=4;
+                g.State.players[0].conquestPoints=9;var site=g.State.tiles.First(ConquestManager.IsCenter);site.biome=Biome.Forest;PrototypeScenario.Spawn(g,0,"alligator-revengeful-bite",site.id);ConquestManager.Refresh(g.State);g.State.turn+=4;
                 ConquestManager.ScoreStart(g.State,0);g.Notify("Comprobación de victoria.");
                 Check(Has(ui,"JUGADOR 1 HA GANADO")&&Has(ui,"10 PUNTOS DE CONQUISTA")&&!g.CanAct,"Pantalla de victoria de Conquista incorrecta.");
                 Invoke(ui,"StartMatch",false);g=ui.Game;

@@ -75,19 +75,19 @@ namespace WarConquer.Editor
             {
                 Application.runInBackground=true;
                 var ui=UnityEngine.Object.FindAnyObjectByType<WarConquerController>();Check(ui?.Game!=null,"No hay partida 3D activa.");
-                InterfacePlayModeTests.Run();RevisionPlayTests.Run(ui);FaunarPlayTests.Run(ui);
+                InterfacePlayModeTests.Run();RevisionPlayTests.Run(ui);FaunarPlayTests.Run(ui);FactionPlayTests.Run(ui);
                 typeof(WarConquerController).GetField("humanPlayers",Flags).SetValue(ui,4);Invoke(ui,"StartMatch",false);
                 var world=ui.GetComponentInChildren<Board3DScene>();var input=ui.GetComponentInChildren<BoardViewportInput>();Canvas.ForceUpdateCanvases();
                 Check(world!=null&&world.Texture!=null&&world.Texture.IsCreated()&&input!=null,"No existe la vista 3D interactiva.");
-                var card=ui.Game.State.Active.hand.First(c=>c.cardId=="bestia-micelial");Invoke(ui,"SelectCard",card,ui.Game.State.Active);
+                var card=PrototypeScenario.Take(ui.Game,0,"alligator-revengeful-bite");ui.Game.State.Active.hand.Add(card);ui.Game.State.Active.currentEnergy=5;Invoke(ui,"SelectCard",card,ui.Game.State.Active);
                 int target=ui.Game.CardTargets(ui.Game.Catalog[card.cardId]).First(id=>world.Pick(world.ViewportOf(id))==id);
                 Click(world,input,target);Check(ui.Game.State.tiles[target].unit!=null&&ui.Game.State.Active.currentEnergy==0,"El clic 3D no coloca ni paga la carta.");
                 var piece=ui.Game.State.tiles[target].unit;ui.Game.AdvanceStage();ui.Game.AdvanceStage();Click(world,input,target,.9f);
                 int destination=MovementManager.Paths(ui.Game,piece).Keys.First(id=>world.Pick(world.ViewportOf(id))==id);
                 Click(world,input,destination);Check(piece.tileId==destination&&world.PieceCount==1,"El clic 3D no mueve la unidad.");
                 Invoke(ui,"StartMatch",true);var g=ui.Game;
-                Spawn(g,0,"hongo-explorador",Biome.Forest);Spawn(g,1,"obelisco-solar",Biome.Desert);
-                Spawn(g,2,"jardin-micelial",Biome.Forest);Spawn(g,3,"nomada-de-arena",Biome.Desert);
+                Spawn(g,0,"lushroom",Biome.Swamp);Spawn(g,1,"sandy-anthill",Biome.Desert);
+                Spawn(g,2,"frogpit",Biome.Swamp);Spawn(g,3,"sandy-ember",Biome.Desert);
                 g.Notify("Escenario de pruebas 3D · Nueva partida permite elegir personas y mazos.");
                 Check(world.PieceCount==BoardManager.Pieces(g.State).Count()&&StateValidator.Validate(g.State,g.Catalog)=="","Modelos o cartas del escenario incorrectos.");
                 var view=EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GameView"));view.maximized=true;view.Focus();

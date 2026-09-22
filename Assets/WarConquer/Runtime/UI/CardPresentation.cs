@@ -27,7 +27,7 @@ namespace WarConquer
             if(large)
             {
                 GrayboxUI.Text(root,card.description,12,312,w-24,116,16,GrayboxUI.Ink);
-                string metadata=(card.category==Category.Spell&&card.range==0?"Objetivos según el texto de la magia":"ALC "+card.range+" · "+card.movementType)+"\n"+card.factionTag+" · "+string.Join(" · ",card.terrainTags)+"\nBiomas: "+string.Join(" / ",card.biomes.Select(b=>Names.Biomes[(int)b]))+"\n"+quote.Detail+(card.requiresAshLand?"\nCondición: Tierra Ceniza propia y libre.":"");
+                string metadata=(card.category==Category.Spell&&card.range==0?"Objetivos según el texto de la magia":"ALC "+card.range+" · "+card.movementType)+"\n"+"LÍDER "+player.leader+" · "+card.factionTag+" · "+string.Join(" · ",card.terrainTags)+"\nBiomas: "+string.Join(" / ",card.biomes.Select(b=>Names.Biomes[(int)b]))+"\n"+quote.Detail+(card.requiresAshLand?"\nCondición: Tierra Ceniza propia y libre.":"");
                 GrayboxUI.Text(root,metadata,12,435,w-24,98,13,GrayboxUI.Muted);
                 GrayboxUI.Text(root,"VENTANAS DE USO\n"+TimingRules.Description(card),12,539,w-24,h-545,13,color);
             }

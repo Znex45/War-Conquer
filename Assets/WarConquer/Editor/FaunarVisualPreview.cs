@@ -37,7 +37,7 @@ namespace WarConquer.Editor
                 }
                 if(step==4){Capture("faunar-descarte");step++;due=EditorApplication.timeSinceStartup+1;return;}
                 Invoke("CloseModal");Set("humanPlayers",1);Invoke("StartMatch",false);Invoke("ShowSetup");
-                EditorApplication.update-=Tick;Debug.Log("FAUNAR_VISUAL_PASSED: selección de tres mazos, partida 3D y elección de descarte renderizadas.");if(batch)EditorApplication.Exit(0);
+                EditorApplication.update-=Tick;Debug.Log("FAUNAR_VISUAL_PASSED: selección de tres mazos, partida 3D y elección de descarte renderizadas.");FactionVisualPreview.Begin(ui,batch);
             }
             catch(Exception e){EditorApplication.update-=Tick;Debug.LogException(e);if(batch)EditorApplication.Exit(1);}
         }

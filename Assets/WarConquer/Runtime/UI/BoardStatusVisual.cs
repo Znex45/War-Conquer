@@ -26,7 +26,7 @@ namespace WarConquer
             if(applications!=p.poisonApplications){applications=p.poisonApplications;pulse=1;}
             attack.gameObject.SetActive(!game.Data(p).IsStructure);
             bool ready=CombatManager.Targets(game,p).Count>0;
-            attack.text=game.IsSleeping(p)?"DORMIDO":p.attacked?"ATQ USADO":ready?"ATQ LISTO":game.CanTakeTurnAction(TurnStage.Assault)&&p.owner==game.ActingPlayerId?"ATQ —":"ESPERA";
+            attack.text=game.IsSleeping(p)?"DORMIDO":!FactionCardRules.CanAttack(game,p)?"NO ATACA AL ENTRAR":p.attacked?"ATQ USADO":ready?"ATQ LISTO":game.CanTakeTurnAction(TurnStage.Assault)&&p.owner==game.ActingPlayerId?"ATQ —":"ESPERA";
             attack.color=ready?GrayboxUI.Green:game.IsSleeping(p)?new Color(.58f,.79f,1):GrayboxUI.Muted;
         }
         void Update()

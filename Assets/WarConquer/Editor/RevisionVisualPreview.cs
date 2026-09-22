@@ -10,7 +10,7 @@ namespace WarConquer.Editor
     // Runs only from the explicit editor preview command. Saves QA images outside Assets.
     public static class RevisionVisualPreview
     {
-        static WarConquerController ui;static int step;static double due;static bool batch;
+        static WarConquerController ui;static int step;static double due,diceDeadline;static bool batch;
         static readonly BindingFlags Flags=BindingFlags.NonPublic|BindingFlags.Instance;
         static void Invoke(string name,params object[] args)=>typeof(WarConquerController).GetMethod(name,Flags).Invoke(ui,args);
         public static void Begin(WarConquerController controller,bool exit)
@@ -41,10 +41,12 @@ namespace WarConquer.Editor
                     Invoke("StartMatch",true);var g=ui.Game;var units=BoardManager.Pieces(g.State).Where(p=>!g.Data(p).IsStructure).ToArray();
                     EffectManager.Poison(g,units[0],1,1);EffectManager.Sleep(g,units[1],0);g.State.stage=TurnStage.Assault;
                     var target=g.State.tiles.First(t=>t.conquestSite&&!t.IsOccupied);g.RollDie(units[0],target,4,"Comprobación visual del dado");g.Notify("Escenario de pruebas · veneno, sueño y dado 3D.");
-                    due=EditorApplication.timeSinceStartup+2.1;return;
+                    // Observe rendered frames rather than assuming editor and game clocks advance together.
+                    due=EditorApplication.timeSinceStartup+.1;diceDeadline=EditorApplication.timeSinceStartup+15;return;
                 }
                 var world=ui.GetComponentInChildren<Board3DScene>();
-                if(!world.IsAnimating||!world.GetComponentsInChildren<TextMesh>().Any(t=>t.name=="Resultado del dado"&&t.text.Contains("D6  "+ui.Game.State.diceRolls.Last().value)))throw new Exception("El dado no muestra el resultado real.");
+                if(!world.IsAnimating||!world.GetComponentsInChildren<TextMesh>().Any(t=>t.name=="Resultado del dado"&&t.text.Contains("D6  "+ui.Game.State.diceRolls.Last().value)))
+                {if(EditorApplication.timeSinceStartup<diceDeadline){EditorApplication.QueuePlayerLoopUpdate();return;}throw new Exception("El dado no muestra el resultado real.");}
                 Snapshot("estados-y-dado");ScreenCapture.CaptureScreenshot(Path.GetFullPath("Library/WarConquer3D/interfaz-estados.png"));
                 Debug.Log("WAR_CONQUER_MAPS_DICE_PASSED: tres mapas renderizados, veneno, sueño y resultado real del dado 3D.");
                 EditorApplication.update-=Tick;FaunarVisualPreview.Begin(ui,batch);

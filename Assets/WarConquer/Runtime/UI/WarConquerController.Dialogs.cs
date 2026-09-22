@@ -46,7 +46,7 @@ namespace WarConquer
                     bool fungus=deck=="ZUKGROK",chosen=leaders[id]==deck;var color=fungus?GrayboxUI.Purple:deck=="FAUNAR"?GrayboxUI.Green:GrayboxUI.Yellow;
                     float x=225+System.Array.IndexOf(CardCatalog.Leaders,deck)*278;
                     GrayboxUI.Button(row,(chosen?"✓ ":"")+deck+" · 50 cartas",x,8,264,34,()=>{leaders[id]=deck;ShowSetup();},Color.Lerp(color,GrayboxUI.Panel,chosen?0f:.65f));
-                    GrayboxUI.Text(row,fungus?"Bosque · Esporas y veneno":deck=="FAUNAR"?"Bosque · Animales y estructuras":"Desierto · Control del terreno",x+7,49,255,24,12,color);
+                    GrayboxUI.Text(row,fungus?"Pantano · Tokens y veneno":deck=="FAUNAR"?"Bosque · Animales y estructuras":"Desierto · Control del terreno",x+7,49,255,24,12,color);
                 }
             }
             GrayboxUI.Button(body,"COMENZAR PARTIDA",26,642,1070,60,()=>StartMatch(false),GrayboxUI.Green);
@@ -90,10 +90,10 @@ namespace WarConquer
                 GrayboxUI.Text(body,"Pasiva sin coste. La primera Structure de tu turno cuesta 1 Energía menos (mínimo 0). No se acumula, no afecta Units ni Spells. Se reinicia al comenzar tu siguiente turno.",40,223,1010,190,27,GrayboxUI.Ink);
                 GrayboxUI.Text(body,player.firstStructureUsed?"USED":"AVAILABLE",40,460,1030,50,25,GrayboxUI.Green,FontStyle.Bold);return;
             }
-            GrayboxUI.Text(body,fungus?"INFLUENCIA MICELIAL":"DOMINIO DE LAS ARENAS",40,115,1030,60,29,GrayboxUI.PlayerColor(player.id),FontStyle.Bold);
-            GrayboxUI.Text(body,fungus?"Envenena 1 a un enemigo en Bosque conectado a tu red y crea una Espora adyacente.":"Hasta 2 Desiertos propios se vuelven inestables (4+). Un fallo causa 1 daño adicional, una sola vez entre ambos.",40,223,1010,190,27,GrayboxUI.Ink);
-            GrayboxUI.Text(body,TimingRules.StageName(TimingRules.LeaderStage(player))+" · COSTE "+Game.State.rules.leaderAbilityCost+" E",40,460,1030,50,25,GrayboxUI.PlayerColor(player.id),FontStyle.Bold);
-            GrayboxUI.Text(body,"Actívala desde el panel de tu Líder cuando haya objetivos válidos y energía suficiente.",40,566,1030,85,23,GrayboxUI.Muted);
+            GrayboxUI.Text(body,fungus?"TOKEN DESTRUIDO · TERRAFORMACIÓN":"DESPLIEGUE DE SAHRIA",40,115,1030,60,29,GrayboxUI.PlayerColor(player.id),FontStyle.Bold);
+            GrayboxUI.Text(body,fungus?"Cuando muere uno de tus Tokens por cualquier causa, elige el bioma de la casilla donde murió. Terraformar cuesta 0 Energía. No se activa con Units normales.":"Puedes pagar 1 Energía adicional al jugar una Unit en una casilla que hayas establecido, incluso de otro bioma. Activa la opción SAHRIA +1 E antes de elegir la carta. Respeta la ocupación y las restricciones explícitas, como Yermo de Wandering Beast.",40,223,1010,190,27,GrayboxUI.Ink);
+            GrayboxUI.Text(body,fungus?"AUTOMÁTICA · 0 ENERGÍA":"DESPLIEGUE · COSTE DE UNIT +1 ENERGÍA",40,460,1030,50,25,GrayboxUI.PlayerColor(player.id),FontStyle.Bold);
+            GrayboxUI.Text(body,"La carta del Líder permanece fuera de la mano y no cuenta entre las 50 cartas.",40,566,1030,85,23,GrayboxUI.Muted);
         }
         void ShowLog(){var body=OpenModal("Registro de la partida");GrayboxUI.Text(body,string.Join("\n",Game.State.log.Skip(Math.Max(0,Game.State.log.Count-29))),26,80,1070,684,19,GrayboxUI.Muted);}
         void Save(){try{File.WriteAllText(SavePath,GamePersistence.Serialize(Game.State));Game.Notify("Partida guardada localmente.");}catch(Exception e){Game.Notify("No se pudo guardar: "+e.Message);}}

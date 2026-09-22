@@ -60,8 +60,8 @@ namespace WarConquer.Editor
             });
             test("Veneno acumulativo 1 2 4 atraviesa defensa y reaplicarlo no reinicia el daño",()=>{
                 var g=New(cards);int tile=g.State.tiles.First(t=>t.owner==1&&t.baseOwner<0).id;var p=PrototypeScenario.Spawn(g,1,"guardian-del-obelisco",tile);p.health=30;
-                EffectManager.Poison(g,p,1,0);End(g);Check(p.health==29&&p.poison==2,"Primer tick.");EffectManager.Poison(g,p,1,0);Check(p.poison==2&&p.poisonApplications==2,"Reaplicar reinicia daño.");
-                for(int i=0;i<4;i++)End(g);Check(p.health==27&&p.poison==4,"Segundo tick.");for(int i=0;i<4;i++)End(g);Check(p.health==23&&p.poison==8,"Tercer tick.");
+                EffectManager.Poison(g,p,1,0);End(g);Check(p.health==29&&p.poison==1,"Primer tick.");EffectManager.Poison(g,p,1,0);Check(p.poison==1&&p.poisonApplications==2,"Reaplicar reinicia daño.");
+                for(int i=0;i<4;i++)End(g);Check(p.health==28&&p.poison==1,"Segundo tick.");for(int i=0;i<4;i++)End(g);Check(p.health==27&&p.poison==1,"Tercer tick.");
                 p.health=1;for(int i=0;i<4;i++)End(g);Check(g.State.tiles[tile].unit==null,"El veneno no mata.");
             });
             test("Magias sin límite de alcance admiten un objetivo lejano y respetan su tipo",()=>{

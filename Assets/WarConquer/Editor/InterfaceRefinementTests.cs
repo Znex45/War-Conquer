@@ -28,7 +28,7 @@ namespace WarConquer.Editor
             }
             Click(ui,"Ver datos");Check(ui.GetComponentInChildren<Board3DScene>().ShowLabels,"No se recuperan los datos del tablero.");Click(ui,"Ocultar datos");
             Click(ui,"Detalles");Check(ui.GetComponentsInChildren<Text>().Any(t=>t.text.StartsWith("B1:")),"Falta el control detallado por zona.");Click(ui,"Menos");
-            Click(ui,"Ver habilidad");Check(ui.GetComponentsInChildren<Text>().Any(t=>t.text.Contains("Envenena 1")),"Falta el texto completo del Líder.");Click(ui,"Cerrar");
+            Click(ui,"Ver habilidad");Check(ui.GetComponentsInChildren<Text>().Any(t=>t.text.Contains("Cuando muere uno de tus Tokens")),"Falta el texto completo del Líder.");Click(ui,"Cerrar");
             Click(ui,"Menú");foreach(string action in new[]{"Nueva partida","Guardar","Cargar","Registro","Ayuda","Continuar partida"})Check(ui.GetComponentsInChildren<Button>().Any(b=>b.name==action),"Se perdió una función: "+action);
             Click(ui,"Ayuda");Check(ui.GetComponentsInChildren<Text>().Any(t=>t.text.Contains("último Líder")),"No se conservan las reglas de victoria.");Click(ui,"Volver al menú");Click(ui,"Nueva partida");
             Check(!hand.gameObject.activeInHierarchy,"Menú de preparación deja visible la mano.");Click(ui,"Cerrar");

@@ -44,6 +44,6 @@ namespace WarConquer
             return g.State.stage==AbilityStage(g.Data(p));
         }
         public static TurnStage LeaderStage(Player p)=>p.leader=="SAHRIA"?TurnStage.Terraforming:TurnStage.Assault;
-        public static bool LeaderAllowed(GameManager g)=>g.ActingPlayer.leader!="FAUNAR"&&g.CanTakeTurnAction(LeaderStage(g.ActingPlayer));
+        public static bool LeaderAllowed(GameManager g)=>false;
     }
 }
