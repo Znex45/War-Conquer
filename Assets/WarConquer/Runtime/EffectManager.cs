@@ -8,6 +8,7 @@ namespace WarConquer
     {
         public static void ResolveSpell(GameManager g,CardData card,IList<int> targets,Biome choice)
         {
+            if(GenericCardRules.Resolve(g,card,targets,choice))return;
             var s=g.State;
             foreach(var effect in card.effects)
             {
@@ -74,7 +75,7 @@ namespace WarConquer
         }
         public static void OnEnter(GameManager g,Piece p)
         {
-            var c=g.Data(p);var s=g.State;var t=s.tiles[p.tileId];OnTileEnter(g,p);
+            var c=g.Data(p);var s=g.State;var t=s.tiles[p.tileId];OnTileEnter(g,p);GenericCardRules.OnPlayed(g,p);
             if(c.Has("EnterForest")||c.Has("EnterDesert"))
             {
                 var target=t.neighbors.Select(n=>s.tiles[n]).FirstOrDefault(n=>g.TerraformTarget(n.id));
@@ -112,7 +113,7 @@ namespace WarConquer
         }
         public static void OnStart(GameManager g,Piece p)
         {
-            if(g.IsSleeping(p))return;
+            if(g.IsSleeping(p)||p.health<=0)return;GenericCardRules.OnStart(g,p);
             var c=g.Data(p);var s=g.State;var t=s.tiles[p.tileId];var player=s.players[p.owner];
             if(c.Has("ForestSpore")&&t.biome==Biome.Forest)player.spores++;
             if(c.Has("ConnectedSpores")&&BoardManager.ConnectedBiome(s,t.id,p.owner,Biome.Forest).Count>=3)player.spores+=2;

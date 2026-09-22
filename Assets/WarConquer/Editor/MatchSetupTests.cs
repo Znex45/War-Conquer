@@ -11,7 +11,7 @@ namespace WarConquer.Editor
         static readonly string[] Leaders={"ZUKGROK","SAHRIA","ZUKGROK","SAHRIA"};
         static GameManager New(CardCatalog cards,int humans,bool start=true,int seed=2026)
         {var g=new GameManager(cards);g.NewGame(Leaders,seed,CardCatalog.LoadRules(),humans,start);return g;}
-        static void End(GameManager g){while(g.State.stage!=TurnStage.Terraforming)g.AdvanceStage();g.EndTurn();}
+        static void End(GameManager g){while(g.State.stage!=TurnStage.Assault)g.AdvanceStage();g.EndTurn();}
         public static void RunAll(CardCatalog catalog,Action<string,Action> test)
         {
             test("Preparación pausada: no hay acciones, turnos ni decisiones de IA antes de comenzar",()=>{

@@ -21,19 +21,19 @@ namespace WarConquer
             {
                 player.currentEnergy=player.maxEnergy=10;player.spores=3;
                 player.deck.AddRange(player.hand);player.hand.Clear();
-                bool fungus=player.leader=="ZUKGROK";
-                string[] hand=fungus?new[]{"brote-repentino","bestia-micelial","semillero-micelial","espora-somnifera","red-micelial","rey-micelial","nube-de-esporas","marcha-micelial"}:
+                bool fungus=player.leader=="ZUKGROK";bool faunar=player.leader=="FAUNAR";
+                string[] hand=faunar?new[]{"terraform","charming-mongoose","berry-bush","bober-reinforcer","ferret-eluding-hunter","panther-stealthy-assassin","bomb","time-to-move"}:fungus?new[]{"brote-repentino","bestia-micelial","semillero-micelial","espora-somnifera","red-micelial","rey-micelial","nube-de-esporas","marcha-micelial"}:
                     new[]{"nomada-de-arena","terraformacion-solar","erosion","arena-profunda","ruptura-del-terreno","titan-de-ceniza","mar-de-arena","obelisco-solar"};
                 foreach(var id in hand){var c=Take(g,player.id,id);player.hand.Add(c);}
                 var home=s.tiles.Where(t=>t.owner==player.id&&t.baseOwner<0).Take(5).ToList();
-                foreach(var t in home)t.biome=fungus?Biome.Forest:Biome.Desert;
+                foreach(var t in home)t.biome=fungus||faunar?Biome.Forest:Biome.Desert;
                 home[4].biome=Biome.AshLand;
             }
             Func<int,int,HexTile> central=(q,r)=>s.tiles.First(t=>t.territory==4&&t.q==q&&t.r==r);
             int a=central(-1,0).id,b=central(0,0).id;
             central(-1,0).biome=Biome.Forest;central(0,0).biome=Biome.Forest;
-            Spawn(g,0,s.players[0].leader=="ZUKGROK"?"bestia-micelial":"nomada-de-arena",a);
-            Spawn(g,1,s.players[1].leader=="SAHRIA"?"nomada-de-arena":"bestia-micelial",b);
+            Spawn(g,0,s.players[0].leader=="FAUNAR"?"charming-mongoose":s.players[0].leader=="ZUKGROK"?"bestia-micelial":"nomada-de-arena",a);
+            Spawn(g,1,s.players[1].leader=="FAUNAR"?"charming-mongoose":s.players[1].leader=="SAHRIA"?"nomada-de-arena":"bestia-micelial",b);
             if(s.players[0].leader=="ZUKGROK")
             {
                 var r=central(-2,1);r.biome=Biome.Forest;var network=Spawn(g,0,"red-micelial",r.id);
@@ -49,7 +49,7 @@ namespace WarConquer
     {
         public static string Validate(GameState s,CardCatalog catalog)
         {
-            if(s==null||s.version!=5||s.rules==null||s.players==null||s.players.Count!=4||s.tiles==null||s.mapPlayers<2||s.mapPlayers>4||s.tiles.Count<50)return "Partida incompatible con las etapas y la puntuación. Inicia una nueva partida.";
+            if(s==null||s.version!=6||s.rules==null||s.players==null||s.players.Count!=4||s.tiles==null||s.mapPlayers<2||s.mapPlayers>4||s.tiles.Count<50)return "Partida incompatible con las etapas y la puntuación. Inicia una nueva partida.";
             if(s.activePlayer<0||s.activePlayer>3||s.turn<1)return "Turno inválido.";
             var expected=new GameState();BoardManager.Create(expected,s.mapPlayers);
             if(s.tiles.Count!=expected.tiles.Count||s.tiles.Where((t,i)=>t.q!=expected.tiles[i].q||t.r!=expected.tiles[i].r||t.conquestSite!=expected.tiles[i].conquestSite||!t.neighbors.SequenceEqual(expected.tiles[i].neighbors)).Any())return "Geometría de mapa inválida.";
@@ -57,6 +57,7 @@ namespace WarConquer
             if(s.diceRolls==null||s.nextRollId<1||s.diceRolls.Any(d=>d.id<1||d.id>=s.nextRollId||d.value<1||d.value>6||d.tileId<0||d.tileId>=s.tiles.Count)||s.diceRolls.Select(d=>d.id).Distinct().Count()!=s.diceRolls.Count)return "Historial de dados inválido.";
             if(!Enum.IsDefined(typeof(TurnStage),s.stage)||s.lastScoredRound>s.round||s.responsePlayer < -1||s.responsePlayer>3)return "Ventana o ronda inválida.";
             if(s.battle!=null&&(s.stage!=TurnStage.Assault||s.battle.priorityPlayer<0||s.battle.priorityPlayer>3||s.battle.targetTile<0||s.battle.targetTile>=s.tiles.Count||s.battle.order.Count!=4||s.battle.order.Distinct().Count()!=4||s.battle.priorityIndex<0||s.battle.priorityIndex>3))return "Batalla inválida.";
+            if(s.pendingChoices==null||s.pendingChoices.Any(c=>c.owner<0||c.owner>3||c.count<1||c.kind!="Discard"&&c.kind!="Panther"&&c.kind!="Emergency"||c.kind!="Discard"&&(c.tileId<0||c.tileId>=s.tiles.Count)))return "Elección pendiente inválida.";
             var validCards=new HashSet<string>(catalog.All.Select(c=>c.id));var ids=new HashSet<int>();
             for(int i=0;i<s.tiles.Count;i++)
             {

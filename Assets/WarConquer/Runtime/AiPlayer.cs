@@ -16,6 +16,8 @@ namespace WarConquer
         {
             if(g==null||!g.CanAct||!g.ActingPlayer.isAI||g.ActingPlayer.inactive)return false;
             var s=g.State;
+            if(s.pendingChoices.Count>0)
+            {var c=s.pendingChoices[0];var available=ChoiceManager.Targets(g,c);if(c.kind=="Discard")available=available.OrderBy(id=>g.Catalog[g.ActingPlayer.hand.First(x=>x.instanceId==id).cardId].energyCost).ToList();else available=available.OrderBy(id=>s.tiles[id].unit?.owner==c.owner?1:0).ToList();return ChoiceManager.Resolve(g,available.Take(c.count).ToArray());}
             if(previousState!=s||turn!=s.turn||actor!=g.ActingPlayerId||stage!=(int)s.stage)
             {previousState=s;turn=s.turn;actor=g.ActingPlayerId;stage=(int)s.stage;decisions=0;terraformActions=0;attemptedAbilities.Clear();}
             bool response=s.battle!=null||s.responsePlayer>=0;
@@ -70,6 +72,8 @@ namespace WarConquer
                 return 45-Distance(g,id,Goal(g))*4+(card.IsStructure?nearby*3:0)-(EnemyDistance(g,id)<=1&&card.health<4?15:0);
             }
             var e=card.effects[0];
+            if(e.operation=="TimeToMove")return BoardManager.UnitsWithinRadius(g.State,id,8).Count(p=>p.owner==g.ActingPlayerId)*5;
+            if(e.operation=="GenericTerraform"||e.operation=="ClearingSpace"||e.operation=="CleansingConquest")return TerraformValue(g,id,e.operation=="GenericTerraform"?Biome.Forest:Biome.Wasteland);
             if(e.operation=="Terraform")
             {
                 var biome=e.biome=="ChooseForestSwamp"?Biome.Forest:(Biome)Enum.Parse(typeof(Biome),e.biome);
@@ -90,7 +94,7 @@ namespace WarConquer
         }
         static List<int> ChooseTargets(GameManager g,CardData card)
         {
-            var chosen=new List<int>();int max=card.category==Category.Spell?card.effects[0].count:1;
+            var chosen=new List<int>();int max=GenericCardRules.MaxTargets(card);
             if(card.effects.Any(e=>e.operation=="SporeDamage"))max=Math.Min(max,g.ActingPlayer.spores);
             bool march=card.effects.Any(e=>e.operation=="March");
             for(int i=0;i<max;i++)
@@ -115,8 +119,8 @@ namespace WarConquer
             foreach(var instance in g.ActingPlayer.hand)
             {
                 if(g.CardBlockReason(instance,UseResources)!="")continue;
-                var c=g.Catalog[instance.cardId];var targets=ChooseTargets(g,c);if(targets.Count==0)continue;
-                float value=c.category==Category.Spell?targets.Sum(id=>TargetValue(g,c,id)):
+                var c=g.Catalog[instance.cardId];var targets=ChooseTargets(g,c);if(targets.Count<GenericCardRules.MinTargets(c))continue;
+                float value=GenericCardRules.NoBoardTarget(c)?12:c.category==Category.Spell?targets.Sum(id=>TargetValue(g,c,id)):
                     c.IsStructure?10+g.Allies(g.ActingPlayerId).Count()*2:20+c.attack*3+c.health*.5f+(units<3?15:0);
                 value-=EnergyManager.Quote(g.ActingPlayer,c,UseResources).energy;
                 options.Add((instance,targets,value));
@@ -135,7 +139,7 @@ namespace WarConquer
                 if(c.Has("ExtendBuff"))choices=choices.Where(id=>BoardManager.Nearby(g.State,p.tileId).Any(a=>a.owner==p.owner&&a.tileId!=id&&a.bonusAttack>0)).ToList();
                 if(c.Has("FastNetwork"))choices=choices.OrderBy(id=>Distance(g,id,Goal(g))).ToList();
                 else choices=choices.OrderBy(id=>EnemyDistance(g,id)).ToList();
-                int count=AbilityManager.TargetCount(c);if(choices.Count<count)continue;
+                int count=AbilityManager.TargetCount(c);if(c.Has("MedCamp"))count=Math.Min(count,choices.Count);if(choices.Count<count)continue;
                 attemptedAbilities.Add(p.id);
                 if(AbilityManager.Activate(g,p,choices.Take(count).ToArray()))return true;
             }
@@ -151,7 +155,7 @@ namespace WarConquer
         bool TryTerraform(GameManager g)
         {
             if(terraformActions>=3)return false;
-            var p=g.ActingPlayer;var biome=p.leader=="ZUKGROK"?Biome.Forest:Biome.Desert;
+            var p=g.ActingPlayer;var biome=p.leader=="SAHRIA"?Biome.Desert:Biome.Forest;
             if(p.hand.Any(c=>g.Catalog[c.cardId].requiresAshLand)&&!g.State.tiles.Any(t=>t.owner==p.id&&t.biome==Biome.AshLand&&!t.IsOccupied))
             {
                 var ash=g.State.tiles.FirstOrDefault(t=>t.owner==p.id&&t.baseOwner<0&&!t.IsOccupied&&TerrainManager.Normal(t));

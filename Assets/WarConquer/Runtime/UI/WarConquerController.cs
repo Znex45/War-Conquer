@@ -91,6 +91,7 @@ namespace WarConquer
                 var b=s.battle;var banner=GrayboxUI.Box(chrome,"Batalla",210,42,570,46,new Color32(85,49,65,255));
                 GrayboxUI.Text(banner,"BATALLA  J"+(b.attackerOwner+1)+" → J"+(b.defenderOwner+1)+"   ·   RESPONDE J"+(b.priorityPlayer+1),12,10,546,28,18,GrayboxUI.Ink,FontStyle.Bold);
             }
+            if(s.pendingChoices.Count>0&&s.pendingChoices[0].kind=="Discard"&&!Game.ActingPlayer.isAI)ShowDiscardChoice();
             if(s.phase==Phase.Finished)ShowVictory();
         }
         void DrawHeader()
@@ -104,7 +105,9 @@ namespace WarConquer
         }
         List<int> ValidTargets()
         {
-            if(viewedPlayer!=Game.ActingPlayerId||!Game.CanAct||Game.ActingPlayer.isAI)return new List<int>();
+            if(!Game.CanAct||Game.ActingPlayer.isAI)return new List<int>();
+            if(Game.State.pendingChoices.Count>0)return Game.State.pendingChoices[0].kind=="Discard"?new List<int>():ChoiceManager.Targets(Game,Game.State.pendingChoices[0]);
+            if(viewedPlayer!=Game.ActingPlayerId)return new List<int>();
             switch(mode)
             {
                 case "card": var instance=Game.ActingPlayer.hand.Find(c=>c.instanceId==selectedCard);return instance!=null&&Game.CardBlockReason(instance,useResources)==""?Game.CardTargets(Game.Catalog[instance.cardId],targets):new List<int>();
@@ -124,6 +127,7 @@ namespace WarConquer
         public void TileClick(int id)
         {
             if(!Game.CanAct||Game.ActingPlayer.isAI||board.World.IsAnimating)return;
+            if(Game.State.pendingChoices.Count>0){if(ValidTargets().Contains(id))ChoiceManager.Resolve(Game,new[]{id});return;}
             if(ValidTargets().Contains(id))
             {
                 bool done=false;
@@ -148,7 +152,7 @@ namespace WarConquer
         }
         int MaxCardTargets()
         {
-            var inst=Game.ActingPlayer.hand.Find(c=>c.instanceId==selectedCard);if(inst==null)return 1;var card=Game.Catalog[inst.cardId];return card.category==Category.Spell?card.effects[0].count*(card.effects[0].operation=="March"?2:1):1;
+            var inst=Game.ActingPlayer.hand.Find(c=>c.instanceId==selectedCard);if(inst==null)return 1;var card=Game.Catalog[inst.cardId];return GenericCardRules.MaxTargets(card);
         }
         void Confirm()
         {

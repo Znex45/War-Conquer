@@ -110,7 +110,8 @@ namespace WarConquer
                 }
                 return;
             }
-            bool beast=Array.Exists(card.subtypes,s=>s=="Bestia"||s=="Criatura");
+            bool animal=Array.Exists(card.subtypes,s=>s=="Animal");
+            bool beast=animal||Array.Exists(card.subtypes,s=>s=="Bestia"||s=="Criatura");
             float hover=card.movementType=="Flying"?.48f:0;var body=Group(parent,"Miniatura "+card.name,new Vector3(0,hover,0));
             if(beast)
             {
@@ -136,6 +137,11 @@ namespace WarConquer
             {
                 Part(body,"Sombrero de hongo",Sphere,new Vector3(0,.91f,0),new Vector3(.88f,.3f,.77f),faction);
                 for(int i=0;i<3;i++)Part(body,"Espora del sombrero",Sphere,Point(i,3,.23f,1.03f),Vector3.one*.1f,pale);
+            }
+            else if(animal)
+            {
+                for(int i=0;i<2;i++)Part(body,"Oreja",Sphere,new Vector3(i==0?-.12f:.12f,.87f,-.3f),new Vector3(.12f,card.Has("Token")?.43f:.18f,.12f),faction);
+                Part(body,"Cola",Sphere,new Vector3(0,.55f,.4f),new Vector3(.17f,.14f,card.Has("Token")?.17f:.42f),faction);
             }
             else Part(body,"Casco solar",Sphere,new Vector3(0,.93f,0),new Vector3(.41f,.2f,.39f),faction);
             for(int i=0;i<2;i++)Part(body,"Ojo",Sphere,new Vector3(i==0?-.085f:.085f,beast?.67f:.83f,beast?-.48f:-.16f),Vector3.one*.065f,dark);

@@ -13,7 +13,7 @@ namespace WarConquer
         static Font font;
         public static Font Font => font ? font : (font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
         public static string[] PlayerLeaders={"ZUKGROK","SAHRIA","ZUKGROK","SAHRIA"};
-        public static Color PlayerColor(int id)=>PlayerLeaders[id]=="ZUKGROK"?Purple:Yellow;
+        public static Color PlayerColor(int id)=>PlayerLeaders[id]=="ZUKGROK"?Purple:PlayerLeaders[id]=="FAUNAR"?Green:Yellow;
         // Starting territory identity is independent of biome and of the chosen deck.
         public static Color TerritoryColor(int id)=>new[]{new Color32(108,143,64,255),new Color32(196,148,52,255),new Color32(167,72,65,255),new Color32(55,125,171,255),new Color32(126,116,97,255)}[id];
         public static RectTransform Rect(Transform parent,string name,float x,float y,float w,float h)

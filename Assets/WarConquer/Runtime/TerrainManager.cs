@@ -11,20 +11,20 @@ namespace WarConquer
             if(t.permanentAsh||t.blocked||(t.unit!=null&&t.unit.owner!=owner)||(t.structure!=null&&t.structure.owner!=owner)||(t.baseOwner>=0&&t.baseOwner!=owner&&!g.State.players[t.baseOwner].eliminated))return;
             t.biome=biome; t.owner=owner; t.specialEffect=null;
             if(t.unit!=null) t.unit.forestSinceTurn=biome==Biome.Forest?g.State.turn:-1;
-            MaintainRoutes(g);ConquestManager.Refresh(g.State); g.State.Log("Hex "+(tile+1)+" → "+Names.Biomes[(int)biome]);
+            MaintainRoutes(g);GenericCardRules.SyncAuras(g);ConquestManager.Refresh(g.State); g.State.Log("Hex "+(tile+1)+" → "+Names.Biomes[(int)biome]);
         }
         public static void DestroyBiome(GameManager g,HexTile t)
         {
             if(!Normal(t)) return;
             if(t.hiddenAsh&&g.State.rules.ashOnMarkedDestruction) { RevealAsh(g,t); return; }
             t.biome=Biome.Neutral; t.owner=t.unit!=null?t.unit.owner:t.structure!=null?t.structure.owner:t.baseOwner;
-            t.specialEffect=null; if(t.unit!=null)t.unit.forestSinceTurn=-1; MaintainRoutes(g);
+            t.specialEffect=null; if(t.unit!=null)t.unit.forestSinceTurn=-1; MaintainRoutes(g);GenericCardRules.SyncAuras(g);
             ConquestManager.Refresh(g.State);g.State.Log("Hex "+(t.id+1)+": bioma destruido, casilla neutra.");
         }
         public static void RevealAsh(GameManager g,HexTile t)
         {
             t.biome=Biome.AshLand; t.hiddenAsh=false; t.specialEffect=null; if(t.unit!=null)t.unit.forestSinceTurn=-1;
-            MaintainRoutes(g); g.State.Log("Hex "+(t.id+1)+": Tierra Ceniza revelada.");
+            MaintainRoutes(g);GenericCardRules.SyncAuras(g); g.State.Log("Hex "+(t.id+1)+": Tierra Ceniza revelada.");
         }
         public static bool CompatibleRoute(HexTile t,int owner) => t.owner==owner&&(t.biome==Biome.Forest||t.biome==Biome.Swamp);
         public static void MaintainRoutes(GameManager g)

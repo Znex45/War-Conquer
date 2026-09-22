@@ -20,10 +20,10 @@ namespace WarConquer
             if(large){var glyph=GrayboxUI.Text(root,card.category==Category.Spell?"✦":card.IsStructure?"◇":"●",0,158,w,48,36,color);glyph.alignment=TextAnchor.MiddleCenter;}
             string attack=card.category==Category.Spell?"—":(piece!=null?CombatManager.AttackValue(game,piece):card.attack).ToString();
             string movement=card.category==Category.Spell||card.IsStructure?"—":(piece?.remainingMovement??card.movement).ToString();
-            Stat(root,"FUERZA",attack,9,statY,82,valueSize,GrayboxUI.Ink);
-            Stat(root,"MOV",movement,w-66,statY,58,valueSize,GrayboxUI.Ink,TextAnchor.UpperRight);
+            Stat(root,"MOV",movement,9,statY,82,valueSize,GrayboxUI.Ink);
+            Stat(root,"ATK",attack,w-66,statY,58,valueSize,GrayboxUI.Ink,TextAnchor.UpperRight);
             float footer=large?271:112;GrayboxUI.Box(root,"Separador",8,footer,w-16,1,color);
-            GrayboxUI.Text(root,Names.Categories[(int)card.category]+" · "+string.Join(" / ",card.subtypes),9,footer+5,w-18,large?29:17,large?14:10,color,FontStyle.Bold);
+            GrayboxUI.Text(root,(card.combatSpell?"Combat Spell":Names.Categories[(int)card.category])+" · "+string.Join(" / ",card.subtypes),9,footer+5,w-18,large?29:17,large?14:10,color,FontStyle.Bold);
             if(large)
             {
                 GrayboxUI.Text(root,card.description,12,312,w-24,116,16,GrayboxUI.Ink);

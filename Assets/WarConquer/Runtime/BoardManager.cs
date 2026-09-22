@@ -66,6 +66,10 @@ namespace WarConquer
             }
             return result;
         }
+        public static IEnumerable<HexTile> SlabsWithinRadius(GameState s,int center,int radius)
+        {if(center<0||center>=s.tiles.Count||radius<0)return Enumerable.Empty<HexTile>();return s.tiles.Where(t=>AxialDistance(s.tiles[center],t)<=radius);}
+        public static IEnumerable<Piece> UnitsWithinRadius(GameState s,int center,int radius)=>SlabsWithinRadius(s,center,radius).Where(t=>t.unit!=null).Select(t=>t.unit);
+        public static IEnumerable<Piece> StructuresWithinRadius(GameState s,int center,int radius)=>SlabsWithinRadius(s,center,radius).Where(t=>t.structure!=null).Select(t=>t.structure);
         public static IEnumerable<Piece> Pieces(GameState s) => s.tiles.SelectMany(t => new[] { t.unit, t.structure }).Where(p => p != null);
         public static IEnumerable<Piece> Nearby(GameState s, int tile) => s.tiles[tile].neighbors.SelectMany(n => new[]{s.tiles[n].unit,s.tiles[n].structure}).Where(p=>p!=null);
     }

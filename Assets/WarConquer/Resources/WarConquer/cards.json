@@ -2843,6 +2843,1192 @@
       "canInterrupt": false,
       "canReact": false,
       "timingPermissionText": ""
+    },
+    {
+      "id": "terraform",
+      "name": "Terraform",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 1,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Terraformar un Slab válido al bioma elegido. Robar 1.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "GenericTerraform",
+          "target": "Terraform",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "clearing-space",
+      "name": "Clearing Space",
+      "leader": "GENERIC",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 1,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Convertir un Slab válido en Yermo. Robar 2.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "ClearingSpace",
+          "target": "Terraform",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "cleansing-conquest",
+      "name": "Cleansing Conquest",
+      "leader": "GENERIC",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 3,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Convertir un Slab válido en Yermo. Mover allí una unidad aliada a 8rad del destino.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "CleansingConquest",
+          "target": "Terraform",
+          "count": 2,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "its-a-trap",
+      "name": "It's a Trap",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [
+        "Trap"
+      ],
+      "energyCost": 2,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Eliminar una unidad seleccionada. Trap.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "KillUnit",
+          "target": "Unit",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "one-for-the-team",
+      "name": "One for the Team",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 2,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Elegir y descartar 1 carta de tu mano. Después robar 2.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "DiscardDraw",
+          "target": "Self",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "a-price-to-pay",
+      "name": "A Price to Pay",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 4,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 1,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Robar 3. Después elegir y descartar 2 cartas de tu mano.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "DrawDiscard",
+          "target": "Self",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "from-the-ashes",
+      "name": "From the Ashes",
+      "leader": "GENERIC",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 4,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Eliminar el Yermo del Slab seleccionado mediante las reglas de destrucción de bioma.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "DestroyWasteland",
+          "target": "Wasteland",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "resourceful-replenish",
+      "name": "Resourceful Replenish",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 1,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Robar 1 carta por cada Token propio en el tablero.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "TokenDraw",
+          "target": "Self",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "last-gift",
+      "name": "Last Gift",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 2,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 2,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Eliminar una unidad aliada. Robar tantas cartas como HP tenía antes de morir.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "LastGift",
+          "target": "AllyUnit",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "engage",
+      "name": "Engage",
+      "leader": "GENERIC",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [
+        "Combat Spell"
+      ],
+      "energyCost": 2,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Elegir un aliado y un enemigo a 6rad del aliado. Infligir su ATK actual. Si el enemigo muere, mover al aliado a ese Slab.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "Engage",
+          "target": "AllyUnit",
+          "count": 2,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "canRespond": true,
+      "canInterrupt": true,
+      "canReact": true,
+      "combatSpell": true,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "time-to-move",
+      "name": "Time to Move",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [
+        "Combat Spell"
+      ],
+      "energyCost": 1,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 2,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Elegir un Slab. Todas las unidades a 8rad reciben +4 MOV hasta el final del turno actual.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "TimeToMove",
+          "target": "Slab",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "canRespond": true,
+      "canInterrupt": true,
+      "canReact": true,
+      "combatSpell": true,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "bomb",
+      "name": "Bomb",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [
+        "Combat Spell"
+      ],
+      "energyCost": 2,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Infligir exactamente 3 de daño a una Structure seleccionada.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "Bomb",
+          "target": "Structure",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "canRespond": true,
+      "canInterrupt": true,
+      "canReact": true,
+      "combatSpell": true,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "valiant-seal",
+      "name": "Valiant Seal",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 3,
+      "movement": 0,
+      "health": 3,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [
+        "GlobalAttack"
+      ],
+      "description": "Tus unidades reciben +1 ATK mientras esta estructura permanezca en juego.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "courage-seal",
+      "name": "Courage Seal",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 2,
+      "movement": 0,
+      "health": 2,
+      "attack": 0,
+      "range": 0,
+      "quantity": 2,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [
+        "GlobalMovement"
+      ],
+      "description": "Tus unidades reciben +1 MOV mientras esta estructura permanezca en juego.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "med-camp",
+      "name": "Med Camp",
+      "leader": "GENERIC",
+      "factionTag": "GENERICA",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 4,
+      "movement": 0,
+      "health": 5,
+      "attack": 0,
+      "range": 0,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [
+        "MedCamp"
+      ],
+      "description": "Una vez por turno, curar 4 HP a hasta 4 unidades aliadas a 5rad. Sin superar su HP máximo.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "resting-camp",
+      "name": "Resting Camp",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 5,
+      "movement": 0,
+      "health": 3,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [
+        "RestingCamp"
+      ],
+      "description": "Una vez por turno, curar 2 HP a todas las unidades aliadas a 4rad.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "vigilant-tower",
+      "name": "Vigilant Tower",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 4,
+      "movement": 0,
+      "health": 2,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [
+        "VigilantTower"
+      ],
+      "description": "Una vez por turno, infligir 1 de daño a una unidad a 6rad.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "emergency-seal",
+      "name": "Emergency Seal",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 3,
+      "movement": 0,
+      "health": 2,
+      "attack": 0,
+      "range": 0,
+      "quantity": 1,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [
+        "EmergencySeal"
+      ],
+      "description": "Al ser destruida, elegir una unidad aliada y moverla al Slab que ocupaba, si está libre.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "mana-pool",
+      "name": "Mana Pool",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 4,
+      "movement": 0,
+      "health": 1,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "terrainTags": [],
+      "traits": [
+        "ManaPool"
+      ],
+      "description": "Al inicio de tu turno, obtener +1 Energía sin cambiar el límite permanente.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "berry-bush",
+      "name": "Berry Bush",
+      "leader": "FAUNAR",
+      "factionTag": "FAUNAR",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 2,
+      "movement": 0,
+      "health": 3,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "FAUNAR",
+        "BOSQUE",
+        "NATURAL"
+      ],
+      "traits": [
+        "RabbitProducer"
+      ],
+      "description": "Al inicio de tu turno, invocar 1 Rabbit Token en un Slab adyacente libre.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "charming-mongoose",
+      "name": "Charming Mongoose",
+      "leader": "FAUNAR",
+      "factionTag": "FAUNAR",
+      "category": 0,
+      "subtypes": [
+        "Animal"
+      ],
+      "energyCost": 2,
+      "movement": 2,
+      "health": 2,
+      "attack": 2,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "FAUNAR",
+        "BOSQUE",
+        "NATURAL"
+      ],
+      "traits": [
+        "ForestDraw"
+      ],
+      "description": "MOV/HP/ATK 2/2/2. Al jugarla en Bosque, robar 1 carta.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "ferret-eluding-hunter",
+      "name": "Ferret, Eluding Hunter",
+      "leader": "FAUNAR",
+      "factionTag": "FAUNAR",
+      "category": 0,
+      "subtypes": [
+        "Animal"
+      ],
+      "energyCost": 5,
+      "movement": 3,
+      "health": 5,
+      "attack": 2,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "FAUNAR",
+        "BOSQUE",
+        "NATURAL"
+      ],
+      "traits": [
+        "KillHeal",
+        "ForestLeap"
+      ],
+      "description": "MOV/HP/ATK 3/5/2. Al matar una unidad, curarse hasta su HP máximo. Una vez por turno, saltar junto a una estructura aliada en Bosque o con etiqueta BOSQUE a 4rad.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "bober-reinforcer",
+      "name": "Bober, Reinforcer",
+      "leader": "FAUNAR",
+      "factionTag": "FAUNAR",
+      "category": 0,
+      "subtypes": [
+        "Animal"
+      ],
+      "energyCost": 4,
+      "movement": 2,
+      "health": 4,
+      "attack": 3,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "FAUNAR",
+        "BOSQUE",
+        "NATURAL"
+      ],
+      "traits": [
+        "StructureHeal",
+        "ForestBuild"
+      ],
+      "description": "MOV/HP/ATK 2/4/3. Al inicio del turno, curar 1 HP a todas tus estructuras. Mientras esté en Bosque, permite desplegar estructuras a 2rad respetando ocupación y bioma.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "panther-stealthy-assassin",
+      "name": "Panther, Stealthy Assassin",
+      "leader": "FAUNAR",
+      "factionTag": "FAUNAR",
+      "category": 0,
+      "subtypes": [
+        "Animal"
+      ],
+      "energyCost": 6,
+      "movement": 3,
+      "health": 6,
+      "attack": 3,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "FAUNAR",
+        "BOSQUE",
+        "NATURAL"
+      ],
+      "traits": [
+        "ForestPanther"
+      ],
+      "description": "MOV/HP/ATK 3/6/3. Al salir de Bosque hacia otro bioma, puede infligir 2 de daño a una unidad a 2rad del destino. Al entrar en Bosque desde otro bioma, curarse hasta su HP máximo.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
+    },
+    {
+      "id": "rabbit-token",
+      "name": "Rabbit Token",
+      "leader": "GENERIC",
+      "factionTag": "FAUNAR",
+      "category": 0,
+      "subtypes": [
+        "Animal"
+      ],
+      "energyCost": 0,
+      "movement": 2,
+      "health": 2,
+      "attack": 1,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "FAUNAR",
+        "BOSQUE",
+        "NATURAL"
+      ],
+      "traits": [
+        "Token",
+        "ForestHealth"
+      ],
+      "description": "Token Animal. MOV/HP/ATK 2/2/1. Mientras esté en Bosque, +2 HP máximos. No se acumula. No pertenece al mazo ni al descarte.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false
     }
   ]
 }

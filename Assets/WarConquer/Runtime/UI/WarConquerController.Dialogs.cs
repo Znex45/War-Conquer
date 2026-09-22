@@ -41,12 +41,12 @@ namespace WarConquer
                 var row=GrayboxUI.Box(body,"Mazo de J"+(i+1),26,y,1070,80,new Color32(27,36,51,255));
                 GrayboxUI.Text(row,"JUGADOR "+(i+1)+(humanPlayers==1&&i==1?" · IA":""),12,12,204,26,18,GrayboxUI.Ink,FontStyle.Bold);
                 GrayboxUI.Text(row,humanPlayers==1&&i==1?"Rival automático":"Persona",12,44,195,22,14,GrayboxUI.Muted);
-                foreach(string deck in new[]{"ZUKGROK","SAHRIA"})
+                foreach(string deck in CardCatalog.Leaders)
                 {
-                    bool fungus=deck=="ZUKGROK",chosen=leaders[id]==deck;var color=fungus?GrayboxUI.Purple:GrayboxUI.Yellow;
-                    float x=fungus?225:641;
-                    GrayboxUI.Button(row,(chosen?"✓ ":"")+deck+" · 50 cartas",x,8,404,34,()=>{leaders[id]=deck;ShowSetup();},Color.Lerp(color,GrayboxUI.Panel,chosen?0f:.65f));
-                    GrayboxUI.Text(row,fungus?"MICELIAL · Bosque, Esporas y veneno":"SOLAR · Desierto y control del terreno",x+7,49,390,24,14,color);
+                    bool fungus=deck=="ZUKGROK",chosen=leaders[id]==deck;var color=fungus?GrayboxUI.Purple:deck=="FAUNAR"?GrayboxUI.Green:GrayboxUI.Yellow;
+                    float x=225+System.Array.IndexOf(CardCatalog.Leaders,deck)*278;
+                    GrayboxUI.Button(row,(chosen?"✓ ":"")+deck+" · 50 cartas",x,8,264,34,()=>{leaders[id]=deck;ShowSetup();},Color.Lerp(color,GrayboxUI.Panel,chosen?0f:.65f));
+                    GrayboxUI.Text(row,fungus?"Bosque · Esporas y veneno":deck=="FAUNAR"?"Bosque · Animales y estructuras":"Desierto · Control del terreno",x+7,49,255,24,12,color);
                 }
             }
             GrayboxUI.Button(body,"COMENZAR PARTIDA",26,642,1070,60,()=>StartMatch(false),GrayboxUI.Green);
@@ -76,7 +76,7 @@ namespace WarConquer
         {
             var body=OpenModal("AYUDA DE PARTIDA");
             GrayboxUI.Text(body,"TURNO Y CARTAS",35,95,500,36,23,GrayboxUI.Ink,FontStyle.Bold);
-            GrayboxUI.Text(body,"Despliegue → Ataque → Terraformación. El botón de etapa permite avanzar.\n\nLas cartas oscuras no se pueden usar ahora. Su banda inferior indica la etapa de uso. Pasa el cursor para ampliarlas o selecciónalas y pulsa Ver carta completa.\n\nSelecciona una carta y un hexágono verde. El pago mixto permite elegir recursos compatibles. Resolver selección confirma los objetivos múltiples; Cancelar no consume recursos.",35,153,505,460,20,GrayboxUI.Muted);
+            GrayboxUI.Text(body,"Despliegue → Terraformación → Asalto. El botón de etapa permite avanzar.\n\nLas cartas oscuras no se pueden usar ahora. Su banda inferior indica la etapa de uso. Pasa el cursor para ampliarlas o selecciónalas y pulsa Ver carta completa.\n\nSelecciona una carta y un hexágono verde. El pago mixto permite elegir recursos compatibles. Resolver selección confirma los objetivos múltiples; Cancelar no consume recursos.",35,153,505,460,20,GrayboxUI.Muted);
             GrayboxUI.Text(body,"TABLERO Y VICTORIA",590,95,500,36,23,GrayboxUI.Ink,FontStyle.Bold);
             GrayboxUI.Text(body,"Arrastra para desplazar, usa el botón derecho para girar y la rueda para acercar. 1:1 restablece la cámara. Ver datos muestra números de casilla y puntos de las bases.\n\nSelecciona una pieza para mover, atacar o usar su habilidad. Pulsa un marcador de jugador para consultar su mano y su Líder. Detalles muestra el control por territorio.\n\nHay 3 objetivos centrales separados. Cada uno y cada base enemiga vencida dan +1 PC al volver tu turno si mantuviste una unidad propia y el terreno terraformado. Salir, perder el bioma o recapturar reinicia la espera. Gana con 10 PC o con el último Líder en pie. Las pilas abren el mazo y descarte.",590,153,505,510,20,GrayboxUI.Muted);
             GrayboxUI.Button(body,"Volver al menú",35,714,1060,48,ShowMatchMenu);
@@ -84,6 +84,12 @@ namespace WarConquer
         void ShowLeaderDetails(Player player)
         {
             bool fungus=player.leader=="ZUKGROK";var body=OpenModal(player.leader+" · HABILIDAD DEL LÍDER");
+            if(player.leader=="FAUNAR")
+            {
+                GrayboxUI.Text(body,"FAUNAR · PRIMERA ESTRUCTURA",40,115,1030,60,29,GrayboxUI.Green,FontStyle.Bold);
+                GrayboxUI.Text(body,"Pasiva sin coste. La primera Structure de tu turno cuesta 1 Energía menos (mínimo 0). No se acumula, no afecta Units ni Spells. Se reinicia al comenzar tu siguiente turno.",40,223,1010,190,27,GrayboxUI.Ink);
+                GrayboxUI.Text(body,player.firstStructureUsed?"USED":"AVAILABLE",40,460,1030,50,25,GrayboxUI.Green,FontStyle.Bold);return;
+            }
             GrayboxUI.Text(body,fungus?"INFLUENCIA MICELIAL":"DOMINIO DE LAS ARENAS",40,115,1030,60,29,GrayboxUI.PlayerColor(player.id),FontStyle.Bold);
             GrayboxUI.Text(body,fungus?"Envenena 1 a un enemigo en Bosque conectado a tu red y crea una Espora adyacente.":"Hasta 2 Desiertos propios se vuelven inestables (4+). Un fallo causa 1 daño adicional, una sola vez entre ambos.",40,223,1010,190,27,GrayboxUI.Ink);
             GrayboxUI.Text(body,TimingRules.StageName(TimingRules.LeaderStage(player))+" · COSTE "+Game.State.rules.leaderAbilityCost+" E",40,460,1030,50,25,GrayboxUI.PlayerColor(player.id),FontStyle.Bold);

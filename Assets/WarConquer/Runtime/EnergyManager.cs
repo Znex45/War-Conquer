@@ -15,7 +15,7 @@ namespace WarConquer
         public static int CompatibleResources(Player p,CardData card) => p.resources.Where(r=>card.Tag(r.requiredTag)).Sum(r=>r.amount);
         public static CostQuote Quote(Player p,CardData card,bool useResources=false)
         {
-            int discount=card.IsStructure?Math.Min(card.energyCost,Math.Max(0,p.structureDiscount)):0;
+            int discount=card.IsStructure?Math.Min(card.energyCost,Math.Max(0,p.structureDiscount)+(p.leader=="FAUNAR"&&!p.firstStructureUsed?1:0)):0;
             int resources=useResources?Math.Min(card.energyCost-discount,CompatibleResources(p,card)):0;
             return new CostQuote(card.energyCost,discount,resources);
         }
@@ -27,7 +27,7 @@ namespace WarConquer
             if(p.currentEnergy<quote.energy)throw new InvalidOperationException("Energía insuficiente.");
             int remaining=quote.resources;
             foreach(var pool in p.resources.Where(r=>card.Tag(r.requiredTag))) {int paid=Math.Min(pool.amount,remaining);pool.amount-=paid;remaining-=paid;}
-            p.currentEnergy-=quote.energy;if(card.IsStructure)p.structureDiscount=0;
+            p.currentEnergy-=quote.energy;if(card.IsStructure){p.structureDiscount=0;p.firstStructureUsed=true;}
         }
         public static void AddResource(GameState s, Player p, Biome biome,int amount)
         {

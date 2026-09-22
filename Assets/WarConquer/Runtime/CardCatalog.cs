@@ -9,16 +9,17 @@ namespace WarConquer
     public class CardCatalog
     {
         readonly Dictionary<string, CardData> cards;
+        public static readonly string[] Leaders={"ZUKGROK","SAHRIA","FAUNAR"};
         public IEnumerable<CardData> All => cards.Values;
         public CardData this[string id] => cards[id];
         public CardCatalog(IEnumerable<CardData> source)
         {
             cards = source.ToDictionary(c => c.id);
-            foreach(string leader in new[]{"ZUKGROK","SAHRIA"})
+            foreach(string leader in Leaders)
             {
-                var deck=cards.Values.Where(c=>c.leader==leader && !c.Has("Token")).ToArray();
+                var deck=cards.Values.Where(c=>c.leader==leader && c.quantity>0 && !c.Has("Token")).ToArray();
                 if(deck.Sum(c=>c.quantity)!=50) throw new InvalidOperationException(leader+": el mazo debe tener exactamente 50 cartas.");
-                if(deck.Any(c=>c.quantity<1 || c.quantity>c.maxCopies)) throw new InvalidOperationException(leader+": número de copias inválido.");
+                if(deck.Any(c=>c.quantity<1 || c.quantity>Math.Min(3,c.maxCopies))) throw new InvalidOperationException(leader+": número de copias inválido.");
             }
         }
         public static CardCatalog Load() => new CardCatalog(JsonUtility.FromJson<CatalogFile>(Resources.Load<TextAsset>("WarConquer/cards").text).cards);

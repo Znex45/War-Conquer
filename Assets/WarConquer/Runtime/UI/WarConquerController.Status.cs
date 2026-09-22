@@ -62,6 +62,7 @@ namespace WarConquer
                 GrayboxUI.Text(box,info,0,102,300,96,14,GrayboxUI.Muted);
             }
             if(targets.Count>0&&(mode=="card"||mode=="leader"||mode=="ability"))GrayboxUI.Button(box,"Resolver selección ("+targets.Count+")",0,189,300,31,Confirm,Color.Lerp(GrayboxUI.Green,GrayboxUI.Panel,.6f));
+            if(mode=="card"&&card?.id=="terraform")GrayboxUI.Button(box,Names.Biomes[(int)chosenBiome],199,153,101,28,()=>{var list=new[]{Biome.Forest,Biome.Swamp,Biome.Tundra,Biome.Volcanic,Biome.Desert,Biome.Wasteland};chosenBiome=list[(System.Array.IndexOf(list,chosenBiome)+1)%list.Length];Render();});
             if(mode=="card"&&card!=null&&card.effects.Any(e=>e.biome=="ChooseForestSwamp"))GrayboxUI.Button(box,Names.Biomes[(int)chosenBiome],199,153,101,28,()=>{chosenBiome=chosenBiome==Biome.Forest?Biome.Swamp:Biome.Forest;Render();});
             GrayboxUI.Text(box,Game.LastMessage,0,232,300,45,12,GrayboxUI.Yellow);
         }

@@ -37,6 +37,7 @@ namespace WarConquer
             if(Game.ActingPlayer.isAI){ShowCardModal(Game.Catalog[instance.cardId],player);return;}
             ClearAction();selectedCard=instance.instanceId;mode="card";chosenBiome=Biome.Forest;
             string why=viewedPlayer==Game.ActingPlayerId?Game.CardBlockReason(instance,useResources):"Consulta de otra mano.";
+            if(why.Length==0&&GenericCardRules.NoBoardTarget(Game.Catalog[instance.cardId])){Game.Play(instance.instanceId,Array.Empty<int>(),useResources);ClearAction();Render();return;}
             Game.Notify(why.Length>0?why:"Selecciona las casillas verdes según el texto de la carta. Resolver selección permite confirmar menos objetivos.");
             if(Touchscreen.current!=null&&Touchscreen.current.primaryTouch.press.isPressed)ShowCardModal(Game.Catalog[instance.cardId],player);
         }
@@ -57,7 +58,7 @@ namespace WarConquer
             if(instance!=null&&player.id==Game.ActingPlayerId&&!player.isAI)
             {
                 string why=Game.CardBlockReason(instance,useResources);GrayboxUI.Text(body,why,451,394,623,87,18,GrayboxUI.Yellow);
-                GrayboxUI.Button(body,"Seleccionar objetivos",451,530,623,61,()=>{CloseModal();ClearAction();selectedCard=instance.instanceId;mode="card";Render();},null,why=="");
+                GrayboxUI.Button(body,GenericCardRules.NoBoardTarget(card)?"Jugar carta":"Seleccionar objetivos",451,530,623,61,()=>{CloseModal();SelectCard(instance,player);},null,why=="");
             }
         }
         void DrawPiles(Player player)

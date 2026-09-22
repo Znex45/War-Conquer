@@ -28,7 +28,7 @@ namespace WarConquer.Editor
         {
             Board3DAssets.Ensure();passed=0;results.Clear();catalog=CardCatalog.Load();
             Test("Mazos finales: 50 + 50, copias y todos los efectos definidos",()=>{
-                Check(catalog.All.Count(c=>c.quantity>0)==58,"Deben existir 58 diseños del documento final.");
+                Check(catalog.All.Count(c=>c.quantity>0&&(c.leader=="ZUKGROK"||c.leader=="SAHRIA"))==58,"Deben existir 58 diseños del documento final.");
                 foreach(string leader in new[]{"ZUKGROK","SAHRIA"})Check(catalog.All.Where(c=>c.leader==leader).Sum(c=>c.quantity)==50,"Conteo de mazo incorrecto.");
                 Check(catalog.All.All(c=>c.category==Category.Spell?c.effects.Length>0:c.traits.Length>0),"Carta sin efecto o rasgo implementado.");
             });
@@ -236,13 +236,14 @@ namespace WarConquer.Editor
             InterfaceRulesTests.RunAll(catalog,Test);
             MatchSetupTests.RunAll(catalog,Test);
             Board3DTests.RunAll(catalog,Test);RevisionRulesTests.RunAll(catalog,Test);
+            FaunarRulesTests.RunAll(catalog,Test);
             Debug.Log("WAR_CONQUER_TESTS_PASSED "+passed);
             string report=Environment.GetEnvironmentVariable("WAR_CONQUER_TEST_REPORT");if(!string.IsNullOrEmpty(report))System.IO.File.WriteAllText(report,string.Join("\n",results)+"\nTOTAL "+passed+" passed\n");
         }
         static bool FinishTurn(GameManager g)
         {
             while(g.State.battle!=null)BattleManager.Pass(g,g.ActingPlayerId);
-            while(g.State.stage!=TurnStage.Terraforming&&g.CanAct)g.AdvanceStage();
+            while(g.State.stage!=TurnStage.Assault&&g.CanAct)g.AdvanceStage();
             return g.EndTurn();
         }
         static Dictionary<int,List<int>> Paths(GameManager g,Piece p){g.State.stage=TurnStage.Assault;return MovementManager.Paths(g,p);}

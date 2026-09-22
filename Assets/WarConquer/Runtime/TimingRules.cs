@@ -5,17 +5,18 @@ namespace WarConquer
 {
     public static class TimingRules
     {
-        public static readonly TurnStage[] Order={TurnStage.Deployment,TurnStage.Assault,TurnStage.Terraforming};
-        public static string StageName(TurnStage stage)=>stage==TurnStage.Deployment?"DESPLIEGUE":stage==TurnStage.Assault?"ATAQUE":"TERRAFORMACIÓN";
+        public static readonly TurnStage[] Order={TurnStage.Deployment,TurnStage.Terraforming,TurnStage.Assault};
+        public static string StageName(TurnStage stage)=>stage==TurnStage.Deployment?"DESPLIEGUE":stage==TurnStage.Assault?"ASALTO":"TERRAFORMACIÓN";
         public static string Description(CardData card)
         {
             string normal=string.Join(" / ",(card.allowedPhases??Array.Empty<TurnStage>()).Select(StageName));
+            if(card.combatSpell)return "ASALTO · COMBATE / ATAQUE / DEFENSA / INTERVENCIÓN";
             return string.IsNullOrWhiteSpace(card.timingPermissionText)?"Tu turno · "+normal+". Sin permiso de intervención.":normal+" · "+card.timingPermissionText;
         }
         public static bool ExplicitWindow(CardData card,ActionTiming timing)
         {
             // An off-turn window requires a quoted permission from this very card, not an inferred combat trait.
-            return !string.IsNullOrWhiteSpace(card.timingPermissionText)&&card.description.Contains(card.timingPermissionText)
+            return (card.combatSpell&&timing!=ActionTiming.OtherTurn&&timing!=ActionTiming.OwnTurn)||!string.IsNullOrWhiteSpace(card.timingPermissionText)&&card.description.Contains(card.timingPermissionText)
                 &&(card.allowedTiming??Array.Empty<ActionTiming>()).Contains(timing);
         }
         public static bool ResponseAllowed(GameManager g,CardData card,int owner)
@@ -29,7 +30,7 @@ namespace WarConquer
         }
         public static bool CardAllowed(GameManager g,CardData card)
         {
-            if(!g.CanAct)return false;
+            if(!g.CanAct||g.State.pendingChoices.Count>0)return false;
             if(g.State.battle!=null||g.State.responsePlayer>=0||g.ActingPlayerId!=g.State.activePlayer)
                 return ResponseAllowed(g,card,g.ActingPlayerId);
             return (card.allowedTiming??Array.Empty<ActionTiming>()).Contains(ActionTiming.OwnTurn)
@@ -38,11 +39,11 @@ namespace WarConquer
         public static TurnStage AbilityStage(CardData c)=>c.Has("StructureDiscount")?TurnStage.Deployment:c.Has("FastNetwork")||c.Has("DestroyBiome")?TurnStage.Terraforming:TurnStage.Assault;
         public static bool AbilityAllowed(GameManager g,Piece p)
         {
-            if(!g.CanAct||p==null||p.owner!=g.ActingPlayerId)return false;
+            if(g.State.pendingChoices.Count>0||!g.CanAct||p==null||p.owner!=g.ActingPlayerId)return false;
             if(g.State.battle!=null||g.State.responsePlayer>=0||g.ActingPlayerId!=g.State.activePlayer)return ResponseAllowed(g,g.Data(p),p.owner);
             return g.State.stage==AbilityStage(g.Data(p));
         }
         public static TurnStage LeaderStage(Player p)=>p.leader=="SAHRIA"?TurnStage.Terraforming:TurnStage.Assault;
-        public static bool LeaderAllowed(GameManager g)=>g.CanTakeTurnAction(LeaderStage(g.ActingPlayer));
+        public static bool LeaderAllowed(GameManager g)=>g.ActingPlayer.leader!="FAUNAR"&&g.CanTakeTurnAction(LeaderStage(g.ActingPlayer));
     }
 }

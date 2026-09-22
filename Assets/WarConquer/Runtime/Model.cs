@@ -23,7 +23,7 @@ namespace WarConquer
         public Biome[] biomes;
         public EffectData[] effects;
         public int energyCost, health, attack, movement, range, quantity, maxCopies = 3;
-        public bool requiresAshLand;
+        public bool requiresAshLand, combatSpell;
         public TurnStage[] allowedPhases;
         public ActionTiming[] allowedTiming;
         public bool canRespond, canInterrupt, canReact;
@@ -40,6 +40,7 @@ namespace WarConquer
         public bool token, attacked, abilityUsed, moved, evolved, fastBonusUsed;
         public int poison, poisonTurns, sleepUntilTurn, slow, slowUntilTurn, protectionRound = -1, forestSinceTurn = -1;
         public int poisonApplications;
+        public int terrainHealthBonus, movementAura, temporaryMovement, movementExpiresTurn=-1;
     }
     [Serializable] public class ResourcePool
     {
@@ -78,7 +79,7 @@ namespace WarConquer
         public int id, leaderHealth, currentEnergy, maxEnergy, turnsTaken, spores, centerScore;
         public string leader, factionTag;
         public bool eliminated, terraformDiscountUsed, towerUsed;
-        public bool inactive, isAI;
+        public bool inactive, isAI, firstStructureUsed;
         public int structureDiscount, dreamRound = -1, freeSteps;
         public int conquestPoints, pendingDraw;
         public List<CardInstance> deck = new List<CardInstance>(), hand = new List<CardInstance>(), discardPile = new List<CardInstance>();
@@ -94,8 +95,9 @@ namespace WarConquer
     }
     [Serializable] public class GameState
     {
-        public int version = 5, seed, randomState, activePlayer, turn = 1, round = 1, nextId = 1, winner = -1;
-        public int mapPlayers=4, nextRollId=1;
+        public int version = 6, seed, randomState, activePlayer, turn = 1, round = 1, nextId = 1, winner = -1;
+        public int mapPlayers=4, nextRollId=1, lastStartedTurn=-1;
+        public List<PendingChoice> pendingChoices=new List<PendingChoice>();
         public List<DiceRoll> diceRolls=new List<DiceRoll>();
         public int lastScoredRound, responsePlayer = -1;
         public TurnStage stage;

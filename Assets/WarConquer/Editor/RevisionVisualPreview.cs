@@ -47,7 +47,7 @@ namespace WarConquer.Editor
                 if(!world.IsAnimating||!world.GetComponentsInChildren<TextMesh>().Any(t=>t.name=="Resultado del dado"&&t.text.Contains("D6  "+ui.Game.State.diceRolls.Last().value)))throw new Exception("El dado no muestra el resultado real.");
                 Snapshot("estados-y-dado");ScreenCapture.CaptureScreenshot(Path.GetFullPath("Library/WarConquer3D/interfaz-estados.png"));
                 Debug.Log("WAR_CONQUER_MAPS_DICE_PASSED: tres mapas renderizados, veneno, sueño y resultado real del dado 3D.");
-                EditorApplication.update-=Tick;if(batch)EditorApplication.Exit(0);
+                EditorApplication.update-=Tick;FaunarVisualPreview.Begin(ui,batch);
             }
             catch(Exception e){EditorApplication.update-=Tick;Debug.LogException(e);if(batch)EditorApplication.Exit(1);}
         }

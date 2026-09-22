@@ -75,14 +75,14 @@ namespace WarConquer.Editor
             {
                 Application.runInBackground=true;
                 var ui=UnityEngine.Object.FindAnyObjectByType<WarConquerController>();Check(ui?.Game!=null,"No hay partida 3D activa.");
-                InterfacePlayModeTests.Run();RevisionPlayTests.Run(ui);
+                InterfacePlayModeTests.Run();RevisionPlayTests.Run(ui);FaunarPlayTests.Run(ui);
                 typeof(WarConquerController).GetField("humanPlayers",Flags).SetValue(ui,4);Invoke(ui,"StartMatch",false);
                 var world=ui.GetComponentInChildren<Board3DScene>();var input=ui.GetComponentInChildren<BoardViewportInput>();Canvas.ForceUpdateCanvases();
                 Check(world!=null&&world.Texture!=null&&world.Texture.IsCreated()&&input!=null,"No existe la vista 3D interactiva.");
                 var card=ui.Game.State.Active.hand.First(c=>c.cardId=="bestia-micelial");Invoke(ui,"SelectCard",card,ui.Game.State.Active);
                 int target=ui.Game.CardTargets(ui.Game.Catalog[card.cardId]).First(id=>world.Pick(world.ViewportOf(id))==id);
                 Click(world,input,target);Check(ui.Game.State.tiles[target].unit!=null&&ui.Game.State.Active.currentEnergy==0,"El clic 3D no coloca ni paga la carta.");
-                var piece=ui.Game.State.tiles[target].unit;ui.Game.AdvanceStage();Click(world,input,target,.9f);
+                var piece=ui.Game.State.tiles[target].unit;ui.Game.AdvanceStage();ui.Game.AdvanceStage();Click(world,input,target,.9f);
                 int destination=MovementManager.Paths(ui.Game,piece).Keys.First(id=>world.Pick(world.ViewportOf(id))==id);
                 Click(world,input,destination);Check(piece.tileId==destination&&world.PieceCount==1,"El clic 3D no mueve la unidad.");
                 Invoke(ui,"StartMatch",true);var g=ui.Game;

@@ -7,7 +7,7 @@ namespace WarConquer
     {
         void DrawTurnActions()
         {
-            var s=Game.State;bool responding=s.battle!=null||s.responsePlayer>=0;
+            var s=Game.State;if(s.pendingChoices.Count>0){DrawPendingChoice();return;}bool responding=s.battle!=null||s.responsePlayer>=0;
             GrayboxUI.Text(left,responding?"INTERVENCIÓN · J"+(Game.ActingPlayerId+1):"ETAPAS · J"+(s.activePlayer+1),12,12,216,26,16,GrayboxUI.Ink,FontStyle.Bold);
             for(int i=0;i<3;i++)
             {
@@ -53,7 +53,7 @@ namespace WarConquer
             if(Game.ActingPlayer.hand.Any(c=>Game.Catalog[c.cardId].category==Category.Spell&&Game.CardBlockReason(c,useResources)==""))ActionButton("Magias permitidas",ref y,()=>FilterHand("Magias"));
             DrawAbilityAction(ref y);
             if(y==130)GrayboxUI.Text(left,"Sin acciones disponibles.\nPuedes avanzar de etapa.",14,y,211,65,15,GrayboxUI.Muted);
-            string next=s.stage==TurnStage.Deployment?"IR A ATAQUE":s.stage==TurnStage.Assault?"IR A TERRAFORMACIÓN":"FINALIZAR TURNO";
+            string next=s.stage==TurnStage.Deployment?"IR A TERRAFORMACIÓN":s.stage==TurnStage.Terraforming?"IR A ASALTO":"FINALIZAR TURNO";
             GrayboxUI.Button(left,next,12,280,214,34,()=>{ClearAction();handFilter="Todas";page=0;Game.AdvanceStage();},Color.Lerp(GrayboxUI.PlayerColor(s.activePlayer),GrayboxUI.Panel,.6f));
         }
         void ActionButton(string name,ref float y,System.Action action)
@@ -73,10 +73,17 @@ namespace WarConquer
         {
             bool fungus=player.leader=="ZUKGROK";var color=GrayboxUI.PlayerColor(player.id);
             var portrait=GrayboxUI.Rect(leaderPanel,"Retrato "+player.leader,14,14,62,62);var hex=portrait.gameObject.AddComponent<HexGraphic>();hex.color=Color.Lerp(color,GrayboxUI.Panel,.5f);hex.border=color;hex.raycastTarget=false;
-            var glyph=GrayboxUI.Text(portrait,fungus?"Z":"S",0,10,62,45,32,color,FontStyle.Bold);glyph.alignment=TextAnchor.MiddleCenter;
+            var glyph=GrayboxUI.Text(portrait,fungus?"Z":player.leader=="FAUNAR"?"F":"S",0,10,62,45,32,color,FontStyle.Bold);glyph.alignment=TextAnchor.MiddleCenter;
             GrayboxUI.Text(leaderPanel,player.leader,88,16,142,27,20,color,FontStyle.Bold);
             GrayboxUI.Text(leaderPanel,player.factionTag+" · J"+(player.id+1),88,45,140,24,12,GrayboxUI.Muted);
             GrayboxUI.Text(leaderPanel,"VIDA "+player.leaderHealth+" / "+Game.State.rules.leaderHealth+(player.eliminated?" · FUERA":""),14,83,214,26,18,color,FontStyle.Bold);
+            if(player.leader=="FAUNAR")
+            {
+                GrayboxUI.Text(leaderPanel,"PRIMERA STRUCTURE −1 E",14,119,214,27,13,GrayboxUI.Ink,FontStyle.Bold);
+                GrayboxUI.Text(leaderPanel,"PASIVA · SIN COSTE",14,158,214,22,13,color,FontStyle.Bold);
+                GrayboxUI.Text(leaderPanel,player.firstStructureUsed?"USED":"AVAILABLE",14,188,212,24,18,player.firstStructureUsed?GrayboxUI.Muted:color,FontStyle.Bold);
+                GrayboxUI.Button(leaderPanel,"Ver habilidad",12,230,214,30,()=>ShowLeaderDetails(player));return;
+            }
             GrayboxUI.Text(leaderPanel,fungus?"INFLUENCIA MICELIAL":"DOMINIO DE LAS ARENAS",14,119,214,27,13,GrayboxUI.Ink,FontStyle.Bold);
             GrayboxUI.Text(leaderPanel,TimingRules.StageName(TimingRules.LeaderStage(player))+" · COSTE "+Game.State.rules.leaderAbilityCost+" E",14,158,214,22,13,color,FontStyle.Bold);
             bool own=player.id==Game.ActingPlayerId;bool ready=own&&!player.isAI&&AbilityManager.LeaderTargets(Game).Count>0;

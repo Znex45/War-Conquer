@@ -58,7 +58,7 @@ namespace WarConquer
                 p.remainingMovement=Math.Max(0,p.remainingMovement-cost);
                 if(!landing)continue;
                 if(!TerrainManager.CheckUnstable(g,p,g.State.tiles[next],false))break;
-                Relocate(g,p,next);
+                Relocate(g,p,next);if(p.health<=0||g.State.pendingChoices.Count>0)break;
             }
             g.Notify(g.Data(p).name+" · movimiento resuelto. Revisa el registro si hubo tiradas."); return true;
         }
@@ -68,7 +68,7 @@ namespace WarConquer
             ConquestManager.Refresh(g.State);
             var to=g.State.tiles[destination]; p.tileId=destination; p.moved=true; to.unit=p; to.owner=p.owner;
             p.forestSinceTurn=-1;
-            TerrainManager.MaintainRoutes(g); EffectManager.OnTileEnter(g,p);ConquestManager.Refresh(g.State);
+            TerrainManager.MaintainRoutes(g);GenericCardRules.SyncAuras(g);if(p.health>0){EffectManager.OnTileEnter(g,p);GenericCardRules.OnMove(g,p,from.biome);}ConquestManager.Refresh(g.State);
             g.State.Log(g.Data(p).name+" → hex "+(destination+1));
         }
         public static bool FreeStep(GameManager g,Piece p,int destination)

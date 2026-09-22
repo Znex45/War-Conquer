@@ -18,6 +18,7 @@ namespace WarConquer
                 if(aura.Has("SolarAttackAura")&&c.factionTag=="SOLAR")attack++;
                 if(aura.Has("NomadAura")&&c.subtypes.Contains("Nómada")&&t.biome==Biome.Desert)attack++;
             }
+            if(!c.IsStructure)attack+=g.Allies(p.owner).Count(a=>g.Data(a).Has("GlobalAttack"));
             return Math.Max(0,attack);
         }
         public static List<int> Targets(GameManager g,Piece p)
@@ -43,7 +44,7 @@ namespace WarConquer
             int damage=AttackValue(g,attacker,victim);
             if(victim!=null)
             {
-                Damage(g,victim,damage,true);
+                Damage(g,victim,damage,true);GenericCardRules.OnKill(g,attacker,victim);
                 if(victim.health>0&&g.Data(attacker).Has("PoisonAttack")&&(g.State.tiles[attacker.tileId].biome==Biome.Forest||g.State.tiles[attacker.tileId].biome==Biome.Swamp))EffectManager.Poison(g,victim,1,attacker.owner);
             }
             else
@@ -68,6 +69,8 @@ namespace WarConquer
             g.State.Log(c.name+" recibe "+actual+" daño"+(defense>0?" (defensa "+defense+")":"")+".");
             if(p.health<=0)Remove(g,p);
         }
+        public static void DirectDamage(GameManager g,Piece p,int amount,Piece source=null)
+        {if(p==null||p.health<=0)return;p.health-=Math.Max(0,amount);g.State.Log(g.Data(p).name+" recibe "+amount+" daño directo.");if(p.health<=0){Remove(g,p);GenericCardRules.OnKill(g,source,p);}}
         public static void PoisonDamage(GameManager g,Piece p,int amount)
         {
             p.health-=Math.Min(p.health,amount);g.State.Log(g.Data(p).name+": pierde "+amount+" VIDA por veneno progresivo.");
@@ -75,10 +78,10 @@ namespace WarConquer
         }
         public static void Remove(GameManager g,Piece p)
         {
-            var t=g.State.tiles[p.tileId];if(t.unit==p)t.unit=null;if(t.structure==p)t.structure=null;
+            if(p==null)return;var t=g.State.tiles[p.tileId];if(t.unit!=p&&t.structure!=p)return;p.health=0;if(t.unit==p)t.unit=null;if(t.structure==p)t.structure=null;
             if(t.specialEffect!=null&&t.specialEffect.sourceId==p.id)t.specialEffect=null;
             if(!p.token)g.State.players[p.owner].discardPile.Add(new CardInstance {instanceId=p.id,cardId=p.cardId});
-            TerrainManager.MaintainRoutes(g);ConquestManager.Refresh(g.State);g.State.Log(g.Data(p).name+" destruida"+(p.token?".":" → descarte."));
+            GenericCardRules.OnDestroyed(g,p);GenericCardRules.SyncAuras(g);TerrainManager.MaintainRoutes(g);ConquestManager.Refresh(g.State);g.State.Log(g.Data(p).name+" destruida"+(p.token?".":" → descarte."));
         }
         static void Eliminate(GameManager g,Player player)
         {

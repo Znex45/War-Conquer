@@ -8,7 +8,7 @@ namespace WarConquer.Editor
     {
         static void Check(bool ok,string why){if(!ok)throw new Exception(why);}
         static GameManager New(CardCatalog c,int humans=4){var g=new GameManager(c);g.NewGame(new[]{"ZUKGROK","SAHRIA","ZUKGROK","SAHRIA"},2026,CardCatalog.LoadRules(),humans);return g;}
-        static void End(GameManager g){while(g.State.stage!=TurnStage.Terraforming)g.AdvanceStage();g.EndTurn();}
+        static void End(GameManager g){while(g.State.stage!=TurnStage.Assault)g.AdvanceStage();g.EndTurn();}
         static CardInstance Hand(GameManager g,string id){var c=PrototypeScenario.Take(g,g.State.activePlayer,id);g.State.Active.hand.Add(c);g.State.Active.currentEnergy=20;g.State.stage=g.Catalog[id].allowedPhases[0];return c;}
         public static void RunAll(CardCatalog cards,Action<string,Action> test)
         {
