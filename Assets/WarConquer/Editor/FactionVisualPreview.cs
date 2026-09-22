@@ -34,7 +34,7 @@ namespace WarConquer.Editor
                 }
                 if(step==4){Capture("zukgrok-terraformacion-token");step++;due=EditorApplication.timeSinceStartup+1;return;}
                 ChoiceManager.Resolve(ui.Game,new[]{(int)Biome.Swamp});Invoke("CloseModal");Set("humanPlayers",1);Invoke("StartMatch",false);Invoke("ShowSetup");
-                EditorApplication.update-=Tick;Debug.Log("FACTION_VISUAL_PASSED: selección, SAHRIA, ZUKGROK y bioma de muerte renderizados.");if(batch)EditorApplication.Exit(0);
+                EditorApplication.update-=Tick;Debug.Log("FACTION_VISUAL_PASSED: selección, SAHRIA, ZUKGROK y bioma de muerte renderizados.");FeedbackVisualPreview.Begin(ui,batch);
             }
             catch(Exception e){EditorApplication.update-=Tick;Debug.LogException(e);if(batch)EditorApplication.Exit(1);}
         }

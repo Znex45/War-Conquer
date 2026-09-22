@@ -16,6 +16,7 @@ namespace WarConquer
             public string decorationKey;
             public string baseLeader;
             public int baseOwner=-2;
+            public BoardTerrainStatusVisual terrainStatus;
         }
         sealed class PieceVisual
         {
@@ -99,6 +100,12 @@ namespace WarConquer
                 bool central=ConquestManager.IsCenter(t);v.ring.gameObject.SetActive(selected.Contains(t.id)||valid.Contains(t.id)||t.id==focus||central);
                 mesh.Paint(v.ring,selected.Contains(t.id)?Color.white:valid.Contains(t.id)?GrayboxUI.Green:t.id==focus?new Color(1,.62f,.2f):new Color(.94f,.81f,.46f));
                 v.number.characterSize=central?.06f:.032f;
+                if(t.specialEffect!=null&&v.terrainStatus==null)
+                {
+                    var effectRoot=mesh.Group(v.root,"Estado del terreno",Vector3.up*(BoardMeshFactory.Surface+.018f));
+                    v.terrainStatus=effectRoot.gameObject.AddComponent<BoardTerrainStatusVisual>();v.terrainStatus.Initialize(mesh,BoardCamera);
+                }
+                if(v.terrainStatus!=null)v.terrainStatus.Sync(t.specialEffect);
                 string number=central?"+1 PC":(t.id+1).ToString()+(t.owner>=0?" · J"+(t.owner+1):"")+(t.specialEffect!=null?" !":"");
                 if(v.number.text!=number)v.number.text=number;
                 v.number.gameObject.SetActive(central||ShowLabels||t.id==focus||valid.Contains(t.id)||selected.Contains(t.id));

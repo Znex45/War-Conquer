@@ -15,6 +15,7 @@ namespace WarConquer
         RectTransform root,matchRoot,header,left,leaderPanel,boardPanel,inspector,hand,piles,modal,tooltip;
         bool setupVisible,scoreDetails;
         BoardView board;
+        ConquestAudioFeedback conquestAudio;
         string mode="inspect",handFilter="Todas";
         int viewedPlayer,focus=-1,selectedCard=-1,page,lastActor=-1;
         [NonSerialized] Piece selectedPiece;
@@ -29,6 +30,7 @@ namespace WarConquer
         void Awake()
         {
             ClearAction();focus=-1;viewedPlayer=0;page=0;lastActor=-1;useResources=false;
+            conquestAudio=gameObject.AddComponent<ConquestAudioFeedback>();
             Game=new GameManager(CardCatalog.Load());CreateUI();Game.Changed+=Render;
             Game.NewGame(leaders,seed,CardCatalog.LoadRules(),4,false);ShowSetup();
         }
@@ -65,6 +67,7 @@ namespace WarConquer
         public void Render()
         {
             if(Game?.State==null)return;
+            conquestAudio.Sync(Game.State);
             SetMatchVisible(!setupVisible&&Game.State.phase!=Phase.Setup);
             int actor=Game.ActingPlayerId;
             if(actor!=lastActor){lastActor=actor;viewedPlayer=actor;page=0;handFilter="Todas";useResources=Game.ActingPlayer.isAI&&AiPlayer.UseResources;ClearAction();focus=-1;nextAiAction=Time.unscaledTime+1;}

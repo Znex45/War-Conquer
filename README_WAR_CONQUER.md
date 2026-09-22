@@ -7,6 +7,8 @@ Elige 1 persona contra IA o 2, 3, 4 personas locales y un mazo de 50 cartas para
 
 SAHRIA usa amarillo, ZUKGROK morado y FAUNAR verde. Los números J1–J4 distinguen participantes con el mismo mazo. El juego conserva tablero, unidades y estructuras 3D, interfaz oscura, acciones claras, mano paginada y cartas no disponibles oscurecidas.
 
+La preparación ya no muestra el botón Cambiar semilla. Los estados de cartas tienen símbolos animados: veneno, sueño, ralentización, mejoras de ATK/HP/MOV, protección, evolución, crecimiento, bloqueo de curación y terreno inestable. Curación y daño muestran partículas y su cambio de HP. Cada punto de conquista ganado reproduce una breve fanfarria de trompeta; las actualizaciones de interfaz y la carga de una partida no repiten puntos antiguos.
+
 ## Mazos actuales
 
 | Mazo | Spells | Combat Spells | Structures | Units | Total |
