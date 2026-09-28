@@ -9,6 +9,7 @@ namespace WarConquer
     {
         void SetMatchVisible(bool visible)
         {
+            if(rewindButton!=null)rewindButton.gameObject.SetActive(visible);
             if(matchRoot!=null)matchRoot.gameObject.SetActive(visible);
             if(board?.World!=null)board.World.gameObject.SetActive(visible);
         }
@@ -75,7 +76,7 @@ namespace WarConquer
         {
             var body=OpenModal("AYUDA DE PARTIDA");
             GrayboxUI.Text(body,"TURNO Y CARTAS",35,95,500,36,23,GrayboxUI.Ink,FontStyle.Bold);
-            GrayboxUI.Text(body,"Despliegue → Terraformación → Asalto. El botón de etapa permite avanzar.\n\nLas cartas oscuras no se pueden usar ahora. Su banda inferior indica la etapa de uso. Pasa el cursor para ampliarlas o selecciónalas y pulsa Ver carta completa.\n\nSelecciona una carta y un hexágono verde. El pago mixto permite elegir recursos compatibles. Resolver selección confirma los objetivos múltiples; Cancelar no consume recursos.",35,153,505,460,20,GrayboxUI.Muted);
+            GrayboxUI.Text(body,"Despliegue → Asalto → Terraformación. El botón de etapa permite avanzar. Rewind / Deshacer revierte la última decisión del turno, incluidos los cambios de etapa.\n\nLas cartas oscuras no se pueden usar ahora. Su banda inferior indica la etapa de uso. Pasa el cursor para ampliarlas o selecciónalas y pulsa Ver carta completa.\n\nSelecciona una carta y un hexágono verde. El pago mixto permite elegir recursos compatibles. Resolver selección confirma los objetivos múltiples; Cancelar no consume recursos.",35,153,505,460,20,GrayboxUI.Muted);
             GrayboxUI.Text(body,"TABLERO Y VICTORIA",590,95,500,36,23,GrayboxUI.Ink,FontStyle.Bold);
             GrayboxUI.Text(body,"Arrastra para desplazar, usa el botón derecho para girar y la rueda para acercar. 1:1 restablece la cámara. Ver datos muestra números de casilla y puntos de las bases.\n\nSelecciona una pieza para mover, atacar o usar su habilidad. Pulsa un marcador de jugador para consultar su mano y su Líder. Detalles muestra el control por territorio.\n\nHay 3 objetivos centrales separados. Cada uno y cada base enemiga vencida dan +1 PC al volver tu turno si mantuviste una unidad propia y el terreno terraformado. Salir, perder el bioma o recapturar reinicia la espera. Gana con 10 PC o con el último Líder en pie. Las pilas abren el mazo y descarte.",590,153,505,510,20,GrayboxUI.Muted);
             GrayboxUI.Button(body,"Volver al menú",35,714,1060,48,ShowMatchMenu);

@@ -14,7 +14,7 @@ namespace WarConquer.Editor
         static int Home(GameManager g,int player=0)=>g.State.tiles.First(t=>t.owner==player&&t.baseOwner<0&&!t.IsOccupied).id;
         static CardInstance Hand(GameManager g,int owner,string id)
         {var c=PrototypeScenario.Take(g,owner,id);g.State.players[owner].hand.Add(c);return c;}
-        static void End(GameManager g){while(g.State.stage!=TurnStage.Assault)g.AdvanceStage();g.EndTurn();}
+        static void End(GameManager g){while(g.State.stage!=TurnStage.Terraforming)g.AdvanceStage();g.EndTurn();}
         static CardCatalog WithPermission(CardCatalog catalog,string id,ActionTiming timing,bool interrupt=true)
         {
             var data=catalog.All.Select(c=>JsonUtility.FromJson<CardData>(JsonUtility.ToJson(c))).ToArray();var card=data.First(c=>c.id==id);
@@ -54,14 +54,15 @@ namespace WarConquer.Editor
                 var quote=EnergyManager.Quote(g.State.Active,catalog[c.cardId],true);Check(quote.energy==2&&quote.resources==1&&quote.EnergyLabel=="3 → 2","Desglose no coincide.");
                 Check(g.Play(c.instanceId,new[]{Home(g)},true)&&g.State.Active.currentEnergy==1&&g.State.Active.resources[0].amount==0,"Pago mixto diferente del mostrado.");
             });
-            test("Despliegue Terraformación Asalto conserva energía y mano",()=>{
+            test("Despliegue Asalto Terraformación conserva energía y mano",()=>{
                 var g=New(catalog);g.State.Active.currentEnergy=10;var unit=Hand(g,0,"bestia-micelial");var spell=Hand(g,0,"brote-repentino");
                 Check(!g.EndTurn(),"Finaliza antes de completar etapas.");int tile=Home(g);Check(g.Play(unit.instanceId,new[]{tile}),"No despliega.");
-                Check(g.AdvanceStage()&&g.State.stage==TurnStage.Terraforming&&g.State.Active.currentEnergy==7,"No pasa a Terraformación.");
+                Check(g.AdvanceStage()&&g.State.stage==TurnStage.Assault&&g.State.Active.currentEnergy==7,"No pasa a Asalto.");
+                Check(MovementManager.Paths(g,g.State.tiles[tile].unit).Count>0,"No permite mover en Asalto.");
+                Check(!g.EndTurn(),"Finaliza antes de Terraformación.");
+                Check(g.AdvanceStage()&&g.State.stage==TurnStage.Terraforming,"No pasa a Terraformación.");
                 Check(MovementManager.Paths(g,g.State.tiles[tile].unit).Count==0,"Mueve fuera de Asalto.");
                 Check(g.Play(spell.instanceId,new[]{Home(g)})&&g.State.Active.currentEnergy==6,"No resuelve magia territorial.");
-                Check(g.AdvanceStage()&&g.State.stage==TurnStage.Assault&&g.State.Active.currentEnergy==6,"No pasa a Asalto.");
-                Check(MovementManager.Paths(g,g.State.tiles[tile].unit).Count>0,"No permite mover en Asalto.");
                 Check(g.EndTurn()&&g.State.activePlayer==1&&g.State.stage==TurnStage.Deployment,"No termina turno.");
             });
             test("Los 4 jugadores completan las 3 etapas; mazo -1, mano +1 solo al robar",()=>{

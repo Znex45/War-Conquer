@@ -23,7 +23,8 @@ Cleansing Conquest fue eliminada del mazo de Zukgrok. Alligator, Revengeful Bite
 
 ## Turnos y controles
 
-- Despliegue → Terraformación → Asalto. Finalizar turno resuelve estados, energía, robo y producción del siguiente jugador.
+- Despliegue → Asalto → Terraformación. Finalizar turno resuelve estados, energía, robo y producción del siguiente jugador.
+- Rewind / Deshacer revierte decisiones del turno actual, incluidos los cambios de etapa. Los efectos y elecciones de una misma acción se revierten juntos. El historial se cierra al finalizar el turno, cargar o iniciar otra partida. Repetir una acción deshecha conserva su secuencia aleatoria.
 - Carta → casillas resaltadas. Los objetivos múltiples se confirman al completar la selección o con Resolver selección. Cancelar no consume energía.
 - La carta ampliada muestra coste real, MOV / HP / ATK, subtipos, Líder, biomas, restricciones y ventanas de uso.
 - Unit propia → mover, atacar o habilidad. RAD usa distancia hexagonal, independiente de MOV y rutas rápidas.

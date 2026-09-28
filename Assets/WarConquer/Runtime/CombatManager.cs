@@ -23,10 +23,11 @@ namespace WarConquer
         }
         public static List<int> Targets(GameManager g,Piece p)
         {
-            if(p==null||!g.CanTakeTurnAction(TurnStage.Assault)||p.owner!=g.State.activePlayer||p.attacked||!FactionCardRules.CanAttack(g,p)||g.IsSleeping(p)||g.Data(p).IsStructure) return new List<int>();
+            if(!g.IsCurrentPiece(p)||!g.CanTakeTurnAction(TurnStage.Assault)||p.owner!=g.State.activePlayer||p.attacked||!FactionCardRules.CanAttack(g,p)||g.IsSleeping(p)||g.Data(p).IsStructure) return new List<int>();
             return g.State.tiles.Where(t=>((t.unit!=null&&t.unit.owner!=p.owner)||(t.structure!=null&&t.structure.owner!=p.owner)||(t.baseOwner>=0&&t.baseOwner!=p.owner&&!g.State.players[t.baseOwner].eliminated))&&BoardManager.Distance(g.State,p.tileId,t.id,g.Data(p).range)<=g.Data(p).range).Select(t=>t.id).ToList();
         }
-        public static bool Attack(GameManager g,Piece attacker,int target)
+        public static bool Attack(GameManager g,Piece attacker,int target) => g.Decide(() => AttackCore(g,attacker,target));
+        static bool AttackCore(GameManager g,Piece attacker,int target)
         {
             if(!Targets(g,attacker).Contains(target))return g.Fail("No puedes atacar: objetivo, alcance, ataque usado o Dormido.");
             if(!TerrainManager.CheckAction(g,attacker,"atacar")){attacker.attacked=true;g.Notify("Ataque interrumpido por el terreno.");return true;}

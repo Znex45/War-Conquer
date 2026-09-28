@@ -7,7 +7,7 @@ namespace WarConquer
     {
         public static void Start(GameManager g)
         {
-            var s=g.State;if(s.lastStartedTurn==s.turn)return;s.lastStartedTurn=s.turn;var p=s.Active;s.phase=Phase.Start;
+            var s=g.State;if(s.lastStartedTurn==s.turn)return;g.ResetHistory();s.lastStartedTurn=s.turn;var p=s.Active;s.phase=Phase.Start;
             ConquestManager.ScoreStart(s,p.id);if(s.phase==Phase.Finished)return;p.turnsTaken++;
             p.maxEnergy=Math.Min(s.rules.maxEnergy,s.rules.initialEnergy+(p.turnsTaken-1)*s.rules.energyGrowth);
             p.currentEnergy=p.maxEnergy;p.sahriaDeployment=false;p.firstStructureUsed=false;p.terraformDiscountUsed=false;p.towerUsed=false;p.structureDiscount=0;

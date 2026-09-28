@@ -31,7 +31,8 @@ namespace WarConquer
             }
             g.State.battle=null;CombatManager.ResolvePending(g,b);
         }
-        public static bool Pass(GameManager g,int player)
+        public static bool Pass(GameManager g,int player) => g.Decide(() => PassCore(g,player));
+        static bool PassCore(GameManager g,int player)
         {
             if(g.State.pendingChoices.Count>0||g.State.phase!=Phase.Actions)return g.Fail("La partida no admite respuestas.");
             var b=g.State.battle;
@@ -49,7 +50,8 @@ namespace WarConquer
             if(b!=null&&!HasResponse(g,b.priorityPlayer)){b.priorityIndex++;SeekPriority(g);}
             else if(b==null&&g.State.responsePlayer>=0&&!HasResponse(g,g.State.responsePlayer))g.State.responsePlayer=-1;
         }
-        public static bool RequestOutsideTurn(GameManager g,int player)
+        public static bool RequestOutsideTurn(GameManager g,int player) => g.Decide(() => RequestOutsideTurnCore(g,player));
+        static bool RequestOutsideTurnCore(GameManager g,int player)
         {
             if(!g.CanAct||g.State.pendingChoices.Count>0||g.State.battle!=null||g.State.responsePlayer>=0||player==g.State.activePlayer||!HasResponse(g,player))return g.Fail("No hay una carta o habilidad que permita intervenir ahora.");
             g.State.responsePlayer=player;g.Notify("Intervención de J"+(player+1)+" durante el turno de J"+(g.State.activePlayer+1)+".");return true;

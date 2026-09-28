@@ -5,11 +5,11 @@ namespace WarConquer
 {
     public static class TimingRules
     {
-        public static readonly TurnStage[] Order={TurnStage.Deployment,TurnStage.Terraforming,TurnStage.Assault};
+        public static readonly TurnStage[] Order={TurnStage.Deployment,TurnStage.Assault,TurnStage.Terraforming};
         public static string StageName(TurnStage stage)=>stage==TurnStage.Deployment?"DESPLIEGUE":stage==TurnStage.Assault?"ASALTO":"TERRAFORMACIÓN";
         public static string Description(CardData card)
         {
-            string normal=string.Join(" / ",(card.allowedPhases??Array.Empty<TurnStage>()).Select(StageName));
+            string normal=string.Join(" / ",Order.Where(stage=>(card.allowedPhases??Array.Empty<TurnStage>()).Contains(stage)).Select(StageName));
             if(card.combatSpell)return "ASALTO · COMBATE / ATAQUE / DEFENSA / INTERVENCIÓN";
             return string.IsNullOrWhiteSpace(card.timingPermissionText)?"Tu turno · "+normal+". Sin permiso de intervención.":normal+" · "+card.timingPermissionText;
         }

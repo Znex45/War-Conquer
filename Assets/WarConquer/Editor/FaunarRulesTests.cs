@@ -24,7 +24,7 @@ namespace WarConquer.Editor
         }
         static Piece Put(GameManager g,string id,int owner,int q,int r,Biome biome=Biome.Neutral)
         {var t=At(g,q,r);t.owner=owner;t.biome=biome;return g.Place(id,owner,t.id);}
-        static void End(GameManager g){while(g.State.battle!=null)BattleManager.Pass(g,g.ActingPlayerId);while(g.State.stage!=TurnStage.Assault)g.AdvanceStage();Check(g.EndTurn(),"No termina turno.");}
+        static void End(GameManager g){while(g.State.battle!=null)BattleManager.Pass(g,g.ActingPlayerId);while(g.State.stage!=TurnStage.Terraforming)g.AdvanceStage();Check(g.EndTurn(),"No termina turno.");}
         static void Round(GameManager g){int owner=g.State.activePlayer;do{End(g);}while(g.State.activePlayer!=owner);}
         static void Play(GameManager g,string id,params int[] targets){var c=Hand(g,id);int energy=g.ActingPlayer.currentEnergy,cost=EnergyManager.Quote(g.ActingPlayer,g.Catalog[id]).energy;Check(g.Play(c.instanceId,targets),id+": "+g.LastMessage);Check(g.State.players[0].currentEnergy==energy-cost,"Coste distinto del mostrado: "+id);}
         public static void RunAll(CardCatalog c,Action<string,Action> test)

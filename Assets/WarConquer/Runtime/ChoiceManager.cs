@@ -39,7 +39,8 @@ namespace WarConquer
             if(choice.count==0){if(choice.kind=="DeathTerraform")FactionCardRules.CompleteDeathChoice(g,choice);if(choice.drawAfter>0)DeckManager.Draw(g.State,g.State.players[choice.owner],choice.drawAfter);return;}
             g.State.pendingChoices.Add(choice);
         }
-        public static bool Resolve(GameManager g,IList<int> targets,bool skip=false)
+        public static bool Resolve(GameManager g,IList<int> targets,bool skip=false) => g.Decide(() => ResolveCore(g,targets,skip));
+        static bool ResolveCore(GameManager g,IList<int> targets,bool skip=false)
         {
             var c=g.State.pendingChoices.FirstOrDefault();
             if(c==null||!g.CanAct||g.ActingPlayerId!=c.owner)return g.Fail("No hay una elección pendiente.");

@@ -10,7 +10,7 @@ namespace WarConquer
         public static string Label(CardData c) => c.Has("WanderingBeast")?"Infligir 2 a 3rad":c.Has("MushroomToken")?"Envenenar (radio por Tokens)":c.Has("FireflyToken")?"Sacrificar y envenenar a 2rad": c.Has("MedCamp")?"Curar hasta 4 aliados":c.Has("RestingCamp")?"Curar aliados a 4rad":c.Has("VigilantTower")?"Infligir 1 a 6rad":c.Has("ForestLeap")?"Saltar junto a Bosque": c.Has("FastNetwork")?"Conectar 2 casillas":c.Has("StructureDiscount")?"Descuento de estructura":c.Has("CampStep")?"Dar +1 MOV":c.Has("DestroyBiome")?"Destruir bioma":c.Has("ExtendBuff")?"Extender mejora (1 Espora)":"Sin habilidad activa";
         public static List<int> Targets(GameManager g,Piece source)
         {
-            if(source==null||!TimingRules.AbilityAllowed(g,source)||source.abilityUsed||g.IsSleeping(source))return new List<int>();
+            if(!g.IsCurrentPiece(source)||!TimingRules.AbilityAllowed(g,source)||source.abilityUsed||g.IsSleeping(source))return new List<int>();
             var c=g.Data(source);if(GenericCardRules.IsActive(c))return GenericCardRules.AbilityTargets(g,source);
             if(c.Has("FastNetwork"))return g.State.tiles.Where(t=>TerrainManager.CompatibleRoute(t,source.owner)).Select(t=>t.id).ToList();
             if(c.Has("DestroyBiome"))return g.State.tiles[source.tileId].neighbors.Where(n=>TerrainManager.Normal(g.State.tiles[n])).ToList();
@@ -19,12 +19,13 @@ namespace WarConquer
         }
         public static bool CanActivate(GameManager g,Piece p)
         {
-            if(p==null||!TimingRules.AbilityAllowed(g,p)||p.abilityUsed||g.IsSleeping(p)||!HasActive(g.Data(p)))return false;
+            if(!g.IsCurrentPiece(p)||!TimingRules.AbilityAllowed(g,p)||p.abilityUsed||g.IsSleeping(p)||!HasActive(g.Data(p)))return false;
             var c=g.Data(p);if(c.Has("ExtendBuff")&&(g.ActingPlayer.spores<1||!BoardManager.Nearby(g.State,p.tileId).Any(a=>a.owner==p.owner&&a.bonusAttack>0)))return false;
             if(c.Has("RestingCamp"))return GenericCardRules.AbilityTargets(g,p).Count>0;
             return TargetCount(c)==0||Targets(g,p).Count>=(c.Has("MedCamp")?1:TargetCount(c));
         }
-        public static bool Activate(GameManager g,Piece p,IList<int> targets)
+        public static bool Activate(GameManager g,Piece p,IList<int> targets) => g.Decide(() => ActivateCore(g,p,targets));
+        static bool ActivateCore(GameManager g,Piece p,IList<int> targets)
         {
             if(!CanActivate(g,p))return g.Fail("La habilidad no está disponible.");
             var c=g.Data(p);if((c.Has("MedCamp")?(targets.Count<1||targets.Count>4):targets.Count!=TargetCount(c))||targets.Distinct().Count()!=targets.Count||targets.Any(t=>!Targets(g,p).Contains(t)))return g.Fail("Selecciona los objetivos de la habilidad.");

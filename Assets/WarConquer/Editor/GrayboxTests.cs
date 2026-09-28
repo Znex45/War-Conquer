@@ -235,13 +235,14 @@ namespace WarConquer.Editor
             Board3DTests.RunAll(catalog,Test);RevisionRulesTests.RunAll(catalog,Test);
             FaunarRulesTests.RunAll(CardCatalog.Load(),Test);
             FactionRulesTests.RunAll(CardCatalog.Load(),Test);
+            TurnHistoryTests.RunAll(CardCatalog.Load(),Test);
             Debug.Log("WAR_CONQUER_TESTS_PASSED "+passed);
             string report=Environment.GetEnvironmentVariable("WAR_CONQUER_TEST_REPORT");if(!string.IsNullOrEmpty(report))System.IO.File.WriteAllText(report,string.Join("\n",results)+"\nTOTAL "+passed+" passed\n");
         }
         static bool FinishTurn(GameManager g)
         {
             while(g.State.battle!=null)BattleManager.Pass(g,g.ActingPlayerId);
-            while(g.State.stage!=TurnStage.Assault&&g.CanAct)g.AdvanceStage();
+            while(g.State.stage!=TurnStage.Terraforming&&g.CanAct)g.AdvanceStage();
             return g.EndTurn();
         }
         static Dictionary<int,List<int>> Paths(GameManager g,Piece p){g.State.stage=TurnStage.Assault;return MovementManager.Paths(g,p);}

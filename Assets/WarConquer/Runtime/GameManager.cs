@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace WarConquer
 {
-    public class GameManager
+    public partial class GameManager
     {
         public GameState State { get; private set; }
         public CardCatalog Catalog { get; }
@@ -16,7 +16,7 @@ namespace WarConquer
             if(humanPlayers<1||humanPlayers>4)throw new ArgumentOutOfRangeException(nameof(humanPlayers));
             int participants=humanPlayers==1?2:humanPlayers;
             if(leaders==null||leaders.Length<participants||leaders.Take(participants).Any(l=>!CardCatalog.Leaders.Contains(l)))throw new ArgumentException("Selecciona un mazo para cada participante.");
-            State=new GameState {seed=seed,randomState=seed==0?12345:seed,rules=rules,phase=Phase.Setup};
+            ResetHistory();State=new GameState {seed=seed,randomState=seed==0?12345:seed,rules=rules,phase=Phase.Setup};
             BoardManager.Create(State,participants);
             for(int i=0;i<4;i++)
             {
@@ -29,8 +29,8 @@ namespace WarConquer
             if(startImmediately){TurnManager.Start(this);Notify("Turno de J1 · Despliegue. Selecciona una carta permitida.");}
             else Notify("Partida en pausa. Elige participantes y mazos antes de comenzar.");
         }
-        public void Restore(GameState state) { State=state; Notify("Partida cargada."); }
-        public void Notify(string message) { if(State!=null)ConquestManager.Refresh(State);LastMessage=message; Changed?.Invoke(); }
+        public void Restore(GameState state) { ResetHistory();State=state; Notify("Partida cargada."); }
+        public void Notify(string message) { if(State!=null)ConquestManager.Refresh(State);LastMessage=message; if(decisionDepth==0)Changed?.Invoke(); }
         public int RollDie(Piece piece,HexTile tile,int threshold,string reason)
         {
             int value=State.Random(6)+1;
@@ -45,13 +45,15 @@ namespace WarConquer
         public Player ActingPlayer=>State.players[ActingPlayerId];
         internal T ForPlayer<T>(int player,Func<T> query){int previous=queryPlayer;queryPlayer=player;try{return query();}finally{queryPlayer=previous;}}
         public bool CanTakeTurnAction(TurnStage stage)=>CanAct&&State.pendingChoices.Count==0&&State.battle==null&&State.responsePlayer<0&&ActingPlayerId==State.activePlayer&&State.stage==stage;
-        public bool AdvanceStage()
+        public bool AdvanceStage() => this.Decide(() => AdvanceStageCore());
+        bool AdvanceStageCore()
         {
             if(!CanAct||State.pendingChoices.Count>0||State.battle!=null||State.responsePlayer>=0)return Fail("Resuelve la intervención antes de continuar.");
-            if(State.stage==TurnStage.Assault)return EndTurn();
-            State.stage=State.stage==TurnStage.Deployment?TurnStage.Terraforming:TurnStage.Assault;Notify("Etapa de "+TimingRules.StageName(State.stage)+".");return true;
+            if(State.stage==TurnStage.Terraforming)return EndTurn();
+            State.stage=State.stage==TurnStage.Deployment?TurnStage.Assault:TurnStage.Terraforming;Notify("Etapa de "+TimingRules.StageName(State.stage)+".");return true;
         }
-        public bool DrawPending()
+        public bool DrawPending() => this.Decide(() => DrawPendingCore());
+        bool DrawPendingCore()
         {
             if(!CanTakeTurnAction(TurnStage.Deployment)||ActingPlayer.pendingDraw<=0)return Fail("No corresponde robar cartas ahora.");
             int count=ActingPlayer.pendingDraw;ActingPlayer.pendingDraw=0;DeckManager.Draw(State,ActingPlayer,count);Notify("Robo resuelto.");return true;
@@ -129,7 +131,8 @@ namespace WarConquer
                 default: return false;
             }
         }
-        public bool Play(int instanceId,IList<int> targets,bool useResources=false,Biome choice=Biome.Forest)
+        public bool Play(int instanceId,IList<int> targets,bool useResources=false,Biome choice=Biome.Forest) => this.Decide(() => PlayCore(instanceId,targets,useResources,choice));
+        bool PlayCore(int instanceId,IList<int> targets,bool useResources=false,Biome choice=Biome.Forest)
         {
             var instance=ActingPlayer.hand.Find(c=>c.instanceId==instanceId); string error=CardBlockReason(instance,useResources);
             if(error.Length>0) return Fail(error);
@@ -165,7 +168,8 @@ namespace WarConquer
             return Math.Max(0,State.rules.terraformCost-(discount?1:0));
         }
         public int AshCost()=>Math.Max(0,State.rules.revealAshCost-(HasTrait(State.activePlayer,"AshDiscount")?1:0));
-        public bool Terraform(int tile,Biome biome)
+        public bool Terraform(int tile,Biome biome) => this.Decide(() => TerraformCore(tile,biome));
+        bool TerraformCore(int tile,Biome biome)
         {
             if(!CanTakeTurnAction(TurnStage.Terraforming)||tile<0||tile>=State.tiles.Count||!TerraformTarget(tile)) return Fail("No puedes terraformar esta casilla.");
             if(biome==Biome.Neutral||biome==Biome.AshLand) return Fail("Usa destruir bioma o revelar ceniza para esa transformación.");
@@ -175,7 +179,8 @@ namespace WarConquer
             State.Active.currentEnergy-=cost; if(discount) State.Active.terraformDiscountUsed=true;
             TerrainManager.Terraform(this,tile,biome,State.activePlayer); Notify("Casilla "+(tile+1)+": "+Names.Biomes[(int)biome]+"."); return true;
         }
-        public bool RevealAsh(int tile)
+        public bool RevealAsh(int tile) => this.Decide(() => RevealAshCore(tile));
+        bool RevealAshCore(int tile)
         {
             if(!CanTakeTurnAction(TurnStage.Terraforming)||tile<0||tile>=State.tiles.Count||!TerraformTarget(tile)||!TerrainManager.Normal(State.tiles[tile])||State.tiles[tile].owner!=State.activePlayer) return Fail("Requiere un bioma normal propio sin ocupantes enemigos.");
             int cost=AshCost();
@@ -184,8 +189,8 @@ namespace WarConquer
         }
         public bool EndTurn()
         {
-            if(!CanTakeTurnAction(TurnStage.Assault)) return Fail("Termina Despliegue, Terraformación y Asalto antes de finalizar.");
-            TurnManager.End(this); Notify(State.phase==Phase.Finished?"Partida terminada.":"Turno de J"+(State.activePlayer+1)+" · "+State.Active.leader); return true;
+            if(!CanTakeTurnAction(TurnStage.Terraforming)) return Fail("Termina Despliegue, Asalto y Terraformación antes de finalizar.");
+            ResetHistory();TurnManager.End(this); Notify(State.phase==Phase.Finished?"Partida terminada.":"Turno de J"+(State.activePlayer+1)+" · "+State.Active.leader); return true;
         }
     }
 }

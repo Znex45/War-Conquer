@@ -14,7 +14,7 @@ namespace WarConquer
         public static Dictionary<int,List<int>> Paths(GameManager g,Piece p)
         {
             var result=new Dictionary<int,List<int>>();
-            if(p==null||p.owner!=g.State.activePlayer||g.IsSleeping(p)||g.Data(p).IsStructure||!g.CanTakeTurnAction(TurnStage.Assault)||p.remainingMovement<=0) return result;
+            if(!g.IsCurrentPiece(p)||p.owner!=g.State.activePlayer||g.IsSleeping(p)||g.Data(p).IsStructure||!g.CanTakeTurnAction(TurnStage.Assault)||p.remainingMovement<=0) return result;
             var c=g.Data(p); var open=new List<Node> { new Node {tile=p.tileId,cost=0,path=new List<int>(),route=false} };
             var seen=new Dictionary<(int,bool),int>(); var best=new Dictionary<int,int>();
             while(open.Count>0)
@@ -42,7 +42,8 @@ namespace WarConquer
             if(g.IsSleeping(p))return new List<int>();
             return g.State.fastRoutes.Where(f=>f.owner==p.owner&&(f.a==p.tileId||f.b==p.tileId)).Select(f=>f.a==p.tileId?f.b:f.a).Where(n=>CanStop(g,p,n)).Distinct().ToList();
         }
-        public static bool Move(GameManager g,Piece p,int destination)
+        public static bool Move(GameManager g,Piece p,int destination) => g.Decide(() => MoveCore(g,p,destination));
+        static bool MoveCore(GameManager g,Piece p,int destination)
         {
             var paths=Paths(g,p); if(!paths.TryGetValue(destination,out var path)) return g.Fail("Movimiento inválido: alcance, ocupación o estado Dormido.");
             bool fastBonusUsed=p.fastBonusUsed;
@@ -71,9 +72,10 @@ namespace WarConquer
             TerrainManager.MaintainRoutes(g);GenericCardRules.SyncAuras(g);if(p.health>0){EffectManager.OnTileEnter(g,p);GenericCardRules.OnMove(g,p,from.biome);FactionCardRules.OnMove(g,p,from,carried);}ConquestManager.Refresh(g.State);
             g.State.Log(g.Data(p).name+" → hex "+(destination+1));
         }
-        public static bool FreeStep(GameManager g,Piece p,int destination)
+        public static bool FreeStep(GameManager g,Piece p,int destination) => g.Decide(() => FreeStepCore(g,p,destination));
+        static bool FreeStepCore(GameManager g,Piece p,int destination)
         {
-            if(!g.CanTakeTurnAction(TurnStage.Assault)||p==null||p.owner!=g.State.activePlayer||g.IsSleeping(p)||g.State.Active.freeSteps<=0||!g.State.tiles[p.tileId].neighbors.Contains(destination)||!CanStop(g,p,destination)) return g.Fail("No hay un paso adicional válido.");
+            if(!g.CanTakeTurnAction(TurnStage.Assault)||!g.IsCurrentPiece(p)||p.owner!=g.State.activePlayer||g.IsSleeping(p)||g.State.Active.freeSteps<=0||!g.State.tiles[p.tileId].neighbors.Contains(destination)||!CanStop(g,p,destination)) return g.Fail("No hay un paso adicional válido.");
             g.State.Active.freeSteps--;
             if(TerrainManager.CheckUnstable(g,p,g.State.tiles[p.tileId],true)&&TerrainManager.CheckUnstable(g,p,g.State.tiles[destination],false)) Relocate(g,p,destination);
             g.Notify("Paso adicional resuelto.");return true;

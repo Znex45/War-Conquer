@@ -23,7 +23,7 @@ namespace WarConquer.Editor
         static void End(GameManager g)
         {
             Choices(g);while(g.State.battle!=null){BattleManager.Pass(g,g.ActingPlayerId);Choices(g);}
-            while(g.State.stage!=TurnStage.Assault)g.AdvanceStage();Check(g.EndTurn(),"Fin de turno bloqueado.");Choices(g);
+            while(g.State.stage!=TurnStage.Terraforming)g.AdvanceStage();Check(g.EndTurn(),"Fin de turno bloqueado.");Choices(g);
         }
         static void Round(GameManager g){int id=g.State.activePlayer;do{End(g);}while(g.State.activePlayer!=id);}
         public static void RunBatch()

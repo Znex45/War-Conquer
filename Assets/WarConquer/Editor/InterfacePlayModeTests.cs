@@ -65,8 +65,8 @@ namespace WarConquer.Editor
                 Check(Has(ui,"ETAPAS · J1")&&Has(ui,"ENERGÍA 3 / 3"),"Estado inicial no reflejado en Canvas.");
                 for(int i=0;i<4;i++)Check(Has(ui,"J"+(i+1)+" "+g.State.players[i].leader),"Falta un jugador en la puntuación.");
                 Check(Has(ui,"MUERTE DE TOKEN")&&Has(ui,"0 ENERGÍA"),"Falta la habilidad o coste del Líder.");
-                g.AdvanceStage();Check(Has(ui,"IR A ASALTO")&&Has(ui,"Terraformar casilla"),"Terraformación ausente.");
-                g.AdvanceStage();Check(Has(ui,"FINALIZAR TURNO"),"Asalto ausente.");
+                g.AdvanceStage();Check(Has(ui,"IR A TERRAFORMACIÓN"),"Asalto ausente.");
+                g.AdvanceStage();Check(Has(ui,"FINALIZAR TURNO")&&Has(ui,"Terraformar casilla"),"Terraformación ausente.");
                 g.EndTurn();Check(Has(ui,"ETAPAS · J2")&&Has(ui,"DESPLIEGUE EN TERRITORIO"),"Interfaz no sigue el turno del jugador.");
                 Invoke(ui,"StartMatch",false);g=ui.Game;
                 g.State.players[0].conquestPoints=9;var site=g.State.tiles.First(ConquestManager.IsCenter);site.biome=Biome.Forest;PrototypeScenario.Spawn(g,0,"alligator-revengeful-bite",site.id);ConquestManager.Refresh(g.State);g.State.turn+=4;
@@ -80,7 +80,7 @@ namespace WarConquer.Editor
                 string before=GamePersistence.Serialize(g.State);
                 Invoke(ui,"ShowCardModal",g.Catalog["bestia-micelial"],g.State.Active);
                 Check(Has(ui,"VENTANAS DE USO")&&before==GamePersistence.Serialize(g.State),"La consulta de carta modifica la partida.");
-                Invoke(ui,"CloseModal");SetupPlayModeTests.Run(ui);InterfaceRefinementTests.Run(ui);
+                Invoke(ui,"CloseModal");SetupPlayModeTests.Run(ui);InterfaceRefinementTests.Run(ui);TurnHistoryPlayTests.Run(ui);
                 Debug.Log("WAR_CONQUER_UI_PASSED: Canvas, cuatro jugadores, tres etapas, Líderes, dos pantallas de victoria y consulta sin mutación.");
             }
             finally

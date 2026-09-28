@@ -53,7 +53,7 @@ namespace WarConquer
             if(Game.ActingPlayer.hand.Any(c=>Game.Catalog[c.cardId].category==Category.Spell&&Game.CardBlockReason(c,useResources)==""))ActionButton("Magias permitidas",ref y,()=>FilterHand("Magias"));
             DrawAbilityAction(ref y);
             if(y==130)GrayboxUI.Text(left,"Sin acciones disponibles.\nPuedes avanzar de etapa.",14,y,211,65,15,GrayboxUI.Muted);
-            string next=s.stage==TurnStage.Deployment?"IR A TERRAFORMACIÓN":s.stage==TurnStage.Terraforming?"IR A ASALTO":"FINALIZAR TURNO";
+            string next=s.stage==TurnStage.Deployment?"IR A ASALTO":s.stage==TurnStage.Assault?"IR A TERRAFORMACIÓN":"FINALIZAR TURNO";
             GrayboxUI.Button(left,next,12,280,214,34,()=>{ClearAction();handFilter="Todas";page=0;Game.AdvanceStage();},Color.Lerp(GrayboxUI.PlayerColor(s.activePlayer),GrayboxUI.Panel,.6f));
         }
         void ActionButton(string name,ref float y,System.Action action)
@@ -88,7 +88,7 @@ namespace WarConquer
             GrayboxUI.Text(leaderPanel,fungus?"AUTOMÁTICA · 0 ENERGÍA":"OPCIONAL · UNIDAD +1 ENERGÍA",14,162,214,28,12,color,FontStyle.Bold);
             GrayboxUI.Text(leaderPanel,fungus?"Al morir un Token propio, elige el bioma de su casilla.":"Usa una casilla que hayas establecido. El coste se muestra en la carta.",14,191,212,38,12,GrayboxUI.Muted);
             GrayboxUI.Button(leaderPanel,"Ver habilidad",12,230,214,30,()=>ShowLeaderDetails(player));
-            if(!fungus)GrayboxUI.Button(leaderPanel,player.sahriaDeployment?"SAHRIA +1 E · ACTIVADO":"Usar SAHRIA +1 E",12,275,214,27,()=>{player.sahriaDeployment=!player.sahriaDeployment;ClearAction();Render();},player.sahriaDeployment?color:edge,player.id==Game.ActingPlayerId&&!player.isAI&&Game.CanTakeTurnAction(TurnStage.Deployment));
+            if(!fungus)GrayboxUI.Button(leaderPanel,player.sahriaDeployment?"SAHRIA +1 E · ACTIVADO":"Usar SAHRIA +1 E",12,275,214,27,()=>{ClearAction();Game.SetSahriaDeployment(!player.sahriaDeployment);},player.sahriaDeployment?color:edge,player.id==Game.ActingPlayerId&&!player.isAI&&Game.CanTakeTurnAction(TurnStage.Deployment));
         }
     }
 }

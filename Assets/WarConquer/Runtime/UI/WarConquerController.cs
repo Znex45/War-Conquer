@@ -62,7 +62,7 @@ namespace WarConquer
             if(Mathf.Abs(canvas.scaleFactor-scale)>.001f)canvas.scaleFactor=scale;
             board?.Tick();
             matchRoot.GetComponent<CanvasGroup>().interactable=!board.World.IsAnimating;
-            UpdateAI();
+            RefreshRewind();UpdateAI();
         }
         public void Render()
         {
@@ -96,14 +96,15 @@ namespace WarConquer
             }
             if(s.pendingChoices.Count>0&&s.pendingChoices[0].kind=="Discard"&&!Game.ActingPlayer.isAI)ShowDiscardChoice();
             if(s.phase==Phase.Finished)ShowVictory();
+            RefreshRewind();
         }
         void DrawHeader()
         {
             var s=Game.State;var actor=Game.ActingPlayer;
             GrayboxUI.Text(header,"WAR & CONQUER",20,12,300,34,26,GrayboxUI.Ink,FontStyle.Bold);
             GrayboxUI.Text(header,s.phase==Phase.Setup?"PREPARACIÓN · PARTIDA EN PAUSA":"RONDA "+s.round+" · TURNO J"+(s.activePlayer+1)+(s.Active.isAI?" (IA)":"")+" · "+TimingRules.StageName(s.stage),340,12,595,27,18,GrayboxUI.PlayerColor(s.activePlayer),FontStyle.Bold);
-            GrayboxUI.Text(header,"J"+(actor.id+1)+" · ENERGÍA "+actor.currentEnergy+" / "+actor.maxEnergy,960,10,325,28,21,GrayboxUI.PlayerColor(actor.id),FontStyle.Bold);
-            GrayboxUI.Text(header,string.Join(" · ",actor.resources.Where(r=>r.amount>0).Select(r=>Names.Biomes[(int)r.biome]+" "+r.amount))+"  Esporas "+actor.spores,960,39,380,20,11,GrayboxUI.Muted);
+            GrayboxUI.Text(header,"J"+(actor.id+1)+" · ENERGÍA "+actor.currentEnergy+" / "+actor.maxEnergy,925,10,280,28,18,GrayboxUI.PlayerColor(actor.id),FontStyle.Bold);
+            GrayboxUI.Text(header,string.Join(" · ",actor.resources.Where(r=>r.amount>0).Select(r=>Names.Biomes[(int)r.biome]+" "+r.amount))+"  Esporas "+actor.spores,925,39,470,20,11,GrayboxUI.Muted);
             GrayboxUI.Button(header,"Menú",1402,14,182,36,ShowMatchMenu);
         }
         List<int> ValidTargets()

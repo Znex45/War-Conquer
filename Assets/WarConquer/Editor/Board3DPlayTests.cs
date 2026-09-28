@@ -82,7 +82,7 @@ namespace WarConquer.Editor
                 var card=PrototypeScenario.Take(ui.Game,0,"alligator-revengeful-bite");ui.Game.State.Active.hand.Add(card);ui.Game.State.Active.currentEnergy=5;Invoke(ui,"SelectCard",card,ui.Game.State.Active);
                 int target=ui.Game.CardTargets(ui.Game.Catalog[card.cardId]).First(id=>world.Pick(world.ViewportOf(id))==id);
                 Click(world,input,target);Check(ui.Game.State.tiles[target].unit!=null&&ui.Game.State.Active.currentEnergy==0,"El clic 3D no coloca ni paga la carta.");
-                var piece=ui.Game.State.tiles[target].unit;ui.Game.AdvanceStage();ui.Game.AdvanceStage();Click(world,input,target,.9f);
+                var piece=ui.Game.State.tiles[target].unit;ui.Game.AdvanceStage();Click(world,input,target,.9f);
                 int destination=MovementManager.Paths(ui.Game,piece).Keys.First(id=>world.Pick(world.ViewportOf(id))==id);
                 Click(world,input,destination);Check(piece.tileId==destination&&world.PieceCount==1,"El clic 3D no mueve la unidad.");
                 Invoke(ui,"StartMatch",true);var g=ui.Game;
