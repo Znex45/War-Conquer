@@ -51,6 +51,7 @@ namespace WarConquer
                 }
             }
             GrayboxUI.Button(body,"COMENZAR PARTIDA",26,642,1070,60,()=>StartMatch(false),GrayboxUI.Green);
+            GrayboxUI.Button(body, "VOLVER AL MENÚ", 380, 710, 360, 45, () => { CloseModal(); ShowMainMenu(); },GrayboxUI.Green);
             GrayboxUI.Text(body,"Semilla "+seed+" · Mapa "+(participants==2?"duelo":participants==3?"hexagonal":"hueso")+" · "+participants+" mazos de 50",26,720,510,25,15,GrayboxUI.Muted);
             GrayboxUI.Button(body,"Escenario de pruebas",780,715,316,35,()=>StartMatch(true));
         }
