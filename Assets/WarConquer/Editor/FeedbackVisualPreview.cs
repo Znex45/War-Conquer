@@ -50,7 +50,7 @@ namespace WarConquer.Editor
                 var audio=ui.GetComponent<ConquestAudioFeedback>();
                 if(ui.Game.State.players[0].conquestPoints<1||audio.PlayedPoints-played!=ui.Game.State.players[0].conquestPoints||audio.PendingPoints!=0)throw new Exception("La cola de sonidos no resolvió los puntos reales.");
                 EditorApplication.update-=Tick;Debug.Log("FEEDBACK_VISUAL_AUDIO_PASSED: estados renderizados y fanfarria reproducida una vez por punto real.");
-                typeof(WarConquerController).GetField("humanPlayers",Flags).SetValue(ui,1);Invoke("StartMatch",false);Invoke("ShowSetup");if(batch)EditorApplication.Exit(0);
+                XiltharVisualPreview.Begin(ui,batch);
             }
             catch(Exception e){EditorApplication.update-=Tick;Debug.LogException(e);if(batch)EditorApplication.Exit(1);}
         }

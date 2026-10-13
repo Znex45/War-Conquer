@@ -10,6 +10,7 @@ namespace WarConquer
             var s=g.State;if(s.lastStartedTurn==s.turn)return;g.ResetHistory();s.lastStartedTurn=s.turn;var p=s.Active;s.phase=Phase.Start;
             ConquestManager.ScoreStart(s,p.id);if(s.phase==Phase.Finished)return;p.turnsTaken++;
             p.maxEnergy=Math.Min(s.rules.maxEnergy,s.rules.initialEnergy+(p.turnsTaken-1)*s.rules.energyGrowth);
+            p.xilTerraformCount=0;p.xilEnergyGenerated=0;
             p.currentEnergy=p.maxEnergy;p.sahriaDeployment=false;p.firstStructureUsed=false;p.terraformDiscountUsed=false;p.towerUsed=false;p.structureDiscount=0;
             foreach(var tile in s.tiles)
             {
@@ -18,7 +19,7 @@ namespace WarConquer
             FactionCardRules.ExpireBonuses(g);
             foreach(var unit in g.Allies(p.id).ToList())
             {
-                var c=g.Data(unit);unit.attacked=false;unit.abilityUsed=false;unit.bonusAttack=0;unit.moved=false;unit.fastBonusUsed=false;
+                var c=g.Data(unit);unit.darkFlyExtraAttack=false;unit.attacked=false;unit.abilityUsed=false;unit.bonusAttack=0;unit.moved=false;unit.fastBonusUsed=false;
                 if(unit.poison>0)
                 {
                     CombatManager.PoisonDamage(g,unit,FactionCardRules.PoisonDamage(g,unit));unit.poisonTurns++;unit.poison=1;
@@ -42,6 +43,12 @@ namespace WarConquer
         }
         public static void End(GameManager g)
         {
+            g.State.endingTurn=true;XiltharRules.OnEnd(g);
+            if(g.State.pendingChoices.Count==0)CompleteEnd(g);
+        }
+        internal static void CompleteEnd(GameManager g)
+        {
+            g.State.endingTurn=false;
             var s=g.State;s.phase=Phase.End;
             foreach(var piece in BoardManager.Pieces(s))
             {if(piece.movementExpiresTurn<=s.turn){piece.remainingMovement=Math.Max(0,piece.remainingMovement-piece.temporaryMovement);piece.temporaryMovement=0;piece.movementExpiresTurn=-1;}}

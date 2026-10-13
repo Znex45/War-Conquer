@@ -8,13 +8,13 @@ namespace WarConquer
 {
     public static class CardPresentation
     {
-        public static RectTransform Draw(Transform parent,GameManager game,CardData card,Player player,float x,float y,float w,float h,bool resources=false,bool large=false,Action click=null,Action enter=null,Action exit=null,Piece piece=null)
+        public static RectTransform Draw(Transform parent,GameManager game,CardData card,Player player,float x,float y,float w,float h,bool resources=false,bool large=false,Action click=null,Action enter=null,Action exit=null,Piece piece=null,int? recastEnergy=null)
         {
             var color=GrayboxUI.PlayerColor(player.id);var quote=EnergyManager.Quote(player,card,resources);
             var root=GrayboxUI.Box(parent,card.name,x,y,w,h,Color.Lerp(color,GrayboxUI.Panel,.83f));
             GrayboxUI.Box(root,"Faction stripe",0,0,w,3,color);
             int valueSize=large?24:18;float statY=large?215:75;
-            Stat(root,"ENERGÍA",quote.EnergyLabel,9,8,w*.56f,valueSize,color);
+            Stat(root,recastEnergy.HasValue?"ENERGÍA · RECAST":"ENERGÍA",recastEnergy?.ToString()??quote.EnergyLabel,9,8,w*.56f,valueSize,color);
             Stat(root,"VIDA",card.category==Category.Spell?"—":(piece?.health??card.health).ToString(),w-66,8,58,valueSize,GrayboxUI.Ink,TextAnchor.UpperRight);
             var name=GrayboxUI.Text(root,card.name,10,large?78:42,w-20,large?78:32,large?26:14,GrayboxUI.Ink,FontStyle.Bold);name.alignment=TextAnchor.MiddleCenter;
             if(large){var glyph=GrayboxUI.Text(root,card.category==Category.Spell?"✦":card.IsStructure?"◇":"●",0,158,w,48,36,color);glyph.alignment=TextAnchor.MiddleCenter;}
@@ -28,6 +28,7 @@ namespace WarConquer
             {
                 GrayboxUI.Text(root,card.description,12,312,w-24,116,16,GrayboxUI.Ink);
                 string metadata=(card.category==Category.Spell&&card.range==0?"Objetivos según el texto de la magia":"ALC "+card.range+" · "+card.movementType)+"\n"+"LÍDER "+player.leader+" · "+card.factionTag+" · "+string.Join(" · ",card.terrainTags)+"\nBiomas: "+string.Join(" / ",card.biomes.Select(b=>Names.Biomes[(int)b]))+"\n"+quote.Detail+(card.requiresAshLand?"\nCondición: Tierra Ceniza propia y libre.":"");
+                if(recastEnergy.HasValue)metadata=metadata.Replace(quote.Detail,"Recast: "+recastEnergy.Value+" Energía (incluye recargos aplicables).");
                 GrayboxUI.Text(root,metadata,12,435,w-24,98,13,GrayboxUI.Muted);
                 GrayboxUI.Text(root,"VENTANAS DE USO\n"+TimingRules.Description(card),12,539,w-24,h-545,13,color);
             }

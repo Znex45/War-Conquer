@@ -10,7 +10,7 @@ namespace WarConquer
         public static bool NoBoardTarget(CardData c)=>c.category==Category.Spell&&c.effects.FirstOrDefault()?.target=="Self";
         public static int MinTargets(CardData c)=>NoBoardTarget(c)?0:c.effects.Any(e=>e.operation=="Engage"||e.operation=="CleansingConquest")?2:1;
         public static int MaxTargets(CardData c)=>NoBoardTarget(c)?0:c.category==Category.Spell?c.effects[0].count*(c.effects[0].operation=="March"?2:1):1;
-        public static bool CanLand(GameManager g,Piece p,HexTile t)=>p!=null&&!g.Data(p).IsStructure&&!t.blocked&&!t.BlocksMovement&&t.unit==null&&(t.baseOwner<0||t.baseOwner==p.owner||g.State.players[t.baseOwner].eliminated);
+        public static bool CanLand(GameManager g,Piece p,HexTile t,Piece vacating=null)=>p!=null&&!p.darkFlyExtraAttack&&!g.Data(p).IsStructure&&!t.blocked&&!t.BlocksMovement&&(t.unit==null||t.unit==vacating)&&(t.baseOwner<0||t.baseOwner==p.owner||g.State.players[t.baseOwner].eliminated);
         public static bool BuildExtension(GameManager g,CardData card,HexTile tile)=>card.IsStructure&&g.Allies(g.ActingPlayerId).Any(p=>g.Data(p).Has("ForestBuild")&&g.State.tiles[p.tileId].biome==Biome.Forest&&BoardManager.AxialDistance(tile,g.State.tiles[p.tileId])<=2);
         public static List<int> SpecialTargets(GameManager g,CardData card,IList<int> selected)
         {
@@ -33,6 +33,7 @@ namespace WarConquer
         public static string BlockReason(GameManager g,CardData c,CardInstance instance)
         {
             if(c.effects.Any(e=>e.operation=="DiscardDraw")&&g.ActingPlayer.hand.Count<2)return "Requiere otra carta en la mano para descartar.";
+            if(c.id=="under-the-darkness"&&!XiltharRules.DarknessCards(g,g.ActingPlayerId).Any())return "No hay Unit del descarte que puedas volver a jugar.";
             if(c.IsStructure&&c.health<=0)return "VIDA pendiente de definición para esta estructura.";
             return "";
         }
@@ -44,6 +45,7 @@ namespace WarConquer
             var t=targets.Count>0?s.tiles[targets[0]]:null;
             switch(op)
             {
+                case "UnderDarkness": XiltharRules.BeginDarkness(g,owner);break;
                 case "GenericTerraform": TerrainManager.Terraform(g,t.id,choice,owner);DeckManager.Draw(s,player,1);break;
                 case "ClearingSpace": TerrainManager.Terraform(g,t.id,Biome.Wasteland,owner);DeckManager.Draw(s,player,2);break;
                 case "CleansingConquest":
@@ -59,6 +61,7 @@ namespace WarConquer
                     var ally=t.unit;var enemy=s.tiles[targets[1]].unit;int destination=enemy.tileId;
                     if(!TerrainManager.CheckAction(g,ally,"Engage"))break;
                     CombatManager.DirectDamage(g,enemy,CombatManager.AttackValue(g,ally,enemy),ally);
+                    if(XiltharRules.PendingHit(g,enemy.id))XiltharRules.DeferEngage(g,ally,enemy,destination);
                     if(enemy.health<=0&&CanLand(g,ally,s.tiles[destination]))SpecialMove(g,ally,destination);break;
                 case "TimeToMove":
                     foreach(var unit in BoardManager.UnitsWithinRadius(s,t.id,8))
@@ -74,11 +77,12 @@ namespace WarConquer
             if(TerrainManager.CheckUnstable(g,p,g.State.tiles[p.tileId],true)&&TerrainManager.CheckUnstable(g,p,g.State.tiles[destination],false))MovementManager.Relocate(g,p,destination);
             return true;
         }
-        public static void Heal(GameManager g,Piece p,int amount){if(p!=null&&p.health>0&&!FactionCardRules.HealingBlocked(g,p))p.health=Math.Min(g.MaxHealth(p),p.health+amount);}
+        public static void Heal(GameManager g,Piece p,int amount){if(p!=null&&p.health>0&&!FactionCardRules.HealingBlocked(g,p)&&!g.Data(p).Has("EternalEye")&&!g.Data(p).Has("VoidHole"))p.health=Math.Min(g.MaxHealth(p),p.health+amount);}
         public static int ForestHealth(GameManager g,Piece p)=>(g.Data(p).Has("ForestHealth")&&g.State.tiles[p.tileId].biome==Biome.Forest?2:0)+FactionCardRules.TokenStats(g,p);
         public static int MovementAura(GameManager g,Piece p)=>g.Data(p).IsStructure?0:g.Allies(p.owner).Count(x=>g.Data(x).Has("GlobalMovement"))+FactionCardRules.SwampMovement(g,p);
         public static void SyncAuras(GameManager g)
         {
+            XiltharRules.SyncTaxes(g);
             foreach(var p in BoardManager.Pieces(g.State).ToList())
             {
                 if(p.health<=0)continue;
@@ -98,6 +102,7 @@ namespace WarConquer
         {FactionCardRules.OnPlayed(g,p);if(g.Data(p).Has("ForestDraw")&&g.State.tiles[p.tileId].biome==Biome.Forest)DeckManager.Draw(g.State,g.State.players[p.owner],1);}
         public static void OnMove(GameManager g,Piece p,Biome from)
         {
+            if(g.Data(p).Has("DarkFly"))Heal(g,p,g.MaxHealth(p));
             if(!g.Data(p).Has("ForestPanther"))return;
             var to=g.State.tiles[p.tileId].biome;
             if(from!=Biome.Forest&&to==Biome.Forest)Heal(g,p,g.MaxHealth(p));

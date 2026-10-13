@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace WarConquer
 {
-    public enum Biome { Neutral, Forest, Swamp, Tundra, Volcanic, Desert, AshLand, Wasteland }
+    public enum Biome { Neutral, Forest, Swamp, Tundra, Volcanic, Desert, AshLand, Wasteland, Void }
     public enum Category { Unit, Structure, Spell, Latent }
     public enum Phase { Setup, Start, Actions, End, Finished }
     public enum TurnStage { Deployment, Terraforming, Assault }
@@ -40,6 +40,8 @@ namespace WarConquer
     {
         public int id, owner, health, tileId, remainingMovement, bonusAttack, permanentAttack;
         public string cardId;
+        public bool underDarkness, beaconDebt, darkFlyExtraAttack;
+        public int voidHoleTurn=-1;
         public bool token, attacked, abilityUsed, moved, evolved, fastBonusUsed;
         public int poison, poisonTurns, sleepUntilTurn, slow, slowUntilTurn, protectionRound = -1, forestSinceTurn = -1;
         public int poisonApplications;
@@ -88,6 +90,7 @@ namespace WarConquer
         public bool inactive, isAI, firstStructureUsed, sahriaDeployment;
         public int structureDiscount, dreamRound = -1, freeSteps;
         public int conquestPoints, pendingDraw;
+        public int xilTerraformCount, xilEnergyGenerated, opponentCardTax;
         public List<CardInstance> deck = new List<CardInstance>(), hand = new List<CardInstance>(), discardPile = new List<CardInstance>();
         public List<ResourcePool> resources = new List<ResourcePool>();
     }
@@ -106,6 +109,7 @@ namespace WarConquer
         public List<PendingChoice> pendingChoices=new List<PendingChoice>();
         public List<DiceRoll> diceRolls=new List<DiceRoll>();
         public int lastScoredRound, responsePlayer = -1;
+        public bool endingTurn;
         public TurnStage stage;
         public VictoryReason victoryReason;
         public PendingBattle battle;
@@ -136,8 +140,8 @@ namespace WarConquer
     }
     public static class Names
     {
-        public static readonly string[] Biomes = { "Neutro", "Bosque", "Pantano", "Tundra", "Volcánico", "Desierto", "Tierra Ceniza", "Yermo" };
+        public static readonly string[] Biomes = { "Neutro", "Bosque", "Pantano", "Tundra", "Volcánico", "Desierto", "Tierra Ceniza", "Yermo", "Void" };
         public static readonly string[] Categories = { "Unidad", "Estructura", "Magia", "Latente" };
-        public static string BiomeTag(Biome b) => new[] { "", "BOSQUE", "PANTANO", "TUNDRA", "VOLCANICO", "DESIERTO", "CENIZA", "YERMO" }[(int)b];
+        public static string BiomeTag(Biome b) => new[] { "", "BOSQUE", "PANTANO", "TUNDRA", "VOLCANICO", "DESIERTO", "CENIZA", "YERMO", "VOID" }[(int)b];
     }
 }

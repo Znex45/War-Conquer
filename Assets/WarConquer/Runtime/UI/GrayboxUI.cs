@@ -13,7 +13,7 @@ namespace WarConquer
         static Font font;
         public static Font Font => font ? font : (font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
         public static string[] PlayerLeaders={"ZUKGROK","SAHRIA","ZUKGROK","SAHRIA"};
-        public static Color PlayerColor(int id)=>PlayerLeaders[id]=="ZUKGROK"?Purple:PlayerLeaders[id]=="FAUNAR"?Green:Yellow;
+        public static Color PlayerColor(int id)=>PlayerLeaders[id]=="XIL'THAR"?new Color32(101,201,241,255):PlayerLeaders[id]=="ZUKGROK"?Purple:PlayerLeaders[id]=="FAUNAR"?Green:Yellow;
         // Starting territory identity is independent of biome and of the chosen deck.
         public static Color TerritoryColor(int id)=>new[]{new Color32(108,143,64,255),new Color32(196,148,52,255),new Color32(167,72,65,255),new Color32(55,125,171,255),new Color32(126,116,97,255)}[id];
         public static RectTransform Rect(Transform parent,string name,float x,float y,float w,float h)
@@ -38,7 +38,7 @@ namespace WarConquer
             var t=Text(r,label,5,3,w-10,h-6,15,enabled?ActionInk:new Color32(117,132,153,255));t.alignment=TextAnchor.MiddleCenter;return b;
         }
         public static void Clear(Transform root){for(int i=root.childCount-1;i>=0;i--){var go=root.GetChild(i).gameObject;go.SetActive(false);UnityEngine.Object.Destroy(go);}}
-        public static Color BiomeColor(Biome b)=>new[]{new Color32(65,74,84,255),new Color32(44,99,74,255),new Color32(53,83,91,255),new Color32(116,162,179,255),new Color32(141,67,52,255),new Color32(151,124,59,255),new Color32(83,49,102,255),new Color32(99,93,88,255)}[(int)b];
+        public static Color BiomeColor(Biome b)=>new[]{new Color32(65,74,84,255),new Color32(44,99,74,255),new Color32(53,83,91,255),new Color32(116,162,179,255),new Color32(141,67,52,255),new Color32(151,124,59,255),new Color32(83,49,102,255),new Color32(99,93,88,255),new Color32(31,36,76,255)}[(int)b];
     }
     [RequireComponent(typeof(CanvasRenderer))]
     public class HexGraphic : MaskableGraphic, IPointerClickHandler

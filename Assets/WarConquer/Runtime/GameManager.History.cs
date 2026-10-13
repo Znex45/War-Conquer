@@ -11,7 +11,7 @@ namespace WarConquer
         bool resolvingDecision;
         public int UndoCount=>SameHistoryTurn?turnHistory.Count:0;
         bool SameHistoryTurn=>State!=null&&State.turn==historyTurn&&State.activePlayer==historyPlayer;
-        public bool CanUndo=>UndoCount>0&&!State.Active.isAI&&decisionDepth==0
+        public bool CanUndo=>UndoCount>0&&!State.endingTurn&&!State.Active.isAI&&decisionDepth==0
             &&(State.phase==Phase.Actions||State.phase==Phase.Finished);
         internal bool IsCurrentPiece(Piece piece)=>piece!=null&&piece.tileId>=0&&piece.tileId<State.tiles.Count
             &&(State.tiles[piece.tileId].unit==piece||State.tiles[piece.tileId].structure==piece);
@@ -37,6 +37,7 @@ namespace WarConquer
             {
                 bool success=action();
                 if(State.turn!=turn||State.activePlayer!=player||State!=originalState)ResetHistory();
+                else if(State.endingTurn)ResetHistory();
                 else if(success&&before!=GamePersistence.Serialize(State))
                 {
                     if(!continuing)turnHistory.Push(before);

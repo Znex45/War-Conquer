@@ -236,6 +236,7 @@ namespace WarConquer.Editor
             FaunarRulesTests.RunAll(CardCatalog.Load(),Test);
             FactionRulesTests.RunAll(CardCatalog.Load(),Test);
             TurnHistoryTests.RunAll(CardCatalog.Load(),Test);
+            XiltharRulesTests.RunAll(Test);
             Debug.Log("WAR_CONQUER_TESTS_PASSED "+passed);
             string report=Environment.GetEnvironmentVariable("WAR_CONQUER_TEST_REPORT");if(!string.IsNullOrEmpty(report))System.IO.File.WriteAllText(report,string.Join("\n",results)+"\nTOTAL "+passed+" passed\n");
         }

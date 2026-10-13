@@ -9,7 +9,7 @@ namespace WarConquer
     public class CardCatalog
     {
         readonly Dictionary<string, CardData> cards;
-        public static readonly string[] Leaders={"ZUKGROK","SAHRIA","FAUNAR"};
+        public static readonly string[] Leaders={"ZUKGROK","SAHRIA","FAUNAR","XIL'THAR"};
         public IEnumerable<CardData> All => cards.Values;
         public CardData this[string id] => cards[id];
         public bool HasDeckDefinitions => cards.Values.Any(c=>c.deckCopies!=null&&c.deckCopies.Length>0);
@@ -18,7 +18,7 @@ namespace WarConquer
         public CardCatalog(IEnumerable<CardData> source)
         {
             cards = source.ToDictionary(c => c.id);
-            foreach(string leader in Leaders)
+            foreach(string leader in Leaders.Where(l=>l!="XIL'THAR"||cards.ContainsKey("the-eternal-eye")))
             {
                 var deck=Deck(leader).ToArray();
                 if(deck.Sum(c=>Copies(leader,c))!=50) throw new InvalidOperationException(leader+": el mazo debe tener exactamente 50 cartas.");

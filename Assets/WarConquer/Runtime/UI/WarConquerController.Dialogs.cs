@@ -44,10 +44,10 @@ namespace WarConquer
                 GrayboxUI.Text(row,humanPlayers==1&&i==1?"Rival automático":"Persona",12,44,195,22,14,GrayboxUI.Muted);
                 foreach(string deck in CardCatalog.Leaders)
                 {
-                    bool fungus=deck=="ZUKGROK",chosen=leaders[id]==deck;var color=fungus?GrayboxUI.Purple:deck=="FAUNAR"?GrayboxUI.Green:GrayboxUI.Yellow;
-                    float x=225+System.Array.IndexOf(CardCatalog.Leaders,deck)*278;
-                    GrayboxUI.Button(row,(chosen?"✓ ":"")+deck+" · 50 cartas",x,8,264,34,()=>{leaders[id]=deck;ShowSetup();},Color.Lerp(color,GrayboxUI.Panel,chosen?0f:.65f));
-                    GrayboxUI.Text(row,fungus?"Pantano · Tokens y veneno":deck=="FAUNAR"?"Bosque · Animales y estructuras":"Desierto · Control del terreno",x+7,49,255,24,12,color);
+                    bool fungus=deck=="ZUKGROK",chosen=leaders[id]==deck;Color color=deck=="XIL'THAR"?(Color)new Color32(101,201,241,255):fungus?GrayboxUI.Purple:deck=="FAUNAR"?GrayboxUI.Green:GrayboxUI.Yellow;
+                    float x=225+System.Array.IndexOf(CardCatalog.Leaders,deck)*208;
+                    GrayboxUI.Button(row,(chosen?"✓ ":"")+deck+" · 50 cartas",x,8,199,34,()=>{leaders[id]=deck;ShowSetup();},Color.Lerp(color,GrayboxUI.Panel,chosen?0f:.65f));
+                    GrayboxUI.Text(row,deck=="XIL'THAR"?"Void · Portales y retorno":fungus?"Pantano · Tokens y veneno":deck=="FAUNAR"?"Bosque · Animales y estructuras":"Desierto · Control del terreno",x+7,49,194,24,11,color);
                 }
             }
             GrayboxUI.Button(body,"COMENZAR PARTIDA",26,642,1070,60,()=>StartMatch(false),GrayboxUI.Green);
@@ -85,6 +85,7 @@ namespace WarConquer
         void ShowLeaderDetails(Player player)
         {
             bool fungus=player.leader=="ZUKGROK";var body=OpenModal(player.leader+" · HABILIDAD DEL LÍDER");
+            if(player.leader=="XIL'THAR"){DrawXiltharDetails(body,player);return;}
             if(player.leader=="FAUNAR")
             {
                 GrayboxUI.Text(body,"FAUNAR · PRIMERA ESTRUCTURA",40,115,1030,60,29,GrayboxUI.Green,FontStyle.Bold);

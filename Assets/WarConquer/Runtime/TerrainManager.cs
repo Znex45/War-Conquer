@@ -8,9 +8,11 @@ namespace WarConquer
         public static void Terraform(GameManager g,int tile,Biome biome,int owner)
         {
             var t=g.State.tiles[tile];
-            if(t.permanentAsh||t.blocked||(t.unit!=null&&t.unit.owner!=owner)||(t.structure!=null&&t.structure.owner!=owner)||(t.baseOwner>=0&&t.baseOwner!=owner&&!g.State.players[t.baseOwner].eliminated))return;
+            if(t.permanentAsh||t.blocked||(t.unit!=null&&t.unit.owner!=owner&&!XiltharRules.EyeTerraformException(g,t,owner))||(t.structure!=null&&t.structure.owner!=owner)||(t.baseOwner>=0&&t.baseOwner!=owner&&!g.State.players[t.baseOwner].eliminated))return;
+            bool changed=t.biome!=biome;
             t.biome=biome; t.owner=owner; t.setBy=owner; t.specialEffect=null;
             if(t.unit!=null) t.unit.forestSinceTurn=biome==Biome.Forest?g.State.turn:-1;
+            if(changed)XiltharRules.OnTerraform(g,owner);
             MaintainRoutes(g);GenericCardRules.SyncAuras(g);ConquestManager.Refresh(g.State); g.State.Log("Hex "+(tile+1)+" → "+Names.Biomes[(int)biome]);
         }
         public static void DestroyBiome(GameManager g,HexTile t)
