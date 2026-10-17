@@ -1,0 +1,810 @@
+{
+  "leaders": [
+    {
+      "name": "Sahria",
+      "rig": "armature1",
+      "meshes": 41,
+      "materials": [
+        {
+          "name": "ropasahoscuro",
+          "metallic": 0.0,
+          "roughness": 0.8879310488700867,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "Calzado",
+          "metallic": 0.0,
+          "roughness": 0.8402948379516602,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "falda",
+          "metallic": 0.0,
+          "roughness": 0.8965517282485962,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "cristalemision",
+          "metallic": 0,
+          "roughness": 0.5,
+          "emission": [
+            1.0,
+            0.8198328018188477,
+            0.0,
+            1.0
+          ],
+          "emissionStrength": 3.299999952316284
+        },
+        {
+          "name": "piedraoscura",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "oro",
+          "metallic": 0.0,
+          "roughness": 0.5,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "maquillaje2",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "correaalta",
+          "metallic": 0.0,
+          "roughness": 0.7581818103790283,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "ropasahria",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "pelaje oscuro",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "vestido",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "pesta\u00f1as",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "Material.008",
+          "metallic": 0.0,
+          "roughness": 0.7068965435028076,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "mantaAzul",
+          "metallic": 0.0,
+          "roughness": 0.9310344457626343,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "ojoClara",
+          "metallic": 0.0,
+          "roughness": 0.5,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "orejas sahria",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "pupila",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "orooscuro",
+          "metallic": 0.0,
+          "roughness": 0.5,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "correabaja",
+          "metallic": 0.0,
+          "roughness": 0.8210811018943787,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "sahriapelaje",
+          "metallic": 0.0,
+          "roughness": 0.8275861740112305,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "joyaazul",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "colasahria",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "oidosahria",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "piedra",
+          "metallic": 0.0,
+          "roughness": 0.9913793206214905,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "maquillaje",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        }
+      ],
+      "missingTextures": [],
+      "idleBones": [
+        "columna1",
+        "cabeza"
+      ],
+      "originalBounds": [
+        [
+          -13.235051155090332,
+          29.887346267700195,
+          0.12693209946155548
+        ],
+        [
+          -10.890166282653809,
+          31.452255249023438,
+          2.3059260845184326
+        ]
+      ]
+    },
+    {
+      "name": "Faunar",
+      "rig": "Huesos faunar2",
+      "meshes": 103,
+      "materials": [
+        {
+          "name": "medalla",
+          "metallic": 0.0,
+          "roughness": 0.6891891956329346,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "Material.001",
+          "metallic": 0.0,
+          "roughness": 0.5290908813476562,
+          "emission": [
+            0.24477891623973846,
+            0.2822844684123993,
+            0.09796406328678131,
+            1.0
+          ],
+          "emissionStrength": 3.5999999046325684
+        },
+        {
+          "name": "hojas",
+          "metallic": 0.0,
+          "roughness": 0.7905405759811401,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "Pelaje2",
+          "metallic": 0.0,
+          "roughness": 0.9054054021835327,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "ojoClara",
+          "metallic": 0.0,
+          "roughness": 0.5,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "garras",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "pelaje",
+          "metallic": 0.0,
+          "roughness": 0.9054054021835327,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "pelaje caraorejas",
+          "metallic": 0.0,
+          "roughness": 0.9256756901741028,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "madera",
+          "metallic": 0.0,
+          "roughness": 0.8243243098258972,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "Material",
+          "metallic": 0.0,
+          "roughness": 0.9054054021835327,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "Material.005",
+          "metallic": 0.0,
+          "roughness": 0.9054054021835327,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "MI_Anubis_Eye.001",
+          "metallic": 0.0,
+          "roughness": 0.5,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "Calzado",
+          "metallic": 0.0,
+          "roughness": 0.8402948379516602,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "pupila",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "pelaje.001",
+          "metallic": 0.0,
+          "roughness": 0.9054054021835327,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "correaalta",
+          "metallic": 0.0,
+          "roughness": 0.7581818103790283,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "nariz",
+          "metallic": 0.0,
+          "roughness": 0.912162184715271,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "verde oscuro",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "correabaja",
+          "metallic": 0.0,
+          "roughness": 0.8210811018943787,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        }
+      ],
+      "missingTextures": [],
+      "idleBones": [
+        "spine_02",
+        "head"
+      ],
+      "originalBounds": [
+        [
+          -13.903341293334961,
+          23.559940338134766,
+          0.026841318234801292
+        ],
+        [
+          -9.855003356933594,
+          25.73407554626465,
+          2.907843589782715
+        ]
+      ]
+    },
+    {
+      "name": "Zukgrok",
+      "rig": "Armature.004",
+      "meshes": 4,
+      "materials": [
+        {
+          "name": "Material.002",
+          "metallic": 0.0,
+          "roughness": 0.5625,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "Material.001",
+          "metallic": 0.0,
+          "roughness": 0.5290908813476562,
+          "emission": [
+            0.24477891623973846,
+            0.2822844684123993,
+            0.09796406328678131,
+            1.0
+          ],
+          "emissionStrength": 3.5999999046325684
+        },
+        {
+          "name": "Material.004",
+          "metallic": 0.0,
+          "roughness": 0.5,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "Material.003",
+          "metallic": 0.0,
+          "roughness": 0.5763636231422424,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        }
+      ],
+      "missingTextures": [
+        "shroom_Base_Color2.png"
+      ],
+      "idleBones": [
+        "Bone.003",
+        "Bone.004"
+      ],
+      "originalBounds": [
+        [
+          -13.235766410827637,
+          20.0246639251709,
+          -0.4850459396839142
+        ],
+        [
+          -10.420632362365723,
+          23.485172271728516,
+          3.5047495365142822
+        ]
+      ]
+    },
+    {
+      "name": "Xilthar",
+      "rig": "Armature.006",
+      "meshes": 40,
+      "materials": [
+        {
+          "name": "masaoscura",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "ojo",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "anillo2",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "diamante5",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "diamond4",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "pupila",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "diamante6",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "diamante2",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "anilloroca",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "Material.007",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        },
+        {
+          "name": "diamonds",
+          "metallic": 0.0,
+          "roughness": 1.0,
+          "emission": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissionStrength": 0.0
+        }
+      ],
+      "missingTextures": [],
+      "idleBones": [
+        "Bone.001",
+        "Bone.002"
+      ],
+      "originalBounds": [
+        [
+          -12.59328842163086,
+          26.434776306152344,
+          0.5605156421661377
+        ],
+        [
+          -11.136615753173828,
+          29.11439323425293,
+          3.959885597229004
+        ]
+      ]
+    }
+  ]
+}
