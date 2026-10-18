@@ -14,7 +14,7 @@ namespace WarConquer
         }
         public static Piece Spawn(GameManager g,int player,string cardId,int tile)
         {var card=Take(g,player,cardId);g.State.tiles[tile].owner=player;return g.Place(cardId,player,tile,card.instanceId,false);}
-        public static string DemoUnit(string leader)=>leader=="FAUNAR"?"charming-mongoose":leader=="SAHRIA"?"dune-cammel":"alligator-revengeful-bite";
+        public static string DemoUnit(string leader)=>leader=="XIL'THAR"?"crystal-minion":leader=="FAUNAR"?"charming-mongoose":leader=="SAHRIA"?"dune-cammel":"alligator-revengeful-bite";
         public static void Load(GameManager g)
         {
             var s=g.State;s.rules.initialEnergy=10;
@@ -26,9 +26,10 @@ namespace WarConquer
                 string[] hand=faunar?new[]{"terraform","charming-mongoose","berry-bush","bober-reinforcer","ferret-eluding-hunter","panther-stealthy-assassin","bomb","time-to-move"}:fungus?new[]{"brote-repentino","bestia-micelial","semillero-micelial","espora-somnifera","red-micelial","rey-micelial","nube-de-esporas","marcha-micelial"}:
                     new[]{"nomada-de-arena","terraformacion-solar","erosion","arena-profunda","ruptura-del-terreno","titan-de-ceniza","mar-de-arena","obelisco-solar"};
                 if(g.Catalog.HasDeckDefinitions&&!faunar)hand=fungus?new[]{"terraform","clearing-space","frogpit","micelium-root","firefly-nest","lushroom","alligator-revengeful-bite","bomb"}:new[]{"terraform","clearing-space","sandy-anthill","sandy-ember","dune-cammel","old-mummy","wandering-beast","baby-phoenix"};
+                if(player.leader=="XIL'THAR")hand=new[]{"terraform","clearing-space","crystal-minion","dark-fly","portal","void-beacon","insolator","under-the-darkness"};
                 foreach(var id in hand){var c=Take(g,player.id,id);player.hand.Add(c);}
                 var home=s.tiles.Where(t=>t.owner==player.id&&t.baseOwner<0).Take(5).ToList();
-                foreach(var t in home){t.biome=faunar?Biome.Forest:fungus?Biome.Swamp:Biome.Desert;t.setBy=player.id;}
+                foreach(var t in home){t.biome=player.leader=="XIL'THAR"?Biome.Void:faunar?Biome.Forest:fungus?Biome.Swamp:Biome.Desert;t.setBy=player.id;}
                 home[4].biome=Biome.AshLand;
             }
             Func<int,int,HexTile> central=(q,r)=>s.tiles.First(t=>t.territory==4&&t.q==q&&t.r==r);
@@ -37,8 +38,8 @@ namespace WarConquer
             if(g.Catalog.HasDeckDefinitions)
             {Spawn(g,0,DemoUnit(s.players[0].leader),a);Spawn(g,1,DemoUnit(s.players[1].leader),b);}
             else
-            {Spawn(g,0,s.players[0].leader=="FAUNAR"?"charming-mongoose":s.players[0].leader=="ZUKGROK"?"bestia-micelial":"nomada-de-arena",a);
-            Spawn(g,1,s.players[1].leader=="FAUNAR"?"charming-mongoose":s.players[1].leader=="SAHRIA"?"nomada-de-arena":"bestia-micelial",b);
+            {Spawn(g,0,s.players[0].leader=="XIL'THAR"?"crystal-minion":s.players[0].leader=="FAUNAR"?"charming-mongoose":s.players[0].leader=="ZUKGROK"?"bestia-micelial":"nomada-de-arena",a);
+            Spawn(g,1,s.players[1].leader=="XIL'THAR"?"crystal-minion":s.players[1].leader=="FAUNAR"?"charming-mongoose":s.players[1].leader=="SAHRIA"?"nomada-de-arena":"bestia-micelial",b);
             }
             if(!g.Catalog.HasDeckDefinitions&&s.players[0].leader=="ZUKGROK")
             {

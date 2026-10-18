@@ -34,7 +34,10 @@ namespace WarConquer
             if(guard&&p.protectionRound==g.State.round)list.Add(new StatusIndicator("guard-used","ESCUDO USADO",new Color(.55f,.53f,.46f)));
             if(p.evolved)list.Add(new StatusIndicator("evolved","EVOLUCIÓN",new Color(.91f,.55f,1)));
             else if(c.Has("Evolve")&&p.forestSinceTurn>=0&&t.biome==Biome.Forest)list.Add(new StatusIndicator("growing","CRECIENDO",new Color(.58f,.95f,.3f)));
-            if(FactionCardRules.HealingBlocked(g,p))list.Add(new StatusIndicator("no-heal","NO CURA",new Color(1,.3f,.38f)));
+            if(FactionCardRules.HealingBlocked(g,p)||c.Has("EternalEye")||c.Has("VoidHole"))list.Add(new StatusIndicator("no-heal","NO CURA",new Color(1,.3f,.38f)));
+            if(!XiltharRules.CanTarget(g,p))list.Add(new StatusIndicator("void-immune","INOBJETIVO",new Color(.4f,.7f,1)));
+            if(p.underDarkness)list.Add(new StatusIndicator("darkness","VOID O MUERTE",new Color(.65f,.45f,1)));
+            if(p.beaconDebt)list.Add(new StatusIndicator("beacon-debt","PAGO O MUERTE",new Color(1,.64f,.32f)));
             if(t.specialEffect!=null&&c.movementType!="Flying"&&!c.Has("IgnoreUnstable")&&!c.Tag(t.specialEffect.compatibleTag))list.Add(new StatusIndicator("unstable","D6 "+t.specialEffect.threshold+"+",new Color(1,.72f,.2f)));
             return list;
         }

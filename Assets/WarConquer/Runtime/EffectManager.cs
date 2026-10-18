@@ -7,6 +7,8 @@ namespace WarConquer
     public static class EffectManager
     {
         public static void ResolveSpell(GameManager g,CardData card,IList<int> targets,Biome choice)
+            =>g.ForPlayer(g.ActingPlayerId,()=>{ResolveSpellCore(g,card,targets,choice);return true;});
+        static void ResolveSpellCore(GameManager g,CardData card,IList<int> targets,Biome choice)
         {
             if(GenericCardRules.Resolve(g,card,targets,choice))return;
             var s=g.State;
@@ -67,7 +69,7 @@ namespace WarConquer
             var c=g.Data(p);var t=g.State.tiles[p.tileId];
             if(c.Has("EnterPoison")&&t.biome==Biome.Forest&&t.owner==p.owner)
             {
-                var enemy=BoardManager.Nearby(g.State,t.id).FirstOrDefault(a=>a.owner!=p.owner&&!g.Data(a).IsStructure);
+                var enemy=BoardManager.Nearby(g.State,t.id).FirstOrDefault(a=>a.owner!=p.owner&&!g.Data(a).IsStructure&&XiltharRules.CanTarget(g,a));
                 if(enemy!=null)Poison(g,enemy,1,p.owner);
             }
             if(c.Has("RevealResource")&&t.territory==4&&t.hiddenResource){t.hiddenResource=false;t.resource=2;g.State.Log("Recurso oculto revelado: +2 en hex "+(t.id+1));}

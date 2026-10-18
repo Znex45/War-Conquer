@@ -45,12 +45,12 @@ namespace WarConquer
                     GrayboxUI.Button(box,"+1 paso",202,187,98,29,()=>Begin("step"),null,Game.ActingPlayer.freeSteps>0);
                 }
                 else if(instance!=null)GrayboxUI.Text(box,viewedPlayer!=Game.ActingPlayerId?"Consulta de otra mano.":Game.CardBlockReason(instance,useResources),0,188,300,38,12,GrayboxUI.Yellow);
-                if(selectedPiece!=null)GrayboxUI.Text(box,Game.IsSleeping(selectedPiece)?"DORMIDO · No puede mover ni atacar":!FactionCardRules.CanAttack(Game,selectedPiece)?"NO ATACA EL TURNO EN QUE SE JUEGA":selectedPiece.attacked?"ATAQUE YA USADO":CombatManager.Targets(Game,selectedPiece).Count>0?"PUEDE ATACAR": "SIN ATAQUE DISPONIBLE",0,218,300,18,11,Game.IsSleeping(selectedPiece)?GrayboxUI.Yellow:GrayboxUI.Green);
+                if(selectedPiece!=null)GrayboxUI.Text(box,Game.IsSleeping(selectedPiece)?"DORMIDO · No puede mover ni atacar":!FactionCardRules.CanAttack(Game,selectedPiece)?"NO ATACA EL TURNO EN QUE SE JUEGA":selectedPiece.attacked&&!XiltharRules.CanSecondAttack(Game,selectedPiece)?"ATAQUE YA USADO":CombatManager.Targets(Game,selectedPiece).Count>0?XiltharRules.CanSecondAttack(Game,selectedPiece)?"SEGUNDO ATAQUE · REEMPLAZA MOV":"PUEDE ATACAR": "SIN ATAQUE DISPONIBLE",0,218,300,18,11,Game.IsSleeping(selectedPiece)?GrayboxUI.Yellow:GrayboxUI.Green);
             }
             else if(mode=="terraform")
             {
                 GrayboxUI.Text(box,"Elige bioma y casilla",0,33,300,34,21,GrayboxUI.Ink,FontStyle.Bold);
-                var biomes=new[]{Biome.Forest,Biome.Swamp,Biome.Desert,Biome.Tundra,Biome.Volcanic,Biome.Wasteland};
+                var biomes=new[]{Biome.Forest,Biome.Swamp,Biome.Desert,Biome.Tundra,Biome.Volcanic,Biome.Wasteland,Biome.Void};
                 for(int i=0;i<biomes.Length;i++){var biome=biomes[i];GrayboxUI.Button(box,Names.Biomes[(int)biome],(i%2)*153,76+(i/2)*35,147,30,()=>{chosenBiome=biome;Render();},chosenBiome==biome?GrayboxUI.BiomeColor(biome):edge);}
                 GrayboxUI.Text(box,"Coste: "+Game.TerraformCost(chosenBiome)+" E"+(Game.TerraformCost(chosenBiome)<s.rules.terraformCost?" ("+s.rules.terraformCost+" original)":""),0,190,300,25,13,GrayboxUI.Muted);
             }
@@ -62,7 +62,7 @@ namespace WarConquer
                 GrayboxUI.Text(box,info,0,102,300,96,14,GrayboxUI.Muted);
             }
             if(targets.Count>0&&(mode=="card"||mode=="leader"||mode=="ability"))GrayboxUI.Button(box,"Resolver selección ("+targets.Count+")",0,189,300,31,Confirm,Color.Lerp(GrayboxUI.Green,GrayboxUI.Panel,.6f));
-            if(mode=="card"&&card?.id=="terraform")GrayboxUI.Button(box,Names.Biomes[(int)chosenBiome],199,153,101,28,()=>{var list=new[]{Biome.Forest,Biome.Swamp,Biome.Tundra,Biome.Volcanic,Biome.Desert,Biome.Wasteland};chosenBiome=list[(System.Array.IndexOf(list,chosenBiome)+1)%list.Length];Render();});
+            if(mode=="card"&&card?.id=="terraform")GrayboxUI.Button(box,Names.Biomes[(int)chosenBiome],199,153,101,28,()=>{var list=new[]{Biome.Forest,Biome.Swamp,Biome.Tundra,Biome.Volcanic,Biome.Desert,Biome.Wasteland,Biome.Void};chosenBiome=list[(System.Array.IndexOf(list,chosenBiome)+1)%list.Length];Render();});
             if(mode=="card"&&card!=null&&card.effects.Any(e=>e.biome=="ChooseForestSwamp"))GrayboxUI.Button(box,Names.Biomes[(int)chosenBiome],199,153,101,28,()=>{chosenBiome=chosenBiome==Biome.Forest?Biome.Swamp:Biome.Forest;Render();});
             GrayboxUI.Text(box,Game.LastMessage,0,232,300,45,12,GrayboxUI.Yellow);
         }

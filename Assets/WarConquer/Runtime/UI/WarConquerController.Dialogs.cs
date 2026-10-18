@@ -70,16 +70,35 @@ namespace WarConquer
 
                 if (showKind)
                 {
-                    var playerKind = GrayboxUI.Text(row, i == 1 ? "IA" : "Persona", 14, rowH / 2, 120, 26, 15, GrayboxUI.Muted);
-                    playerKind.horizontalOverflow = HorizontalWrapMode.Overflow;
-                }
 
-                foreach (string deck in CardCatalog.Leaders)
-                {
-                    bool fungus = deck == "ZUKGROK", chosen = leaders[id] == deck; var color = fungus ? GrayboxUI.Purple : deck == "FAUNAR" ? GrayboxUI.Green : GrayboxUI.Yellow;
-                    float x = cardX0 + System.Array.IndexOf(CardCatalog.Leaders, deck) * (cardW + cardGap);
-                    string info = fungus ? "Pantano · Tokens y veneno" : deck == "FAUNAR" ? "Bosque · Animales y estructuras" : "Desierto · Control del terreno";
-                    SkinDeckCard(row, deck, deck, info, x, 8, cardW, cardH, () => { leaders[id] = deck; ShowSetup(); }, chosen, color, titleSize, detailSize);
+var playerKind = GrayboxUI.Text(row, i == 1 ? "IA" : "Persona", 14, rowH / 2, 120, 26, 15, GrayboxUI.Muted);
+playerKind.horizontalOverflow = HorizontalWrapMode.Overflow;
+}
+
+foreach (string deck in CardCatalog.Leaders)
+{
+    bool fungus = deck == "ZUKGROK";
+    bool chosen = leaders[id] == deck;
+
+    Color color = deck == "XIL'THAR"
+        ? (Color)new Color32(101, 201, 241, 255)
+        : fungus ? GrayboxUI.Purple
+        : deck == "FAUNAR" ? GrayboxUI.Green
+        : GrayboxUI.Yellow;
+
+    float x = cardX0 + System.Array.IndexOf(CardCatalog.Leaders, deck) * (cardW + cardGap);
+
+    string info = deck == "XIL'THAR"
+        ? "Void · Portales y retorno"
+        : fungus ? "Pantano · Tokens y veneno"
+        : deck == "FAUNAR" ? "Bosque · Animales y estructuras"
+        : "Desierto · Control del terreno";
+
+    SkinDeckCard(row, deck, deck, info, x, 8, cardW, cardH,
+        () => { leaders[id] = deck; ShowSetup(); },
+        chosen, color, titleSize, detailSize);
+}
+
                 }
             }
 
@@ -130,8 +149,18 @@ namespace WarConquer
         }
         void ShowLeaderDetails(Player player)
         {
-            bool fungus = player.leader == "ZUKGROK"; var body = OpenModal(player.leader + " · HABILIDAD DEL LÍDER");
-            if (player.leader == "FAUNAR")
+
+bool fungus = player.leader == "ZUKGROK";
+var body = OpenModal(player.leader + " · HABILIDAD DEL LÍDER");
+
+if (player.leader == "XIL'THAR")
+{
+    DrawXiltharDetails(body, player);
+    return;
+}
+
+if (player.leader == "FAUNAR")
+
             {
                 GrayboxUI.Text(body, "FAUNAR · PRIMERA ESTRUCTURA", 40, 115, 1030, 60, 29, GrayboxUI.Green, FontStyle.Bold);
                 GrayboxUI.Text(body, "Pasiva sin coste. La primera Structure de tu turno cuesta 1 Energía menos (mínimo 0). No se acumula, no afecta Units ni Spells. Se reinicia al comenzar tu siguiente turno.", 40, 223, 1010, 190, 27, GrayboxUI.Ink);

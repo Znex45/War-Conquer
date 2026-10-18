@@ -887,7 +887,7 @@ namespace WarConquer
 
             if (
                 s.pendingChoices.Count > 0 &&
-                s.pendingChoices[0].kind == "Discard" &&
+                (s.pendingChoices[0].kind == "Discard"||s.pendingChoices[0].kind == "DarknessPick") &&
                 !Game.ActingPlayer.isAI
             )
             {

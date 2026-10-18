@@ -124,9 +124,10 @@ namespace WarConquer
                     v.baseOwner=t.baseOwner;v.baseLeader=baseLeader;
                     if(t.baseOwner>=0)
                     {
-                        v.baseModel=mesh.Group(v.root,"BASE J"+(t.baseOwner+1),Vector3.up*BoardMeshFactory.Surface);mesh.Castle(v.baseModel,GrayboxUI.PlayerColor(t.baseOwner));
-                        var pick=v.baseModel.gameObject.AddComponent<BoxCollider>();pick.center=new Vector3(0,.58f,0);pick.size=new Vector3(.9f,1.2f,.85f);v.baseModel.gameObject.AddComponent<Hex3DTarget>().tileId=t.id;
-                        v.baseLabel=mesh.Label(v.baseModel,"Líder y Conquista",new Vector3(0,1.5f,0),.064f,GrayboxUI.PlayerColor(t.baseOwner));labels.Add(v.baseLabel);
+                        v.baseModel=mesh.Group(v.root,"BASE J"+(t.baseOwner+1),Vector3.up*BoardMeshFactory.Surface);
+                        if(!LeaderModels.Spawn(v.baseModel,baseLeader))mesh.Castle(v.baseModel,GrayboxUI.PlayerColor(t.baseOwner));
+                        var pick=v.baseModel.gameObject.AddComponent<BoxCollider>();pick.center=new Vector3(0,1.15f,0);pick.size=new Vector3(1.2f,2.4f,1.2f);v.baseModel.gameObject.AddComponent<Hex3DTarget>().tileId=t.id;
+                        v.baseLabel=mesh.Label(v.baseModel,"Líder y Conquista",new Vector3(0,2.6f,0),.064f,GrayboxUI.PlayerColor(t.baseOwner));labels.Add(v.baseLabel);
                     }
                 }
                 if(t.baseOwner>=0)

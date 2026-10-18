@@ -44,11 +44,11 @@ namespace WarConquer
         public int ActingPlayerId=>queryPlayer>=0?queryPlayer:State.pendingChoices.Count>0?State.pendingChoices[0].owner:State.battle!=null?State.battle.priorityPlayer:State.responsePlayer>=0?State.responsePlayer:State.activePlayer;
         public Player ActingPlayer=>State.players[ActingPlayerId];
         internal T ForPlayer<T>(int player,Func<T> query){int previous=queryPlayer;queryPlayer=player;try{return query();}finally{queryPlayer=previous;}}
-        public bool CanTakeTurnAction(TurnStage stage)=>CanAct&&State.pendingChoices.Count==0&&State.battle==null&&State.responsePlayer<0&&ActingPlayerId==State.activePlayer&&State.stage==stage;
+        public bool CanTakeTurnAction(TurnStage stage)=>CanAct&&!State.endingTurn&&State.pendingChoices.Count==0&&State.battle==null&&State.responsePlayer<0&&ActingPlayerId==State.activePlayer&&State.stage==stage;
         public bool AdvanceStage() => this.Decide(() => AdvanceStageCore());
         bool AdvanceStageCore()
         {
-            if(!CanAct||State.pendingChoices.Count>0||State.battle!=null||State.responsePlayer>=0)return Fail("Resuelve la intervención antes de continuar.");
+            if(!CanAct||State.endingTurn||State.pendingChoices.Count>0||State.battle!=null||State.responsePlayer>=0)return Fail("Resuelve la intervención antes de continuar.");
             if(State.stage==TurnStage.Terraforming)return EndTurn();
             State.stage=State.stage==TurnStage.Deployment?TurnStage.Assault:TurnStage.Terraforming;Notify("Etapa de "+TimingRules.StageName(State.stage)+".");return true;
         }
@@ -69,6 +69,7 @@ namespace WarConquer
         {
             var t=State.tiles[tile];
             if(t.blocked || t.permanentAsh || t.biome==Biome.AshLand || (t.baseOwner>=0&&t.baseOwner!=ActingPlayerId&&!State.players[t.baseOwner].eliminated)) return false;
+            if(XiltharRules.EyeTerraformException(this,t,ActingPlayerId))return true;
             if((t.unit!=null&&t.unit.owner!=ActingPlayerId)||(t.structure!=null&&t.structure.owner!=ActingPlayerId)) return false;
             return t.owner==ActingPlayerId || t.neighbors.Any(n=>State.tiles[n].owner==ActingPlayerId);
         }
@@ -79,6 +80,7 @@ namespace WarConquer
             var c=Catalog[instance.cardId];
             if(!TimingRules.CardAllowed(this,c))return "Ventana no permitida. "+TimingRules.Description(c);
             if(!EnergyManager.CanPay(ActingPlayer,c,resources)) return "Energía insuficiente.";
+            if(c.id=="under-the-darkness"&&ActingPlayer.currentEnergy<EnergyManager.Quote(ActingPlayer,c,resources).energy+ActingPlayer.opponentCardTax)return "Energía insuficiente para volver a jugar la Unit bajo Eternal Eye.";
             if(c.requiresAshLand&&!State.tiles.Any(t=>t.owner==ActingPlayerId&&t.biome==Biome.AshLand&&!t.IsOccupied)) return "Requiere Tierra Ceniza libre bajo tu control.";
             if(c.effects.Any(e=>e.operation=="SporeDamage")&&ActingPlayer.spores==0) return "Requiere al menos 1 Espora.";
             if(c.effects.Any(e=>e.operation=="March")&&!State.fastRoutes.Any(f=>f.owner==ActingPlayerId)) return "Requiere una Vía Rápida propia.";
@@ -90,14 +92,14 @@ namespace WarConquer
         {
             if(!CanAct||!TimingRules.CardAllowed(this,c)) return new List<int>();
             var ids=selected??new List<int>();
-            var special=GenericCardRules.SpecialTargets(this,c,ids);if(special!=null)return special;
+            var special=GenericCardRules.SpecialTargets(this,c,ids);if(special!=null)return XiltharRules.FilterSpellTargets(this,c,special,ids);
             if(c.category!=Category.Spell)
                 return State.tiles.Where(t=>FactionCardRules.CanDeploy(this,c,t))
                     .Select(t=>t.id).ToList();
             var e=c.effects[0];
             if(e.operation=="March")
             {
-                if(ids.Count%2==0) return Allies(ActingPlayerId).Where(p=>!Data(p).IsStructure&&!IsSleeping(p)&&!ids.Contains(p.tileId)
+                if(ids.Count%2==0) return Allies(ActingPlayerId).Where(p=>!Data(p).IsStructure&&!IsSleeping(p)&&XiltharRules.CanTarget(this,p)&&!ids.Contains(p.tileId)
                     &&MovementManager.RouteDestinations(this,p).Count>0).Select(p=>p.tileId).ToList();
                 var unit=State.tiles[ids[ids.Count-1]].unit;
                 return unit==null?new List<int>():MovementManager.RouteDestinations(this,unit).Where(n=>!ids.Contains(n)).ToList();
@@ -107,6 +109,7 @@ namespace WarConquer
         }
         bool ValidSpellTarget(string kind,HexTile t,IList<int> selected)
         {
+            if(XiltharRules.TargetsPiece(kind)&&!XiltharRules.CanTarget(this,t.unit))return false;
             bool enemy=t.unit!=null&&t.unit.owner!=ActingPlayerId, ally=t.unit!=null&&t.unit.owner==ActingPlayerId;
             switch(kind)
             {
@@ -143,7 +146,7 @@ namespace WarConquer
             if(card.effects.Any(e=>e.operation=="SporeDamage")&&targets.Count>ActingPlayer.spores) return Fail("No hay suficientes Esporas para esos objetivos.");
             var previous=new List<int>();
             foreach(int target in targets) { if(!CardTargets(card,previous).Contains(target)) return Fail("Objetivo inválido, ocupado, incompatible o fuera de alcance."); previous.Add(target); }
-            if(card.effects.Any(e=>e.operation=="GenericTerraform")?(choice==Biome.Neutral||choice==Biome.AshLand||!Enum.IsDefined(typeof(Biome),choice)):(choice!=Biome.Forest&&choice!=Biome.Swamp)) return Fail("Elige Bosque o Pantano.");
+            if(card.effects.Any(e=>e.operation=="GenericTerraform")?(choice==Biome.Neutral||choice==Biome.AshLand||!Enum.IsDefined(typeof(Biome),choice)):(card.effects.Any(e=>e.biome=="ChooseForestSwamp")&&choice!=Biome.Forest&&choice!=Biome.Swamp)) return Fail("Elige un bioma permitido por la carta.");
             var payer=ActingPlayer;EnergyManager.Pay(payer,card,useResources); payer.hand.Remove(instance);
             if(card.category==Category.Spell)
             { EffectManager.ResolveSpell(this,card,targets,choice); payer.discardPile.Add(instance); }

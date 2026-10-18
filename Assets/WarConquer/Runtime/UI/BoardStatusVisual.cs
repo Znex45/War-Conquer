@@ -37,7 +37,7 @@ namespace WarConquer
             if(applications!=p.poisonApplications){applications=p.poisonApplications;pulse=1;}
             attack.gameObject.SetActive(!game.Data(p).IsStructure);
             bool ready=CombatManager.Targets(game,p).Count>0;
-            attack.text=game.IsSleeping(p)?"DORMIDO":!FactionCardRules.CanAttack(game,p)?"NO ATACA AL ENTRAR":p.attacked?"ATQ USADO":ready?"ATQ LISTO":game.CanTakeTurnAction(TurnStage.Assault)&&p.owner==game.ActingPlayerId?"ATQ —":"ESPERA";
+            attack.text=game.IsSleeping(p)?"DORMIDO":!FactionCardRules.CanAttack(game,p)?"NO ATACA AL ENTRAR":p.attacked&&!XiltharRules.CanSecondAttack(game,p)?"ATQ USADO":ready?XiltharRules.CanSecondAttack(game,p)?"2.º ATQ · SIN MOV":"ATQ LISTO":game.CanTakeTurnAction(TurnStage.Assault)&&p.owner==game.ActingPlayerId?"ATQ —":"ESPERA";
             attack.color=ready?GrayboxUI.Green:game.IsSleeping(p)?new Color(.58f,.79f,1):GrayboxUI.Muted;
             var active=PieceStatusPresentation.Collect(game,p).Where(s=>s.id!="poison"&&s.id!="sleep").ToArray();
             var previouslyActive=new HashSet<string>(badges.Where(b=>b.Value.root.gameObject.activeSelf).Select(b=>b.Key));

@@ -19,6 +19,7 @@ namespace WarConquer
             if(s.pendingChoices.Count>0)
             {
                 var c=s.pendingChoices[0];var available=ChoiceManager.Targets(g,c);
+                if(XiltharRules.KnownChoice(c.kind))return XiltharRules.AiChoice(g,c);
                 if(c.kind=="Discard")available=available.OrderBy(id=>g.Catalog[g.ActingPlayer.hand.First(x=>x.instanceId==id).cardId].energyCost).ToList();
                 else if(c.kind=="DeathTerraform")available=available.OrderBy(id=>id==(int)PreferredBiome(g)?0:1).ToList();
                 else if(c.kind=="Summon")available=available.OrderBy(id=>Distance(g,id,Goal(g))).ToList();
@@ -51,7 +52,7 @@ namespace WarConquer
             }
             return g.AdvanceStage();
         }
-        static Biome PreferredBiome(GameManager g)=>g.ActingPlayer.leader=="SAHRIA"?Biome.Desert:g.ActingPlayer.leader=="ZUKGROK"?Biome.Swamp:Biome.Forest;
+        static Biome PreferredBiome(GameManager g)=>g.ActingPlayer.leader=="XIL'THAR"?Biome.Void:g.ActingPlayer.leader=="SAHRIA"?Biome.Desert:g.ActingPlayer.leader=="ZUKGROK"?Biome.Swamp:Biome.Forest;
         static int Center(GameManager g)=>g.State.tiles.First(ConquestManager.IsCenter).id;
         static int Goal(GameManager g,Piece piece=null)
         {

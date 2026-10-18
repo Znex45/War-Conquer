@@ -30,7 +30,7 @@ namespace WarConquer
         }
         public static bool CardAllowed(GameManager g,CardData card)
         {
-            if(!g.CanAct||g.State.pendingChoices.Count>0)return false;
+            if(!g.CanAct||g.State.endingTurn||g.State.pendingChoices.Count>0)return false;
             if(g.State.battle!=null||g.State.responsePlayer>=0||g.ActingPlayerId!=g.State.activePlayer)
                 return ResponseAllowed(g,card,g.ActingPlayerId);
             return (card.allowedTiming??Array.Empty<ActionTiming>()).Contains(ActionTiming.OwnTurn)
@@ -39,7 +39,7 @@ namespace WarConquer
         public static TurnStage AbilityStage(CardData c)=>c.Has("StructureDiscount")?TurnStage.Deployment:c.Has("FastNetwork")||c.Has("DestroyBiome")?TurnStage.Terraforming:TurnStage.Assault;
         public static bool AbilityAllowed(GameManager g,Piece p)
         {
-            if(g.State.pendingChoices.Count>0||!g.CanAct||p==null||p.owner!=g.ActingPlayerId)return false;
+            if(g.State.endingTurn||g.State.pendingChoices.Count>0||!g.CanAct||p==null||p.owner!=g.ActingPlayerId)return false;
             if(g.State.battle!=null||g.State.responsePlayer>=0||g.ActingPlayerId!=g.State.activePlayer)return ResponseAllowed(g,g.Data(p),p.owner);
             return g.State.stage==AbilityStage(g.Data(p));
         }

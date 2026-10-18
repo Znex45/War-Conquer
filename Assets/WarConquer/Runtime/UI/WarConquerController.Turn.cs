@@ -42,7 +42,7 @@ namespace WarConquer
             }
             else if(s.stage==TurnStage.Terraforming)
             {
-                if(Game.State.tiles.Any(t=>Game.TerraformTarget(t.id))&&new[]{Biome.Forest,Biome.Swamp,Biome.Desert,Biome.Tundra,Biome.Volcanic,Biome.Wasteland}.Any(b=>Game.TerraformCost(b)<=Game.ActingPlayer.currentEnergy))ActionButton("Terraformar casilla",ref y,()=>Begin("terraform"));
+                if(Game.State.tiles.Any(t=>Game.TerraformTarget(t.id))&&new[]{Biome.Forest,Biome.Swamp,Biome.Desert,Biome.Tundra,Biome.Volcanic,Biome.Wasteland,Biome.Void}.Any(b=>Game.TerraformCost(b)<=Game.ActingPlayer.currentEnergy))ActionButton("Terraformar casilla",ref y,()=>Begin("terraform"));
                 if(Game.ActingPlayer.currentEnergy>=Game.AshCost()&&Game.State.tiles.Any(t=>t.owner==Game.ActingPlayerId&&TerrainManager.Normal(t)))ActionButton("Revelar Ceniza · "+Game.AshCost()+" E",ref y,()=>Begin("ash"));
             }
             else
@@ -73,10 +73,11 @@ namespace WarConquer
         {
             bool fungus=player.leader=="ZUKGROK";var color=GrayboxUI.PlayerColor(player.id);
             var portrait=GrayboxUI.Rect(leaderPanel,"Retrato "+player.leader,14,14,62,62);var hex=portrait.gameObject.AddComponent<HexGraphic>();hex.color=Color.Lerp(color,GrayboxUI.Panel,.5f);hex.border=color;hex.raycastTarget=false;
-            var glyph=GrayboxUI.Text(portrait,fungus?"Z":player.leader=="FAUNAR"?"F":"S",0,10,62,45,32,color,FontStyle.Bold);glyph.alignment=TextAnchor.MiddleCenter;
+            var glyph=GrayboxUI.Text(portrait,fungus?"Z":player.leader=="FAUNAR"?"F":player.leader=="XIL'THAR"?"X":"S",0,10,62,45,32,color,FontStyle.Bold);glyph.alignment=TextAnchor.MiddleCenter;
             GrayboxUI.Text(leaderPanel,player.leader,88,16,142,27,20,color,FontStyle.Bold);
             GrayboxUI.Text(leaderPanel,player.factionTag+" · J"+(player.id+1),88,45,140,24,12,GrayboxUI.Muted);
             GrayboxUI.Text(leaderPanel,"VIDA "+player.leaderHealth+" / "+Game.State.rules.leaderHealth+(player.eliminated?" · FUERA":""),14,83,214,26,18,color,FontStyle.Bold);
+            if(player.leader=="XIL'THAR"){DrawXiltharLeader(player);return;}
             if(player.leader=="FAUNAR")
             {
                 GrayboxUI.Text(leaderPanel,"PRIMERA STRUCTURE −1 E",14,119,214,27,13,GrayboxUI.Ink,FontStyle.Bold);

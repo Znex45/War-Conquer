@@ -1,0 +1,90 @@
+[
+  {
+    "leader": "Sahria",
+    "source": "sahria.fbx",
+    "frames": 318,
+    "mappedBones": {
+      "cadera": "Hips",
+      "columna": "Spine",
+      "columna1": "Spine1",
+      "columna2": "Spine2",
+      "cuello": "Neck",
+      "cabeza": "Head",
+      "hombro.L": "LeftShoulder",
+      "brazo.L": "LeftArm",
+      "antebrazo.L": "LeftForeArm",
+      "mano.L": "LeftHand",
+      "muslo.L": "LeftUpLeg",
+      "pierna.L": "LeftLeg",
+      "pie.L": "LeftFoot",
+      "hombro.R": "RightShoulder",
+      "brazo.R": "RightArm",
+      "antebrazo.R": "RightForeArm",
+      "mano.R": "RightHand",
+      "muslo.R": "RightUpLeg",
+      "pierna.R": "RightLeg",
+      "pie.R": "RightFoot"
+    }
+  },
+  {
+    "leader": "Faunar",
+    "source": "faunar.fbx",
+    "frames": 576,
+    "mappedBones": {
+      "pelvis": "Hips",
+      "spine_01": "Spine",
+      "spine_02": "Spine1",
+      "spine_03": "Spine2",
+      "neck_01": "Neck",
+      "head": "Head",
+      "clavicle_l": "LeftShoulder",
+      "upperarm_l": "LeftArm",
+      "lowerarm_l": "LeftForeArm",
+      "hand_l": "LeftHand",
+      "thigh_l": "LeftUpLeg",
+      "calf_l": "LeftLeg",
+      "foot_l": "LeftFoot",
+      "ball_l": "LeftToeBase",
+      "clavicle_r": "RightShoulder",
+      "upperarm_r": "RightArm",
+      "lowerarm_r": "RightForeArm",
+      "hand_r": "RightHand",
+      "thigh_r": "RightUpLeg",
+      "calf_r": "RightLeg",
+      "foot_r": "RightFoot",
+      "ball_r": "RightToeBase"
+    }
+  },
+  {
+    "leader": "Zukgrok",
+    "source": "zukgrok.fbx",
+    "frames": 137,
+    "mappedBones": {
+      "Bone.002": "Head",
+      "Bone.003": "Spine2",
+      "Bone.004": "Hips",
+      "Bone.010": "RightArm",
+      "Bone.011": "RightForeArm",
+      "Bone.008": "LeftArm",
+      "Bone.009": "LeftForeArm",
+      "Bone.016": "LeftHand",
+      "Bone.012": "RightUpLeg",
+      "Bone.014": "RightLeg",
+      "Bone.013": "LeftUpLeg",
+      "Bone.015": "LeftLeg"
+    }
+  },
+  {
+    "leader": "Xilthar",
+    "movingRocks": [
+      "Cube.018",
+      "Cube.019",
+      "Cube.021",
+      "Cube.022",
+      "Cube.023",
+      "Cube.024",
+      "Cube.025"
+    ],
+    "frames": 241
+  }
+]

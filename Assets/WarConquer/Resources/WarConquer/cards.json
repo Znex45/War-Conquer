@@ -2926,7 +2926,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [],
@@ -2966,6 +2967,10 @@
         {
           "leader": "FAUNAR",
           "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 3
         }
       ]
     },
@@ -2991,7 +2996,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [],
@@ -3027,6 +3033,10 @@
         {
           "leader": "ZUKGROK",
           "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 3
         }
       ]
     },
@@ -3052,7 +3062,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [],
@@ -3111,7 +3122,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [],
@@ -3168,7 +3180,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [],
@@ -3208,6 +3221,10 @@
         {
           "leader": "FAUNAR",
           "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 3
         }
       ]
     },
@@ -3233,7 +3250,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [],
@@ -3273,6 +3291,10 @@
         {
           "leader": "FAUNAR",
           "count": 1
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 1
         }
       ]
     },
@@ -3298,7 +3320,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [],
@@ -3334,6 +3357,10 @@
         {
           "leader": "ZUKGROK",
           "count": 1
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 1
         }
       ]
     },
@@ -3359,7 +3386,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [],
@@ -3420,7 +3448,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [],
@@ -3483,7 +3512,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [],
@@ -3521,6 +3551,10 @@
         {
           "leader": "ZUKGROK",
           "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 3
         }
       ]
     },
@@ -3548,7 +3582,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [],
@@ -3617,7 +3652,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [],
@@ -3659,6 +3695,10 @@
         {
           "leader": "FAUNAR",
           "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 3
         }
       ]
     },
@@ -3684,7 +3724,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [
@@ -3716,6 +3757,10 @@
         {
           "leader": "FAUNAR",
           "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 1
         }
       ]
     },
@@ -3741,7 +3786,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [
@@ -3798,7 +3844,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [
@@ -3847,7 +3894,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [
@@ -3900,7 +3948,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [
@@ -3932,6 +3981,10 @@
         {
           "leader": "FAUNAR",
           "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 3
         }
       ]
     },
@@ -3957,7 +4010,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [
@@ -3985,6 +4039,10 @@
         {
           "leader": "FAUNAR",
           "count": 1
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 3
         }
       ]
     },
@@ -4010,7 +4068,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [],
       "traits": [
@@ -4037,6 +4096,10 @@
         },
         {
           "leader": "FAUNAR",
+          "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
           "count": 3
         }
       ]
@@ -4356,7 +4419,8 @@
         3,
         4,
         5,
-        7
+        7,
+        8
       ],
       "terrainTags": [
         "SAHRIA"
@@ -5036,6 +5100,443 @@
       ],
       "combatSpell": false,
       "deckCopies": []
+    },
+    {
+      "id": "under-the-darkness",
+      "name": "Under the Darkness",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 2,
+      "subtypes": [],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [],
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "UnderDarkness",
+          "target": "Self",
+          "amount": 1,
+          "count": 1,
+          "duration": 1
+        }
+      ],
+      "energyCost": 5,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "quantity": 2,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "description": "Juega una Unit real de tu descarte. Al final de cada turno, muere si no está en Void; el efecto permanece hasta que salga del tablero.",
+      "allowedPhases": [
+        0,
+        2,
+        1
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "void-beacon",
+      "name": "Void Beacon",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 1,
+      "subtypes": [
+        "Void"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "VoidBeacon"
+      ],
+      "effects": [],
+      "energyCost": 4,
+      "health": 2,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "description": "Al morir una Unit aliada en Void, puedes destruir esta Structure y volver a jugar esa carta aquí. Muere al final de tu turno salvo que pagues su coste original +2.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "portal",
+      "name": "Portal",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 1,
+      "subtypes": [
+        "Void"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "Portal"
+      ],
+      "effects": [],
+      "energyCost": 4,
+      "health": 2,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "description": "Una vez por turno, paga 2 Energía: mueve una Unit en Void a 6rad a un Slab adyacente al Portal.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "insolator",
+      "name": "Insolator",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 1,
+      "subtypes": [
+        "Void"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "Insolator"
+      ],
+      "effects": [],
+      "energyCost": 4,
+      "health": 2,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "quantity": 2,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "description": "Inflige 2 de daño a las Units a 3rad. Si esta activación mata al menos una, terraforma un Slab en Void.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "crystal-minion",
+      "name": "Crystal Minion",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 0,
+      "subtypes": [
+        "Void",
+        "Crystal",
+        "Minion"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "CrystalMinion"
+      ],
+      "effects": [],
+      "energyCost": 3,
+      "health": 3,
+      "attack": 3,
+      "movement": 1,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "description": "Puede moverse de Void a Void a 3rad.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "dark-fly",
+      "name": "Dark Fly",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 0,
+      "subtypes": [
+        "Void",
+        "Flying",
+        "Insect"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "DarkFly"
+      ],
+      "effects": [],
+      "energyCost": 3,
+      "health": 2,
+      "attack": 2,
+      "movement": 3,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Flying",
+      "description": "Al moverse, se cura. Puede reemplazar su movimiento del turno por un segundo ataque.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "the-eternal-eye",
+      "name": "The Eternal Eye",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 0,
+      "subtypes": [
+        "Void",
+        "Eye",
+        "Flying"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "EternalEye"
+      ],
+      "effects": [],
+      "energyCost": 9,
+      "health": 10,
+      "attack": 1,
+      "movement": 0,
+      "range": 1,
+      "quantity": 1,
+      "maxCopies": 3,
+      "movementType": "Flying",
+      "description": "En Void no puede ser objetivo de cartas/efectos y las cartas rivales cuestan +1. Los rivales pueden terraformar su Slab desde cualquier lugar. Paga 1 por cada movimiento Void → Void, sin límite de usos. No puede curarse.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "void-hole",
+      "name": "Void Hole",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 0,
+      "subtypes": [
+        "Void"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "VoidHole"
+      ],
+      "effects": [],
+      "energyCost": 5,
+      "health": 3,
+      "attack": 0,
+      "movement": 1,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "description": "Una vez por turno, puede recibir 1 daño para prevenir un impacto a otra Unit aliada a 5rad. No puede curarse.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "sprinting-sprite",
+      "name": "Sprinting Sprite",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 0,
+      "subtypes": [
+        "Void",
+        "Sprite"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "SprintingSprite"
+      ],
+      "effects": [],
+      "energyCost": 2,
+      "health": 1,
+      "attack": 1,
+      "movement": 4,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "description": "En Void, paga 1 Energía y sacrifícala para mover otra Unit a su Slab.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
     }
   ]
 }

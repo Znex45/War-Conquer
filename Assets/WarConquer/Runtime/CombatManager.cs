@@ -23,13 +23,14 @@ namespace WarConquer
         }
         public static List<int> Targets(GameManager g,Piece p)
         {
-            if(!g.IsCurrentPiece(p)||!g.CanTakeTurnAction(TurnStage.Assault)||p.owner!=g.State.activePlayer||p.attacked||!FactionCardRules.CanAttack(g,p)||g.IsSleeping(p)||g.Data(p).IsStructure) return new List<int>();
+            if(!g.IsCurrentPiece(p)||!g.CanTakeTurnAction(TurnStage.Assault)||p.owner!=g.State.activePlayer||(p.attacked&&!XiltharRules.CanSecondAttack(g,p))||!FactionCardRules.CanAttack(g,p)||g.IsSleeping(p)||g.Data(p).IsStructure) return new List<int>();
             return g.State.tiles.Where(t=>((t.unit!=null&&t.unit.owner!=p.owner)||(t.structure!=null&&t.structure.owner!=p.owner)||(t.baseOwner>=0&&t.baseOwner!=p.owner&&!g.State.players[t.baseOwner].eliminated))&&BoardManager.Distance(g.State,p.tileId,t.id,g.Data(p).range)<=g.Data(p).range).Select(t=>t.id).ToList();
         }
         public static bool Attack(GameManager g,Piece attacker,int target) => g.Decide(() => AttackCore(g,attacker,target));
         static bool AttackCore(GameManager g,Piece attacker,int target)
         {
             if(!Targets(g,attacker).Contains(target))return g.Fail("No puedes atacar: objetivo, alcance, ataque usado o Dormido.");
+            if(attacker.attacked&&XiltharRules.CanSecondAttack(g,attacker)){attacker.darkFlyExtraAttack=true;attacker.remainingMovement=0;}
             if(!TerrainManager.CheckAction(g,attacker,"atacar")){attacker.attacked=true;g.Notify("Ataque interrumpido por el terreno.");return true;}
             BattleManager.Open(g,attacker,target);
             g.Notify(g.State.battle==null?"Ataque resuelto.":"Batalla abierta · responde J"+(g.ActingPlayerId+1)+".");return true;
@@ -46,7 +47,7 @@ namespace WarConquer
             if(victim!=null)
             {
                 if(g.Data(attacker).Has("FrogToken"))EffectManager.Poison(g,victim,1,attacker.owner);
-                Damage(g,victim,damage,true);GenericCardRules.OnKill(g,attacker,victim);
+                Damage(g,victim,damage,true,attacker);if(!XiltharRules.PendingHit(g,victim.id))GenericCardRules.OnKill(g,attacker,victim);
                 if(victim.health>0&&g.Data(attacker).Has("PoisonAttack")&&(g.State.tiles[attacker.tileId].biome==Biome.Forest||g.State.tiles[attacker.tileId].biome==Biome.Swamp))EffectManager.Poison(g,victim,1,attacker.owner);
             }
             else
@@ -57,8 +58,9 @@ namespace WarConquer
                 if(leader.leaderHealth==0){Eliminate(g,leader);tile.owner=attacker.owner;g.State.Log("J"+(attacker.owner+1)+" conquista la base de J"+(leader.id+1)+".");}
             }
         }
-        public static void Damage(GameManager g,Piece p,int amount,bool attack)
+        public static void Damage(GameManager g,Piece p,int amount,bool attack,Piece source=null,bool bypass=false)
         {
+            if(!bypass&&XiltharRules.PreventHit(g,p,amount,source,false,attack))return;
             var c=g.Data(p);var nearby=BoardManager.Nearby(g.State,p.tileId).Where(a=>a.owner==p.owner).ToList(); int defense=0;
             if(c.subtypes.Contains("Hongo"))defense+=nearby.Count(a=>g.Data(a).Has("FungusDefenseAura"));
             if(c.Has("StructureGuard")&&nearby.Any(a=>g.Data(a).IsStructure))defense++;
@@ -71,8 +73,8 @@ namespace WarConquer
             g.State.Log(c.name+" recibe "+actual+" daño"+(defense>0?" (defensa "+defense+")":"")+".");
             if(p.health<=0)Remove(g,p);
         }
-        public static void DirectDamage(GameManager g,Piece p,int amount,Piece source=null)
-        {if(p==null||p.health<=0)return;p.health-=Math.Max(0,amount);g.State.Log(g.Data(p).name+" recibe "+amount+" daño directo.");if(p.health<=0){Remove(g,p);GenericCardRules.OnKill(g,source,p);}}
+        public static void DirectDamage(GameManager g,Piece p,int amount,Piece source=null,bool bypass=false)
+        {if(p==null||p.health<=0)return;if(!bypass&&XiltharRules.PreventHit(g,p,amount,source,true,false))return;p.health-=Math.Max(0,amount);g.State.Log(g.Data(p).name+" recibe "+amount+" daño directo.");if(p.health<=0){XiltharRules.RegisterKill(g,source);Remove(g,p);GenericCardRules.OnKill(g,source,p);}}
         public static void PoisonDamage(GameManager g,Piece p,int amount)
         {
             p.health-=Math.Min(p.health,amount);g.State.Log(g.Data(p).name+": pierde "+amount+" VIDA por veneno.");
@@ -83,7 +85,7 @@ namespace WarConquer
             if(p==null)return;var t=g.State.tiles[p.tileId];if(t.unit!=p&&t.structure!=p)return;p.health=0;if(t.unit==p)t.unit=null;if(t.structure==p)t.structure=null;
             if(t.specialEffect!=null&&t.specialEffect.sourceId==p.id)t.specialEffect=null;
             if(!p.token&&!g.Data(p).Has("BabyPhoenix"))g.State.players[p.owner].discardPile.Add(new CardInstance {instanceId=p.id,cardId=p.cardId});
-            FactionCardRules.OnDestroyed(g,p,poisonAfterId);GenericCardRules.OnDestroyed(g,p);GenericCardRules.SyncAuras(g);TerrainManager.MaintainRoutes(g);ConquestManager.Refresh(g.State);g.State.Log(g.Data(p).name+" destruida"+(p.token?".":g.Data(p).Has("BabyPhoenix")?" → retorno a mano pendiente.":" → descarte."));
+            XiltharRules.OnDeath(g,p);FactionCardRules.OnDestroyed(g,p,poisonAfterId);GenericCardRules.OnDestroyed(g,p);GenericCardRules.SyncAuras(g);TerrainManager.MaintainRoutes(g);ConquestManager.Refresh(g.State);g.State.Log(g.Data(p).name+" destruida"+(p.token?".":g.Data(p).Has("BabyPhoenix")?" → retorno a mano pendiente.":" → descarte."));
         }
         static void Eliminate(GameManager g,Player player)
         {
