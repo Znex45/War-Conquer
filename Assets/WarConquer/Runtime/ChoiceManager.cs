@@ -55,7 +55,7 @@ namespace WarConquer
             {
                 var player=g.State.players[c.owner];
                 if(c.kind=="DeathTerraform")
-                {if(targets.Count>0)TerrainManager.Terraform(g,c.tileId,(Biome)targets[0],c.owner);FactionCardRules.CompleteDeathChoice(g,c);}
+                {if(targets.Count>0){bool deathAllowed=FactionCardRules.CanDeathTerraform(g,c);TerrainManager.Terraform(g,c.tileId,(Biome)targets[0],c.owner);if(deathAllowed&&string.IsNullOrEmpty(c.returnCardId)&&player.leader=="ZUKGROK"&&g.State.tiles[c.tileId].biome==(Biome)targets[0])g.SignalLeaderAbility("ZUKGROK",c.owner,c.tileId);}FactionCardRules.CompleteDeathChoice(g,c);}
                 if(c.kind=="Ember"&&targets.Count>0)CombatManager.DirectDamage(g,g.State.tiles[targets[0]].structure,1,BoardManager.Pieces(g.State).FirstOrDefault(p=>p.id==c.sourceId));
                 if(c.kind=="Summon"&&targets.Count>0)
                 {int id=targets[0];g.State.tiles[id].owner=c.owner;g.Place(c.tokenId,c.owner,id);if(c.summonsLeft>1)FactionCardRules.Summon(g,c.owner,c.tileId,c.tokenId,c.summonsLeft-1,c.adjacentOnly,false);}

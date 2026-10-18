@@ -36,6 +36,9 @@ namespace WarConquer
         GameState state;
         string routeKey;
         BoardDiceVisual dice;
+        BoardLeaderAbilityVfx leaderVfx;
+        public Transform LeaderVisual(int owner)=>tiles.Values.FirstOrDefault(t=>t.baseOwner==owner)?.baseModel;
+        public Transform UnitVisual(int id)=>pieces.TryGetValue(id,out var p)?p.root:null;
         public bool IsAnimating=>dice!=null&&dice.IsAnimating;
         public Camera BoardCamera { get; private set; }
         public RenderTexture Texture { get; private set; }
@@ -50,6 +53,7 @@ namespace WarConquer
             if(mesh!=null)return;
             mesh=new BoardMeshFactory();
             dice=gameObject.AddComponent<BoardDiceVisual>();dice.Initialize(mesh,this);
+            leaderVfx=gameObject.AddComponent<BoardLeaderAbilityVfx>();leaderVfx.Initialize(mesh,this);
             previousMain=Camera.main;if(previousMain!=null){previousMask=previousMain.cullingMask;previousMain.cullingMask&=~(1<<BoardMeshFactory.Layer);}
             var cameraRoot=mesh.Group(transform,"Cámara del tablero 3D",Vector3.zero);
             BoardCamera=cameraRoot.gameObject.AddComponent<Camera>();BoardCamera.orthographic=true;BoardCamera.clearFlags=CameraClearFlags.SolidColor;
@@ -168,7 +172,7 @@ namespace WarConquer
                 }
                 routeKey=nextRoutes;
             }
-            UpdateCamera();Physics.SyncTransforms();
+            leaderVfx.Sync(game);UpdateCamera();Physics.SyncTransforms();
         }
         public void UpdateCamera()
         {
