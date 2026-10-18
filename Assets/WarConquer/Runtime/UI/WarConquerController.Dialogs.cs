@@ -99,7 +99,7 @@ foreach (string deck in CardCatalog.Leaders)
         chosen, color, titleSize, detailSize);
 }
 
-                }
+                
             }
 
             // Semilla y Escenario de pruebas: más abajo, para dejar espacio a las filas.
