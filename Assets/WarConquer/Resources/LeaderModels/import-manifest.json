@@ -630,9 +630,7 @@
           "emissionStrength": 0.0
         }
       ],
-      "missingTextures": [
-        "shroom_Base_Color2.png"
-      ],
+      "missingTextures": [],
       "idleBones": [
         "Bone.003",
         "Bone.004"
@@ -648,7 +646,9 @@
           23.485172271728516,
           3.5047495365142822
         ]
-      ]
+      ],
+      "restoredTexture": "shroom_Base_Color2.png",
+      "textureUV": "Original UVMap sampled into existing UnityBake atlas; model, rig and Idle unchanged."
     },
     {
       "name": "Xilthar",
