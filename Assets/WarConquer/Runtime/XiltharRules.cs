@@ -22,7 +22,7 @@ namespace WarConquer
             var p=g.State.players[owner];
             if(p.leader!="XIL'THAR"||g.State.activePlayer!=owner||(g.State.phase!=Phase.Actions&&g.State.phase!=Phase.Start&&g.State.phase!=Phase.End))return;
             p.xilTerraformCount++;
-            if(p.xilTerraformCount%4==0){p.currentEnergy++;p.xilEnergyGenerated++;g.State.Log("XIL'THAR · 4 terraformaciones reales: +1 Energía.");}
+            if(p.xilTerraformCount%4==0){p.currentEnergy++;p.xilEnergyGenerated++;g.State.Log("XIL'THAR · 4 terraformaciones reales: +1 Energía.");g.SignalLeaderAbility("XIL'THAR",owner);}
         }
         public static void SyncTaxes(GameManager g)
         {

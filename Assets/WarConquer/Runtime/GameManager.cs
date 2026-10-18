@@ -150,7 +150,7 @@ namespace WarConquer
             var payer=ActingPlayer;EnergyManager.Pay(payer,card,useResources); payer.hand.Remove(instance);
             if(card.category==Category.Spell)
             { EffectManager.ResolveSpell(this,card,targets,choice); payer.discardPile.Add(instance); }
-            else { State.tiles[targets[0]].owner=payer.id;var piece=Place(instance.cardId,payer.id,targets[0],instance.instanceId,false); EffectManager.OnEnter(this,piece); }
+            else { State.tiles[targets[0]].owner=payer.id;var piece=Place(instance.cardId,payer.id,targets[0],instance.instanceId,false); EffectManager.OnEnter(this,piece); if(payer.leader=="SAHRIA"&&payer.sahriaDeployment&&card.category==Category.Unit)SignalLeaderAbility("SAHRIA",payer.id,piece.tileId,piece.id); }
             State.Log("J"+(payer.id+1)+" juega "+card.name+" ["+string.Join(",",targets.Select(t=>t+1))+"]");
             BattleManager.AfterResponse(this);Notify(card.name+" resuelta."); return true;
         }
