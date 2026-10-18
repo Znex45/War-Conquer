@@ -15,9 +15,6 @@ namespace WarConquer
 
         RectTransform root, matchRoot, header, left, leaderPanel, boardPanel, inspector, hand, piles, modal, tooltip, mainMenuRoot;
 
-        // Fondo independiente (cambia según la pantalla: menú o partida).
-        Image bgImage;
-
         bool mainMenuVisible;
         bool setupVisible, scoreDetails;
 
@@ -125,29 +122,16 @@ namespace WarConquer
 
             var background = canvasObject.GetComponent<RectTransform>();
 
-            // Fondo independiente: se puede cambiar según la pantalla.
-            var bgObject = new GameObject(
-                "Fondo",
-                typeof(RectTransform),
-                typeof(Image)
-            );
+            var backgroundImage = background.gameObject.AddComponent<Image>();
 
-            bgObject.transform.SetParent(background, false);
-            bgObject.transform.SetAsFirstSibling();
+            backgroundImage.sprite = Resources.Load<Sprite>("UI/MainMenu_Background");
+            backgroundImage.color = Color.white;
+            backgroundImage.preserveAspect = false;
 
-            var bgRect = bgObject.GetComponent<RectTransform>();
-
-            bgRect.anchorMin = Vector2.zero;
-            bgRect.anchorMax = Vector2.one;
-            bgRect.offsetMin = Vector2.zero;
-            bgRect.offsetMax = Vector2.zero;
-
-            bgImage = bgObject.GetComponent<Image>();
-
-            bgImage.preserveAspect = false;
-            bgImage.raycastTarget = false;
-
-            SetBackground("UI/MainMenu_Background");
+            background.anchorMin = Vector2.zero;
+            background.anchorMax = Vector2.one;
+            background.offsetMin = Vector2.zero;
+            background.offsetMax = Vector2.zero;
 
             root = GrayboxUI.Rect(
                 background,
@@ -256,34 +240,6 @@ namespace WarConquer
 
             // Main Menu.
             CreateMainMenu();
-        }
-
-        // =========================================================
-        // FONDO
-        // =========================================================
-
-        // Cambia la imagen de fondo del juego.
-        // resourcePath es la ruta dentro de Assets/Resources, sin extensión.
-        // Ejemplo: "UI/MainMenu_Background" o "UI/Game_Background".
-        void SetBackground(string resourcePath)
-        {
-            if (bgImage == null)
-                return;
-
-            var sprite = Resources.Load<Sprite>(resourcePath);
-
-            if (sprite == null)
-            {
-                Debug.LogWarning(
-                    "No se encontró el fondo: " + resourcePath
-                );
-
-                // Se queda con el fondo que ya había.
-                return;
-            }
-
-            bgImage.sprite = sprite;
-            bgImage.color = Color.white;
         }
 
         // =========================================================
@@ -442,36 +398,73 @@ namespace WarConquer
         }
 
         void CreateMainMenuButton(
-            Transform parent,
-            string label,
-            float x,
-            float y,
-            float w,
-            float h,
-            Action action,
-            bool primary)
-        {
-            // Mismo estilo de botones que la pantalla "Preparar partida".
-            // primary = true -> botón resaltado (JUGAR).
-            // Si faltan las imágenes, usa colores y nada se rompe.
-            SkinChoiceButton(
-                parent,
-                label,
-                x,
-                y,
-                w,
-                h,
-                action,
-                primary ? 25 : 23,
-                primary,
-                SkinGold
-            );
-        }
+    Transform parent,
+    string label,
+    float x,
+    float y,
+    float w,
+    float h,
+    Action action,
+    bool primary)
+{
+    var buttonRoot = GrayboxUI.Rect(
+        parent,
+        "MainMenuButton_" + label,
+        x,
+        y,
+        w,
+        h
+    );
+
+    // Fondo
+    var image = buttonRoot.gameObject.AddComponent<Image>();
+
+    image.color = primary
+        ? new Color32(55, 48, 34, 245)
+        : new Color32(25, 30, 38, 235);
+
+    // Botón
+    var button = buttonRoot.gameObject.AddComponent<Button>();
+
+    button.targetGraphic = image;
+    button.onClick.AddListener(() => action());
+
+    // Estados
+    var colors = button.colors;
+
+    colors.normalColor = Color.white;
+    colors.highlightedColor = new Color32(235, 220, 180, 255);
+    colors.pressedColor = new Color32(190, 160, 90, 255);
+    colors.selectedColor = colors.highlightedColor;
+
+    button.colors = colors;
+
+    // Borde
+    var outline = buttonRoot.gameObject.AddComponent<Outline>();
+
+    outline.effectColor = primary
+        ? new Color32(245, 203, 76, 230)
+        : new Color32(150, 125, 75, 180);
+
+    outline.effectDistance = new Vector2(1.2f, 1.2f);
+
+    // Texto
+    var text = GrayboxUI.Text(
+        buttonRoot,
+        label,
+        10,
+        0,
+        w - 20,
+        h,
+        primary ? 24 : 22,
+        new Color32(238, 236, 228, 255),
+        FontStyle.Bold
+    );
+
+    text.alignment = TextAnchor.MiddleCenter;
+}
         void ShowMainMenu()
         {
-            // El fondo del menú principal solo se usa aquí.
-            SetBackground("UI/MainMenu_Background");
-
             mainMenuVisible = true;
 
             if (mainMenuRoot != null)
@@ -483,10 +476,6 @@ namespace WarConquer
 
         void StartMainGame()
         {
-            // Al pulsar JUGAR se cambia al fondo de la partida.
-            // Archivo: Assets/Resources/UI/Game_Background
-            SetBackground("UI/Game_Background");
-
             mainMenuVisible = false;
 
             if (mainMenuRoot != null)
