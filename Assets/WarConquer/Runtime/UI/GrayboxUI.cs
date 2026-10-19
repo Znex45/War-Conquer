@@ -28,7 +28,7 @@ namespace WarConquer
         public static Text Text(Transform parent,string text,float x,float y,float w,float h,int size=16,Color? color=null,FontStyle style=FontStyle.Normal)
         {
             var r=Rect(parent,"Text",x,y,w,h);var label=r.gameObject.AddComponent<Text>();label.font=Font;label.text=text;label.fontSize=size;label.color=color??Ink;label.fontStyle=style;
-            label.horizontalOverflow=HorizontalWrapMode.Wrap;label.verticalOverflow=VerticalWrapMode.Truncate;label.raycastTarget=false;return label;
+            label.horizontalOverflow=HorizontalWrapMode.Wrap;label.verticalOverflow=VerticalWrapMode.Truncate;label.raycastTarget=false;label.resizeTextForBestFit=true;label.resizeTextMaxSize=size;label.resizeTextMinSize=Mathf.Max(9,Mathf.FloorToInt(size*.75f));return label;
         }
         public static Button Button(Transform parent,string label,float x,float y,float w,float h,Action click,Color? color=null,bool enabled=true)
         {

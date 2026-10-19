@@ -119,8 +119,8 @@ namespace WarConquer
 
             scaler.scaleFactor =
                 Mathf.Min(
-                    Screen.width / 1600f,
-                    Screen.height / 1000f
+                    Screen.safeArea.width / 1600f,
+                    Screen.safeArea.height / 1000f
                 );
 
             var background = canvasObject.GetComponent<RectTransform>();
@@ -547,9 +547,12 @@ namespace WarConquer
 
             float scale =
                 Mathf.Min(
-                    Screen.width / 1600f,
-                    Screen.height / 1000f
+                    Screen.safeArea.width / 1600f,
+                    Screen.safeArea.height / 1000f
                 );
+
+            scale = Mathf.Max(.1f, scale);
+            root.anchoredPosition = (Screen.safeArea.center - new Vector2(Screen.width, Screen.height) * .5f) / scale;
 
             if (Mathf.Abs(canvas.scaleFactor - scale) > .001f)
                 canvas.scaleFactor = scale;

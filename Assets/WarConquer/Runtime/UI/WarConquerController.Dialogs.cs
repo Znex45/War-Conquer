@@ -52,7 +52,7 @@ namespace WarConquer
             float cardH = rowH - 16f;
             float cardX0 = 136f;
             float cardGap = 8f;
-            float cardW = Mathf.Floor((1070f - cardX0 - 8f - cardGap * 2f) / 3f);
+            float cardW = Mathf.Floor((1070f - cardX0 - 8f - cardGap * (CardCatalog.Leaders.Length - 1)) / CardCatalog.Leaders.Length);
             int titleSize = participants <= 2 ? 28 : participants == 3 ? 24 : 22;
             int detailSize = participants <= 2 ? 16 : participants == 3 ? 15 : 14;
 
@@ -103,19 +103,19 @@ foreach (string deck in CardCatalog.Leaders)
             }
 
             // Semilla y Escenario de pruebas: más abajo, para dejar espacio a las filas.
-            var seedText = GrayboxUI.Text(body, "Semilla " + seed + " · Mapa " + (participants == 2 ? "duelo" : participants == 3 ? "hexagonal" : "hueso") + " · " + participants + " mazos de 50", 30, 754, 400, 28, 17, GrayboxUI.Muted);
+            var seedText = GrayboxUI.Text(body, "Semilla " + seed + " · Mapa " + (participants == 2 ? "duelo" : participants == 3 ? "hexagonal" : "hueso") + " · " + participants + " mazos de 50", 30, 664, 1070, 26, 17, GrayboxUI.Muted);
             seedText.raycastTarget = false;
             SkinTextShadow(seedText);
-            SkinChoiceButton(body, "Escenario de pruebas", 836, 702, 260, 56, () => StartMatch(true), 18, false, SkinGold);
+            SkinChoiceButton(body, "Escenario de pruebas", 836, 716, 260, 56, () => StartMatch(true), 18, false, SkinGold);
 
             // COMENZAR: centrado en el panel (igual que el banner de arriba).
             // El texto baja un poco para quedar en el centro de la parte naranja.
-            SkinImageButton(body, "COMENZAR PARTIDA", 265, 672, 600, 116, () => StartMatch(false), 27, "Btn_Start", true, 10f, 7f);
+            SkinImageButton(body, "COMENZAR PARTIDA", 255, 696, 560, 92, () => StartMatch(false), 27, "Btn_Start", true, 10f, 7f);
 
             // VOLVER: pegado a la esquina superior derecha, sin tocar el panel.
             SkinImageButton(modal, "VOLVER", 1412, 14, 180, 57, () => { CloseModal(); ShowMainMenu(); }, 20, "Btn_Back", false, 70f);
 
-            SkinLogo(modal, 1270, 75, 260);
+            SkinLogo(modal, 1420, 85, 160);
         }
 
         // Logo en la esquina superior izquierda (con la animación del menú)

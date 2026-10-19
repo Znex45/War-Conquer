@@ -357,7 +357,10 @@ namespace WarConquer
             // Retrato a la izquierda, con margen para no pisar el borde de la tarjeta
             float padX = 16f;
             float padY = 12f;
-            float size = Mathf.Min(h - padY * 2f, 104f);
+            float size = Mathf.Min(h - padY * 2f, Mathf.Min(104f, w * .29f));
+            titleSize = Mathf.Min(titleSize, Mathf.RoundToInt(w * .105f));
+            detailSize = Mathf.Min(detailSize, 14);
+            if (h < 90f) { size = Mathf.Min(size, 48f); titleSize = 18; detailSize = 12; }
             float portraitY = (h - size) / 2f;
 
             SkinPortrait(root, leader, padX, portraitY, size, selected);
@@ -404,10 +407,10 @@ namespace WarConquer
             float tw = w - tx - 14f;
 
             // Si la descripción cabe en una línea, usa una; si no, dos.
-            int lines = detail.Length * detailSize * .52f <= tw ? 1 : 2;
+            int lines = Mathf.Clamp(Mathf.CeilToInt(detail.Length * detailSize * .52f / Mathf.Max(1f, tw)), 1, 4);
 
-            float nameH = titleSize + 8f;
-            float descH = lines * (detailSize + 4f) + 2f;
+            float nameH = titleSize + 4f;
+            float descH = Mathf.Min(lines * (detailSize + 2f) + 2f, h - nameH - 4f);
             float top = Mathf.Max(2f, (h - nameH - descH) / 2f);
 
             var name = GrayboxUI.Text(
@@ -690,7 +693,7 @@ namespace WarConquer
                 if (title != null)
                 {
                     title.color = SkinGold;
-                    title.fontSize = 28;
+                    title.fontSize = 28; title.resizeTextMaxSize = 28;
                 }
 
                 // Línea dorada debajo del título.
