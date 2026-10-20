@@ -10,7 +10,7 @@ namespace WarConquer
     {
         sealed class TileVisual
         {
-            public Transform root,decor,baseModel;
+            public Transform root,decor,baseModel,leaderPlatform;
             public MeshRenderer ground,ring;
             public TextMesh number,baseLabel;
             public string decorationKey;
@@ -37,7 +37,7 @@ namespace WarConquer
         string routeKey;
         BoardDiceVisual dice;
         BoardLeaderAbilityVfx leaderVfx;
-        public Transform LeaderVisual(int owner)=>tiles.Values.FirstOrDefault(t=>t.baseOwner==owner)?.baseModel;
+        public Transform LeaderVisual(int owner)=>tiles.Values.FirstOrDefault(t=>t.baseOwner==owner)?.leaderPlatform;
         public Transform UnitVisual(int id)=>pieces.TryGetValue(id,out var p)?p.root:null;
         public bool IsAnimating=>dice!=null&&dice.IsAnimating;
         public Camera BoardCamera { get; private set; }
@@ -129,9 +129,27 @@ namespace WarConquer
                     if(t.baseOwner>=0)
                     {
                         v.baseModel=mesh.Group(v.root,"BASE J"+(t.baseOwner+1),Vector3.up*BoardMeshFactory.Surface);
-                        if(!LeaderModels.Spawn(v.baseModel,baseLeader))mesh.Castle(v.baseModel,GrayboxUI.PlayerColor(t.baseOwner));
-                        var pick=v.baseModel.gameObject.AddComponent<BoxCollider>();pick.center=new Vector3(0,1.15f,0);pick.size=new Vector3(1.2f,2.4f,1.2f);v.baseModel.gameObject.AddComponent<Hex3DTarget>().tileId=t.id;
-                        v.baseLabel=mesh.Label(v.baseModel,"Líder y Conquista",new Vector3(0,2.6f,0),.064f,GrayboxUI.PlayerColor(t.baseOwner));labels.Add(v.baseLabel);
+                        var faction=GrayboxUI.PlayerColor(t.baseOwner);
+                        mesh.Part(v.baseModel,"Emblema de base",mesh.Ring,Vector3.up*.025f,Vector3.one*.8f,faction);
+                        var pick=v.baseModel.gameObject.AddComponent<BoxCollider>();pick.center=new Vector3(0,.12f,0);pick.size=new Vector3(1.2f,.24f,1.2f);v.baseModel.gameObject.AddComponent<Hex3DTarget>().tileId=t.id;
+                        Vector3 outward=Position(t).normalized;
+                        if(outward.sqrMagnitude<.01f)outward=Quaternion.Euler(0,t.baseOwner*90f,0)*Vector3.forward;
+                        Vector3 location=Position(t)+outward*4f;
+                        // Keep the entire platform clear of every playable hex, even on irregular maps.
+                        while(state.tiles.Any(hex=>Vector3.Distance(location,Position(hex))<3.2f))location+=outward*.4f;
+                        v.leaderPlatform=mesh.Group(v.baseModel,"Plataforma flotante",location-Position(t)+Vector3.up*.9f);
+                        mesh.Part(v.leaderPlatform,"Isla de obsidiana",mesh.Hex,new Vector3(0,-.65f,0),new Vector3(2.7f,1.8f,2.7f),new Color(.13f,.17f,.24f));
+                        mesh.Part(v.leaderPlatform,"Borde de facción",mesh.Ring,Vector3.up*.015f,Vector3.one*2.62f,faction);
+                        var crystal=mesh.Part(v.leaderPlatform,"Cristal suspendido",mesh.Cone,new Vector3(0,-.5f,0),new Vector3(1.6f,1.3f,1.6f),faction);
+                        crystal.transform.localRotation=Quaternion.Euler(180,0,0);
+                        var presentation=mesh.Group(v.leaderPlatform,"Observador",Vector3.up*.03f);
+                        presentation.localScale=Vector3.one*2.1f;
+                        // Imported leaders face local -Z after their prefab alignment.
+                        presentation.rotation=Quaternion.LookRotation(outward,Vector3.up);
+                        if(!LeaderModels.Spawn(presentation,baseLeader))mesh.Castle(presentation,faction);
+                        var platformPick=v.leaderPlatform.gameObject.AddComponent<BoxCollider>();platformPick.center=new Vector3(0,1.8f,0);platformPick.size=new Vector3(4.4f,5.4f,4.4f);v.leaderPlatform.gameObject.AddComponent<Hex3DTarget>().tileId=t.id;
+                        v.leaderPlatform.gameObject.AddComponent<LeaderPlatformFloat>().Initialize(t.baseOwner);
+                        v.baseLabel=mesh.Label(v.leaderPlatform,"Líder y Conquista",new Vector3(0,5.5f,0),.09f,faction);labels.Add(v.baseLabel);
                     }
                 }
                 if(t.baseOwner>=0)
@@ -184,9 +202,41 @@ namespace WarConquer
             {
                 var local=inverse*(Position(tile)+Vector3.up*height);maxX=Mathf.Max(maxX,Mathf.Abs(local.x)+.9f);maxY=Mathf.Max(maxY,Mathf.Abs(local.y)+.9f);
             }
+            foreach(var tile in tiles.Values.Where(v=>v.leaderPlatform!=null))
+            foreach(float height in new[]{-2f,5.9f})
+            {
+                var local=inverse*(tile.leaderPlatform.position-transform.position+Vector3.up*height);
+                maxX=Mathf.Max(maxX,Mathf.Abs(local.x)+2.5f);maxY=Mathf.Max(maxY,Mathf.Abs(local.y)+2.5f);
+            }
             BoardCamera.orthographicSize=Mathf.Max(maxY,maxX/Mathf.Max(.5f,BoardCamera.aspect))*1.03f/Zoom;
             Vector3 center=new Vector3(-Pan.x*.016f,.35f,Pan.y*.016f);BoardCamera.transform.SetPositionAndRotation(center-rotation*Vector3.forward*28,rotation);
             foreach(var label in labels)if(label!=null)label.transform.rotation=rotation;
+        }
+        public bool GroundPoint(Vector2 viewport,out Vector3 point)
+        {
+            point=Vector3.zero;
+            if(BoardCamera==null)return false;
+            var ray=BoardCamera.ViewportPointToRay(viewport);
+            var plane=new Plane(Vector3.up,new Vector3(0,BoardMeshFactory.Surface,0));
+            if(!plane.Raycast(ray,out float distance))return false;
+            point=ray.GetPoint(distance);return true;
+        }
+        void ShiftCamera(Vector3 offset)
+        {
+            Pan+=new Vector2(-offset.x,offset.z)/.016f;
+            UpdateCamera();
+        }
+        public void DragCamera(Vector2 from,Vector2 to)
+        {
+            // Keep the grabbed ground point under the cursor at any yaw, pitch or zoom.
+            if(GroundPoint(from,out var start)&&GroundPoint(to,out var end))ShiftCamera(start-end);
+        }
+        public void ZoomAt(float steps,Vector2 cursor)
+        {
+            if(!GroundPoint(cursor,out var before))return;
+            Zoom=Mathf.Clamp(Zoom*Mathf.Exp(Mathf.Clamp(steps,-10f,10f)*.12f),1,5f);
+            UpdateCamera();
+            if(GroundPoint(cursor,out var after))ShiftCamera(before-after);
         }
         public int Pick(Vector2 viewport)
         {

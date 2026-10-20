@@ -270,6 +270,13 @@ namespace WarConquer
             if (bgImage == null)
                 return;
 
+            if (resourcePath == "UI/Game_Background")
+            {
+                bgImage.sprite = null;
+                bgImage.color = GrayboxUI.Background;
+                return;
+            }
+
             var sprite = Resources.Load<Sprite>(resourcePath);
 
             if (sprite == null)
@@ -786,8 +793,7 @@ namespace WarConquer
                     30,
                     28,
                     () => {
-                        board.Pan +=
-                            new Vector2(80, 0);
+                        board.Nudge(Vector2.left);
 
                         Render();
                     }
@@ -801,8 +807,7 @@ namespace WarConquer
                     30,
                     28,
                     () => {
-                        board.Pan -=
-                            new Vector2(80, 0);
+                        board.Nudge(Vector2.right);
 
                         Render();
                     }
@@ -816,8 +821,7 @@ namespace WarConquer
                     30,
                     28,
                     () => {
-                        board.Pan +=
-                            new Vector2(0, 80);
+                        board.Nudge(Vector2.up);
 
                         Render();
                     }
@@ -831,8 +835,7 @@ namespace WarConquer
                     30,
                     28,
                     () => {
-                        board.Pan -=
-                            new Vector2(0, 80);
+                        board.Nudge(Vector2.down);
 
                         Render();
                     }
@@ -841,7 +844,7 @@ namespace WarConquer
 
             GrayboxUI.Text(
                 chrome,
-                "Arrastrar: desplazar · Botón derecho: girar · Rueda: acercar · Borde verde: objetivo válido",
+                "Arrastrar: desplazar · Derecho: girar/inclinar · Rueda: zoom al cursor · 1:1: restablecer",
                 16,
                 620,
                 950,

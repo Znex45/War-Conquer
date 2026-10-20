@@ -65,13 +65,21 @@ namespace WarConquer.Editor
                 foreach(var tile in g.State.tiles.Where(t=>t.baseOwner>=0))
                 {
                     var root=world.transform.Find("HEX "+(tile.id+1)+"/BASE J"+(tile.baseOwner+1));
-                    Check(root!=null&&root.Find("Líder 3D · "+Leaders[tile.baseOwner])!=null,"Líder intercambiado.");
+                    Check(root!=null&&root.Find("Plataforma flotante/Observador/Líder 3D · "+Leaders[tile.baseOwner])!=null,"Líder intercambiado.");
+                    var platform=world.LeaderVisual(tile.baseOwner);
+                    Check(platform!=null,"Falta plataforma exterior.");
+                    Check(g.State.tiles.All(t=>Vector2.Distance(new Vector2(platform.position.x,platform.position.z),new Vector2(t.x,t.y))>=3.2f),"Plataforma invade el tablero.");
+                    Check(platform.Find("Observador").localScale.x>2f,"Líder demasiado pequeño.");
+                    var observer=platform.Find("Observador");
+                    var inward=-new Vector3(platform.position.x,0,platform.position.z).normalized;
+                    Check(Vector3.Dot(-observer.forward,inward)>.99f,"Líder mira fuera del tablero.");
+                    Check(platform.GetComponent<Hex3DTarget>().tileId==tile.id,"Plataforma no selecciona la base.");
                     Check(root.GetComponent<BoxCollider>()!=null&&root.GetComponent<Hex3DTarget>().tileId==tile.id,"Selección perdida.");
                     Check(root.localPosition==Vector3.up*BoardMeshFactory.Surface,"Punto de aparición cambiado.");
                 }
                 Check(before==GamePersistence.Serialize(g.State),"La sustitución visual modifica gameplay.");
                 g.State.players[0].leader="SAHRIA";world.Sync(g,new HashSet<int>(),new HashSet<int>(),-1);
-                var home=g.State.tiles.First(t=>t.baseOwner==0);Check(world.transform.Find("HEX "+(home.id+1)+"/BASE J1/Líder 3D · SAHRIA")!=null,"Cambio de líder no actualiza modelo.");
+                var home=g.State.tiles.First(t=>t.baseOwner==0);Check(world.transform.Find("HEX "+(home.id+1)+"/BASE J1/Plataforma flotante/Observador/Líder 3D · SAHRIA")!=null,"Cambio de líder no actualiza modelo.");
                 Debug.Log("LEADER_BOARD_PASSED: cuatro identidades, bases, colliders, cambio de líder y estado intacto.");
             }
             finally{UnityEngine.Object.DestroyImmediate(fixture);}

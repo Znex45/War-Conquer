@@ -21,8 +21,11 @@ namespace WarConquer
             var world=new GameObject("WAR & CONQUER · TABLERO 3D");world.transform.SetParent(controller.transform,false);World=world.AddComponent<Board3DScene>();World.Initialize();
             var imageRoot=GrayboxUI.Rect(parent,"Vista del tablero 3D",0,0,982,648);viewport=imageRoot.gameObject.AddComponent<RawImage>();viewport.color=Color.white;
             var input=imageRoot.gameObject.AddComponent<BoardViewportInput>();input.Click=position=>{int id=World.Pick(position);if(id>=0)controller.TileClick(id);};
-            input.Drag=(delta,orbit)=>{if(orbit){World.Yaw+=delta.x*.35f;World.Pitch-=delta.y*.22f;}else World.Pan+=new Vector2(delta.x,-delta.y);World.UpdateCamera();};
-            input.Scroll=amount=>{Zoom=Mathf.Clamp(Zoom+amount*.15f,1,5f);World.UpdateCamera();};
+            input.Drag=(from,to,orbit)=>{
+                if(orbit){var delta=to-from;World.Yaw=Mathf.Repeat(World.Yaw+delta.x*220f,360f);World.Pitch-=delta.y*130f;World.UpdateCamera();}
+                else World.DragCamera(from,to);
+            };
+            input.Scroll=(amount,cursor)=>World.ZoomAt(amount,cursor);
             Overlay=GrayboxUI.Rect(parent,"Información sobre el tablero",0,0,982,648);
             Tick();
         }
@@ -35,14 +38,15 @@ namespace WarConquer
             if(viewport.texture!=World.Texture)viewport.texture=World.Texture;
         }
         public void Rotate(float degrees){World.Yaw+=degrees;World.UpdateCamera();}
+        public void Nudge(Vector2 direction){World.DragCamera(Vector2.one*.5f,Vector2.one*.5f-direction*.08f);}
         public void Reset(){Zoom=1;Pan=Vector2.zero;World.Yaw=0;World.Pitch=53;World.UpdateCamera();}
         public void Dispose(){if(viewport!=null)viewport.texture=null;if(World!=null)BoardMeshFactory.Release(World.gameObject);}
     }
     public sealed class BoardViewportInput : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IBeginDragHandler,IDragHandler,IScrollHandler
     {
         public Action<Vector2> Click;
-        public Action<Vector2,bool> Drag;
-        public Action<float> Scroll;
+        public Action<Vector2,Vector2,bool> Drag;
+        public Action<float,Vector2> Scroll;
         bool dragged;
         public void OnPointerDown(PointerEventData data){dragged=false;}
         public void OnBeginDrag(PointerEventData data){dragged=true;}
@@ -55,9 +59,16 @@ namespace WarConquer
         }
         public void OnDrag(PointerEventData data)
         {
-            var canvas=GetComponentInParent<Canvas>();float scale=canvas!=null?canvas.scaleFactor:1;
-            Drag?.Invoke(data.delta/scale,data.button==PointerEventData.InputButton.Right);
+            var rect=(RectTransform)transform;
+            if(RectTransformUtility.ScreenPointToLocalPointInRectangle(rect,data.position-data.delta,data.pressEventCamera,out var from)&&
+               RectTransformUtility.ScreenPointToLocalPointInRectangle(rect,data.position,data.pressEventCamera,out var to))
+                Drag?.Invoke(Normalize(rect,from),Normalize(rect,to),data.button==PointerEventData.InputButton.Right);
         }
-        public void OnScroll(PointerEventData data){Scroll?.Invoke(data.scrollDelta.y);}
+        public void OnScroll(PointerEventData data)
+        {
+            var rect=(RectTransform)transform;
+            if(RectTransformUtility.ScreenPointToLocalPointInRectangle(rect,data.position,data.enterEventCamera,out var local))
+                Scroll?.Invoke(data.scrollDelta.y,Normalize(rect,local));
+        }
     }
 }
