@@ -82,6 +82,24 @@ namespace WarConquer.Editor
                     Check(f.world.Pick(new Vector2(-.1f,.5f))==-1&&before==GamePersistence.Serialize(f.game.State),"Cámara cambia la partida o acepta un clic fuera del tablero.");
                 }
             });
+            test("3D: arrastre y zoom conservan el punto bajo el cursor tras girar",()=>{
+                using(var f=new Fixture(catalog))
+                {
+                    var from=new Vector2(.48f,.52f);var to=new Vector2(.54f,.57f);
+                    foreach(float yaw in new[]{0f,90f,180f,270f})
+                    foreach(float pitch in new[]{36f,53f,78f})
+                    {
+                        f.world.Yaw=yaw;f.world.Pitch=pitch;f.world.Zoom=2;f.world.Pan=Vector2.zero;f.world.UpdateCamera();
+                        Check(f.world.GroundPoint(from,out var grabbed),"Falta intersección inicial.");
+                        f.world.DragCamera(from,to);
+                        Check(f.world.GroundPoint(to,out var moved)&&Vector3.Distance(grabbed,moved)<.001f,"Arrastre cambia de dirección o sensibilidad.");
+                        f.world.ZoomAt(1,to);
+                        Check(f.world.GroundPoint(to,out var zoomed)&&Vector3.Distance(grabbed,zoomed)<.001f,"Zoom pierde el punto del cursor.");
+                        f.world.ZoomAt(-1,to);
+                        Check(Mathf.Abs(f.world.Zoom-2)<.001f,"Zoom de ida y vuelta no es reversible.");
+                    }
+                }
+            });
             test("3D: entrada normalizada funciona con el panel y escalado de interfaz",()=>{
                 var holder=new GameObject("Viewport fixture",typeof(RectTransform));try
                 {
