@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -39,7 +39,7 @@ namespace WarConquer
         }
         public void Rotate(float degrees){World.Yaw+=degrees;World.UpdateCamera();}
         public void Nudge(Vector2 direction){World.DragCamera(Vector2.one*.5f,Vector2.one*.5f-direction*.08f);}
-        public void Reset(){Zoom=1;Pan=Vector2.zero;World.Yaw=0;World.Pitch=53;World.UpdateCamera();}
+        public void Reset(){Zoom=Board3DScene.DefaultZoom;Pan=Vector2.zero;World.PanHeight=0;World.Yaw=0;World.Pitch=53;World.UpdateCamera();}
         public void Dispose(){if(viewport!=null)viewport.texture=null;if(World!=null)BoardMeshFactory.Release(World.gameObject);}
     }
     public sealed class BoardViewportInput : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IBeginDragHandler,IDragHandler,IScrollHandler

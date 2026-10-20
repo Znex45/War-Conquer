@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.IO;
 using System.Linq;
@@ -11,7 +11,7 @@ namespace WarConquer.Editor
     public static class LeaderModelAssets
     {
         public const string Folder="Assets/WarConquer/Resources/LeaderModels";
-        [Serializable] class MaterialInfo { public string name;public float metallic,roughness,emissionStrength;public float[] emission; }
+        [Serializable] class MaterialInfo { public string name;public float metallic,roughness,emissionStrength;public float[] emission;public bool useAtlas=true;public float[] baseColor; }
         [Serializable] class LeaderInfo { public string name;public MaterialInfo[] materials; }
         [Serializable] class Manifest { public LeaderInfo[] leaders; }
         [MenuItem("War & Conquer/Modelos de líderes/Preparar modelos importados")]
@@ -39,7 +39,7 @@ namespace WarConquer.Editor
                     var source=info.materials[i];string path=Folder+"/"+info.name+"_Material_"+i+".mat";
                     var mat=AssetDatabase.LoadAssetAtPath<Material>(path);
                     if(mat==null){mat=new Material(Shader.Find("Universal Render Pipeline/Lit"));AssetDatabase.CreateAsset(mat,path);}
-                    mat.name=info.name+" · "+source.name;mat.SetColor("_BaseColor",Color.white);mat.SetTexture("_BaseMap",texture);
+                    mat.name=info.name+" · "+source.name;ApplySurface(mat,source,texture);
                     mat.SetFloat("_Metallic",source.metallic);mat.SetFloat("_Smoothness",1-source.roughness);mat.SetFloat("_Cull",0);
                     if(source.emissionStrength>0&&source.emission.Take(3).Any(v=>v>0))
                     {mat.EnableKeyword("_EMISSION");mat.SetColor("_EmissionColor",new Color(source.emission[0],source.emission[1],source.emission[2])*source.emissionStrength);}
@@ -73,6 +73,35 @@ namespace WarConquer.Editor
                 Debug.Log("LEADER_MODEL_READY "+info.name);
             }
             AssetDatabase.SaveAssets();
+        }
+        static void ApplySurface(Material mat,MaterialInfo source,Texture2D atlas)
+        {
+            // Solid Blender materials must not sample neighbouring atlas islands.
+            bool textured=source.useAtlas||source.baseColor==null||source.baseColor.Length<4;
+            var color=textured?Color.white:new Color(source.baseColor[0],source.baseColor[1],source.baseColor[2],source.baseColor[3]).gamma;
+            mat.SetTexture("_BaseMap",textured?atlas:null);mat.SetColor("_BaseColor",color);
+            mat.SetTexture("_MainTex",textured?atlas:null);mat.SetColor("_Color",color);
+            mat.SetTextureScale("_BaseMap",Vector2.one);mat.SetTextureOffset("_BaseMap",Vector2.zero);
+            EditorUtility.SetDirty(mat);
+        }
+        public static void RepairMaterialsBatch()
+        {
+            try
+            {
+                var manifest=JsonUtility.FromJson<Manifest>(File.ReadAllText(Folder+"/import-manifest.json"));
+                foreach(var info in manifest.leaders)
+                {
+                    var atlas=AssetDatabase.LoadAssetAtPath<Texture2D>(Folder+"/"+info.name+"_BaseColor.png");
+                    for(int i=0;i<info.materials.Length;i++)
+                    {
+                        var mat=AssetDatabase.LoadAssetAtPath<Material>(Folder+"/"+info.name+"_Material_"+i+".mat");
+                        if(mat==null)throw new Exception("Missing material: "+info.name+"/"+i);
+                        ApplySurface(mat,info.materials[i],atlas);
+                    }
+                }
+                AssetDatabase.SaveAssets();Debug.Log("LEADER_MATERIALS_REPAIRED");EditorApplication.Exit(0);
+            }
+            catch(Exception e){Debug.LogException(e);EditorApplication.Exit(1);}
         }
         public static void BuildBatch(){try{Build();EditorApplication.Exit(0);}catch(Exception e){Debug.LogException(e);EditorApplication.Exit(1);}}
     }

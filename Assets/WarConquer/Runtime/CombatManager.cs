@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,7 +19,7 @@ namespace WarConquer
                 if(aura.Has("NomadAura")&&c.subtypes.Contains("Nómada")&&t.biome==Biome.Desert)attack++;
             }
             if(!c.IsStructure)attack+=g.Allies(p.owner).Count(a=>g.Data(a).Has("GlobalAttack"));
-            return Math.Max(0,attack+FactionCardRules.AttackBonus(g,p)+p.statBonuses.Sum(b=>b.attack));
+            return Math.Max(0,attack+TerrainManager.GetTerrainStatModifier(g,p)+FactionCardRules.AttackBonus(g,p)+p.statBonuses.Sum(b=>b.attack));
         }
         public static List<int> Targets(GameManager g,Piece p)
         {

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -19,11 +19,13 @@ namespace WarConquer
             if(p.poison>0)list.Add(new StatusIndicator("poison","VENENO "+FactionCardRules.PoisonDamage(g,p),new Color(.65f,.25f,.88f)));
             if(g.IsSleeping(p))list.Add(new StatusIndicator("sleep","DORMIDO",new Color(.6f,.82f,1)));
             if(p.slow>0&&p.slowUntilTurn>=g.State.turn)list.Add(new StatusIndicator("slow","MOV -"+p.slow,new Color(.5f,.7f,1)));
-            int atk=CombatManager.AttackValue(g,p)-(p.evolved?g.State.rules.evolvedAttack:c.attack);
+            int terrain=TerrainManager.GetTerrainStatModifier(g,p);
+            if(terrain>0)list.Add(new StatusIndicator("terrain","TERRENO +1 MOV / HP / ATK",new Color(.4f,.95f,.65f)));
+            int atk=CombatManager.AttackValue(g,p)-(p.evolved?g.State.rules.evolvedAttack:c.attack)-terrain;
             if(atk>0)list.Add(new StatusIndicator("attack","ATK +"+atk,new Color(1,.56f,.17f)));
-            int hp=g.MaxHealth(p)-(p.evolved?g.State.rules.evolvedHealth:c.health);
+            int hp=g.MaxHealth(p)-(p.evolved?g.State.rules.evolvedHealth:c.health)-terrain;
             if(hp>0)list.Add(new StatusIndicator("health","HP +"+hp,new Color(.35f,1,.55f)));
-            int move=GenericCardRules.MovementAura(g,p)+p.temporaryMovement;
+            int move=GenericCardRules.MovementAura(g,p)+p.temporaryMovement-terrain;
             move+=BoardManager.Nearby(g.State,p.tileId).Count(a=>a.owner==p.owner&&g.Data(a).Has("NomadAura")&&c.subtypes.Contains("Nómada")&&t.biome==Biome.Desert);
             if(!c.IsStructure&&move>0)list.Add(new StatusIndicator("movement","MOV +"+move,new Color(.25f,.94f,1)));
             bool guard=BoardManager.Nearby(g.State,p.tileId).Any(a=>a.owner==p.owner&&g.Data(a).Has("FirstAttackGuard"))||c.Has("OasisGuard")&&t.structure!=null&&g.Data(t.structure).Has("Oasis");

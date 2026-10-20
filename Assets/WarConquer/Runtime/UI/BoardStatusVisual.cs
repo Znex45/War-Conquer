@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -46,7 +46,7 @@ namespace WarConquer
             {
                 var indicator=active[i];if(!badges.TryGetValue(indicator.id,out var badge)){badge=CreateBadge(indicator);badges.Add(indicator.id,badge);}
                 if(!previouslyActive.Contains(indicator.id)||badge.value!=indicator.label){badge.appeared=Time.unscaledTime;badge.value=indicator.label;}
-                badge.root.gameObject.SetActive(true);badge.label.text=indicator.label;
+                badge.root.gameObject.SetActive(true);badge.label.text=indicator.id=="terrain"?"TERRENO +1":indicator.label;
                 int columns=Mathf.Min(3,active.Length),row=i/3;
                 badge.root.localPosition=new Vector3((i%3-(columns-1)*.5f)*.58f,2.85f+row*.48f,0);
             }
@@ -70,6 +70,8 @@ namespace WarConquer
             {var part=factory.Part(icon,name,factory.Cube,position,size,color);part.transform.localRotation=Quaternion.Euler(0,0,angle);}
             switch(indicator.id)
             {
+                case "terrain":
+                    var slab=factory.Part(icon,"Slab potenciado",factory.Hex,new Vector3(0,-.06f,-.06f),new Vector3(.3f,.17f,.3f),color);slab.transform.localRotation=Quaternion.Euler(65,0,0);break;
                 case "slow":
                     var upper=factory.Part(icon,"Reloj superior",factory.Cone,new Vector3(0,.1f,-.045f),new Vector3(.3f,.12f,.09f),color);upper.transform.localRotation=Quaternion.Euler(0,0,180);
                     factory.Part(icon,"Reloj inferior",factory.Cone,new Vector3(0,-.12f,-.045f),new Vector3(.3f,.12f,.09f),color);break;

@@ -9,7 +9,7 @@ namespace WarConquer
     {
         public const int Layer=30;
         public const float Surface=.36f;
-        public readonly Mesh Hex, Ring, Cylinder, Cone, Cube, Sphere;
+        public readonly Mesh Hex, Ring, Cylinder, Cone, Cube, Sphere, Vortex;
         public readonly Material Lit;
         readonly List<Mesh> owned=new List<Mesh>();
         readonly MaterialPropertyBlock properties=new MaterialPropertyBlock();
@@ -19,7 +19,7 @@ namespace WarConquer
             var source=Resources.Load<Material>(urp?"WarConquer/Materials/BoardURP":"WarConquer/Materials/BoardStandard");
             Lit=source!=null?new Material(source):new Material(Shader.Find(urp?"Universal Render Pipeline/Lit":"Standard"));
             Lit.name="WarConquer 3D shared material";Lit.enableInstancing=true;
-            Hex=Prism(.8f,Surface,.035f,6);Ring=MakeRing(.799f,.744f);
+            Hex=Prism(.8f,Surface,.035f,6);Ring=MakeRing(.799f,.744f);Vortex=MakeVortex();
             Cylinder=Prism(.5f,1,0,16);Cone=Taper(.5f,0,1,8);
             Cube=PrimitiveMesh(PrimitiveType.Cube);Sphere=PrimitiveMesh(PrimitiveType.Sphere);
         }
@@ -61,6 +61,21 @@ namespace WarConquer
         {
             var b=new Builder();for(int i=0;i<6;i++)b.Quad(Point(i,6,outer,0),Point(i,6,inner,0),Point(i+1,6,inner,0),Point(i+1,6,outer,0));
             var mesh=b.Build("Hex selection ring");owned.Add(mesh);return mesh;
+        }
+        Mesh MakeVortex()
+        {
+            var b=new Builder();
+            for(int arm=0;arm<3;arm++)for(int i=0;i<32;i++)
+            {
+                Vector3 Edge(float t,float side)
+                {
+                    float angle=arm*Mathf.PI*2/3+t*4.4f;
+                    float radius=.12f+t*.51f+side*(.012f+.025f*t);
+                    return new Vector3(Mathf.Cos(angle)*radius,0,Mathf.Sin(angle)*radius);
+                }
+                float a=i/32f,n=(i+1)/32f;b.Quad(Edge(a,1),Edge(a,-1),Edge(n,-1),Edge(n,1));
+            }
+            var mesh=b.Build("Espiral de acreción compartida");owned.Add(mesh);return mesh;
         }
         public GameObject Part(Transform parent,string name,Mesh mesh,Vector3 position,Vector3 scale,Color color,bool collider=false)
         {
@@ -148,25 +163,8 @@ namespace WarConquer
             if(hover>0)for(int i=0;i<2;i++){var wing=Part(body,"Ala",Sphere,new Vector3(i==0?-.43f:.43f,.65f,.05f),new Vector3(.64f,.08f,.4f),faction);wing.transform.localRotation=Quaternion.Euler(0,0,i==0?-20:20);}
             if(card.health>=10)body.localScale=Vector3.one*1.13f;
         }
-        public void BiomeModel(Transform parent,HexTile tile)
-        {
-            if(tile.biome==Biome.Neutral||tile.baseOwner>=0)return;
-            var corner=new Vector3(.38f,Surface,.33f);
-            if(tile.biome==Biome.Forest)
-            {
-                Part(parent,"Tronco",Cylinder,corner,new Vector3(.08f,.3f,.08f),new Color(.28f,.23f,.19f));
-                Part(parent,"Árbol",Cone,corner+Vector3.up*.16f,new Vector3(.42f,.53f,.42f),new Color(.13f,.4f,.26f));
-            }
-            else if(tile.biome==Biome.Swamp)
-                Part(parent,"Agua del pantano",Cylinder,new Vector3(.27f,Surface+.006f,.32f),new Vector3(.51f,.014f,.37f),new Color(.19f,.41f,.43f));
-            else if(tile.biome==Biome.Desert)
-                Part(parent,"Duna",Sphere,corner,new Vector3(.49f,.18f,.36f),new Color(.79f,.6f,.28f));
-            else
-            {
-                Color color=tile.biome==Biome.Tundra?new Color(.74f,.89f,.95f):tile.biome==Biome.Volcanic?new Color(.29f,.19f,.19f):new Color(.37f,.36f,.41f);
-                Part(parent,"Roca",Cone,corner,new Vector3(.37f,.31f,.34f),color);
-            }
-        }
+        public BoardBiomeVisuals.Habitat BiomeModel(Transform parent,HexTile tile)
+        {return BoardBiomeVisuals.Build(this,parent,tile);}
         public TextMesh Label(Transform parent,string name,Vector3 position,float size,Color color)
         {
             var group=Group(parent,name,position);var text=group.gameObject.AddComponent<TextMesh>();text.font=GrayboxUI.Font;text.fontSize=64;text.characterSize=size;text.anchor=TextAnchor.MiddleCenter;text.alignment=TextAlignment.Center;text.color=color;

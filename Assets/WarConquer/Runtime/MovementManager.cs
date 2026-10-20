@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -29,7 +29,11 @@ namespace WarConquer
                 {
                     var t=g.State.tiles[edge.id]; bool via=cur.route||edge.route;
                     int cost=cur.cost+(edge.route&&c.Has("FreeRoute")?0:1);
-                    int budget=p.remainingMovement+(via&&c.Has("FastBonus")&&!p.fastBonusUsed?1:0);
+                    // A ground unit uses the bonus of the slab it is leaving; flying
+                    // retains its starting bonus until landing. Account for spent movement.
+                    int terrainDelta=c.movementType=="Flying"?0:(TerrainManager.Compatible(g.State.players[p.owner].leader,g.State.tiles[cur.tile].biome)?1:0)-TerrainManager.GetTerrainStatModifier(g,p);
+                    if(g.State.rules.summoningSickness&&p.playedTurn==g.State.turn)terrainDelta=0;
+                    int budget=p.remainingMovement-p.movementAuraDebt+terrainDelta+(via&&c.Has("FastBonus")&&!p.fastBonusUsed?1:0);
                     if(cost>budget||cur.path.Contains(edge.id)||edge.id==p.tileId) continue;
                     if(c.movementType!="Flying"&&(t.BlocksMovement||t.unit!=null||(t.baseOwner>=0&&t.baseOwner!=p.owner&&!g.State.players[t.baseOwner].eliminated))) continue;
                     var path=new List<int>(cur.path){edge.id}; open.Add(new Node {tile=edge.id,cost=cost,route=via,path=path});
@@ -58,6 +62,7 @@ namespace WarConquer
                 if(fast&&!fastBonusUsed&&g.Data(p).Has("FastBonus")) {p.remainingMovement++;fastBonusUsed=true;p.fastBonusUsed=true;}
                 // Flying may pass above occupied/blocked tiles; it only lands at the chosen destination.
                 bool landing=g.Data(p).movementType!="Flying"||next==destination;
+                if(cost>p.remainingMovement)break;
                 p.remainingMovement=Math.Max(0,p.remainingMovement-cost);
                 if(!landing)continue;
                 if(!TerrainManager.CheckUnstable(g,p,g.State.tiles[next],false))break;
@@ -70,6 +75,7 @@ namespace WarConquer
             var from=g.State.tiles[p.tileId]; if(from.unit==p)from.unit=null;
             ConquestManager.Refresh(g.State);
             var to=g.State.tiles[destination]; p.tileId=destination; p.moved=true; to.unit=p; to.owner=p.owner;
+            g.ReportRelocation(p.id,from.id,destination);
             p.forestSinceTurn=-1;
             TerrainManager.MaintainRoutes(g);GenericCardRules.SyncAuras(g);if(p.health>0){EffectManager.OnTileEnter(g,p);GenericCardRules.OnMove(g,p,from.biome);FactionCardRules.OnMove(g,p,from,carried);}ConquestManager.Refresh(g.State);
             g.State.Log(g.Data(p).name+" → hex "+(destination+1));

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -742,11 +742,7 @@ namespace WarConquer
                 33,
                 30,
                 () => {
-                    board.Zoom =
-                        Mathf.Max(
-                            1,
-                            board.Zoom - .25f
-                        );
+                    board.World.ZoomAt(-2f, Vector2.one * .5f);
 
                     Render();
                 }
@@ -760,11 +756,7 @@ namespace WarConquer
                 33,
                 30,
                 () => {
-                    board.Zoom =
-                        Mathf.Min(
-                            5f,
-                            board.Zoom + .25f
-                        );
+                    board.World.ZoomAt(2f, Vector2.one * .5f);
 
                     Render();
                 }
@@ -772,7 +764,7 @@ namespace WarConquer
 
             GrayboxUI.Button(
                 chrome,
-                "1:1",
+                "Inicio",
                 930,
                 11,
                 42,
@@ -783,7 +775,7 @@ namespace WarConquer
                 }
             );
 
-            if (board.Zoom > 1)
+            // Navigation stays available at every zoom level.
             {
                 GrayboxUI.Button(
                     chrome,

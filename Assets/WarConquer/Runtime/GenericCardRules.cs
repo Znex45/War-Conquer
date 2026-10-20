@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -79,22 +79,25 @@ namespace WarConquer
         }
         public static void Heal(GameManager g,Piece p,int amount){if(p!=null&&p.health>0&&!FactionCardRules.HealingBlocked(g,p)&&!g.Data(p).Has("EternalEye")&&!g.Data(p).Has("VoidHole"))p.health=Math.Min(g.MaxHealth(p),p.health+amount);}
         public static int ForestHealth(GameManager g,Piece p)=>(g.Data(p).Has("ForestHealth")&&g.State.tiles[p.tileId].biome==Biome.Forest?2:0)+FactionCardRules.TokenStats(g,p);
-        public static int MovementAura(GameManager g,Piece p)=>g.Data(p).IsStructure?0:g.Allies(p.owner).Count(x=>g.Data(x).Has("GlobalMovement"))+FactionCardRules.SwampMovement(g,p);
+        public static int HealthAura(GameManager g,Piece p)=>ForestHealth(g,p)+TerrainManager.GetTerrainStatModifier(g,p);
+        public static int MovementAura(GameManager g,Piece p)=>g.Data(p).IsStructure?0:g.Allies(p.owner).Count(x=>g.Data(x).Has("GlobalMovement"))+FactionCardRules.SwampMovement(g,p)+TerrainManager.GetTerrainStatModifier(g,p);
         public static void SyncAuras(GameManager g)
         {
             XiltharRules.SyncTaxes(g);
             foreach(var p in BoardManager.Pieces(g.State).ToList())
             {
                 if(p.health<=0)continue;
-                int health=ForestHealth(g,p);p.health+=health-p.terrainHealthBonus;p.terrainHealthBonus=health;
+                int health=HealthAura(g,p);p.health+=health-p.terrainHealthBonus;p.terrainHealthBonus=health;
+                int terrain=TerrainManager.GetTerrainStatModifier(g,p);
                 int movement=MovementAura(g,p);
                 if(!g.IsSleeping(p))
                 {
                     // Preserve spent bonus movement when an aura disappears and is later restored.
-                    int balance=p.remainingMovement-p.movementAuraDebt+movement-p.movementAura;
+                    int terrainSuppressed=g.State.rules.summoningSickness&&p.playedTurn==g.State.turn?terrain-p.terrainMovementBonus:0;
+                    int balance=p.remainingMovement-p.movementAuraDebt+movement-p.movementAura-terrainSuppressed;
                     p.remainingMovement=Math.Max(0,balance);p.movementAuraDebt=Math.Max(0,-balance);
                 }
-                p.movementAura=movement;
+                p.movementAura=movement;p.terrainMovementBonus=terrain;
                 if(p.health<=0)CombatManager.Remove(g,p);
             }
         }

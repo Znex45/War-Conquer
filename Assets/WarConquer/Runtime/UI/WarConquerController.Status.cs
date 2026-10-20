@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 
 namespace WarConquer
@@ -35,8 +35,8 @@ namespace WarConquer
             {
                 GrayboxUI.Text(box,card.name,0,32,300,45,21,GrayboxUI.PlayerColor(viewedPlayer),FontStyle.Bold);
                 var quote=EnergyManager.Quote(s.players[viewedPlayer],card,useResources);
-                string stats="E "+quote.EnergyLabel+" · VIDA "+(selectedPiece?.health??card.health)+" · ATQ "+(selectedPiece!=null?CombatManager.AttackValue(Game,selectedPiece):card.attack)+" · MOV "+(selectedPiece?.remainingMovement??card.movement);
-                GrayboxUI.Text(box,stats,0,80,300,35,14);GrayboxUI.Text(box,instance!=null?quote.Detail:Names.Categories[(int)card.category]+" · ALC "+card.range,0,116,300,29,12,GrayboxUI.Muted);
+                string stats="E "+quote.EnergyLabel+" · HP "+(selectedPiece!=null?selectedPiece.health+"/"+Game.MaxHealth(selectedPiece):card.health.ToString())+" · ATK "+(selectedPiece!=null?CombatManager.AttackValue(Game,selectedPiece):card.attack)+" · MOV "+(selectedPiece?.remainingMovement??card.movement);
+                GrayboxUI.Text(box,stats,0,80,300,35,14);GrayboxUI.Text(box,instance!=null?quote.Detail:Names.Categories[(int)card.category]+" · ALC "+card.range+(selectedPiece!=null?"\n"+(TerrainManager.GetTerrainStatModifier(Game,selectedPiece)>0?"Terreno: +1 MOV / +1 HP / +1 ATK":"Terreno: sin bonificación"):""),0,116,300,29,12,GrayboxUI.Muted);
                 GrayboxUI.Button(box,"Ver carta completa",0,153,190,28,()=>ShowCardModal(card,s.players[viewedPlayer]));
                 if(selectedPiece!=null&&!Game.ActingPlayer.isAI&&Game.CanTakeTurnAction(TurnStage.Assault)&&selectedPiece.owner==Game.ActingPlayerId)
                 {

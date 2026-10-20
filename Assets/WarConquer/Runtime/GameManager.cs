@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,6 +10,8 @@ namespace WarConquer
         public CardCatalog Catalog { get; }
         public string LastMessage { get; private set; } = "Selecciona una carta o una casilla.";
         public event Action Changed;
+        public event Action<int,int,int> PieceRelocated;
+        internal void ReportRelocation(int piece,int from,int to)=>PieceRelocated?.Invoke(piece,from,to);
         public GameManager(CardCatalog catalog) { Catalog=catalog; }
         public void NewGame(string[] leaders, int seed, Rules rules, int humanPlayers=4, bool startImmediately=true)
         {
@@ -30,7 +32,7 @@ namespace WarConquer
             else Notify("Partida en pausa. Elige participantes y mazos antes de comenzar.");
         }
         public void Restore(GameState state) { ResetHistory();State=state; Notify("Partida cargada."); }
-        public void Notify(string message) { if(State!=null)ConquestManager.Refresh(State);LastMessage=message; if(decisionDepth==0)Changed?.Invoke(); }
+        public void Notify(string message) { if(State!=null){GenericCardRules.SyncAuras(this);ConquestManager.Refresh(State);}LastMessage=message; if(decisionDepth==0)Changed?.Invoke(); }
         public int RollDie(Piece piece,HexTile tile,int threshold,string reason)
         {
             int value=State.Random(6)+1;
@@ -162,7 +164,7 @@ namespace WarConquer
             if(c.Has("Evolve")&&State.tiles[tile].biome==Biome.Forest) piece.forestSinceTurn=State.turn;
             GenericCardRules.SyncAuras(this);return piece;
         }
-        public int MaxHealth(Piece p) => (p.evolved?State.rules.evolvedHealth:Data(p).health)+GenericCardRules.ForestHealth(this,p)+p.statBonuses.Sum(b=>b.hp);
+        public int MaxHealth(Piece p) => (p.evolved?State.rules.evolvedHealth:Data(p).health)+GenericCardRules.HealthAura(this,p)+p.statBonuses.Sum(b=>b.hp);
         public bool IsSleeping(Piece p) => p.sleepUntilTurn>=State.turn;
         public int NextTurnOf(int player) { int delta=(player-State.activePlayer+4)%4; return State.turn+(delta==0?4:delta); }
         public int TerraformCost(Biome biome)
