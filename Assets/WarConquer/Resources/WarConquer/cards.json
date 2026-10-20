@@ -1,0 +1,5542 @@
+{
+  "cards": [
+    {
+      "id": "recolector-de-esporas",
+      "name": "Recolector de Esporas",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 0,
+      "subtypes": [
+        "Criatura",
+        "Hongo"
+      ],
+      "energyCost": 1,
+      "health": 3,
+      "attack": 1,
+      "movement": 2,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        1,
+        2
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "ESPORAS",
+        "VENENO",
+        "BOSQUE",
+        "PANTANO"
+      ],
+      "description": "Al entrar en Bosque aliado, puede aplicar Envenenado 1 a una unidad enemiga adyacente.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "EnterPoison"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "hongo-explorador",
+      "name": "Hongo Explorador",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 0,
+      "subtypes": [
+        "Explorador",
+        "Hongo"
+      ],
+      "energyCost": 2,
+      "health": 3,
+      "attack": 2,
+      "movement": 3,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "VÍA RÁPIDA",
+        "MOVILIDAD",
+        "BOSQUE"
+      ],
+      "description": "Puede moverse 1 casilla adicional al desplazarse mediante una Vía Rápida de Bosque.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "FastBonus"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "larva-micelial",
+      "name": "Larva Micelial",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 0,
+      "subtypes": [
+        "Criatura",
+        "Larva",
+        "Hongo"
+      ],
+      "energyCost": 2,
+      "health": 4,
+      "attack": 2,
+      "movement": 2,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "EVOLUCIÓN",
+        "BOSQUE"
+      ],
+      "description": "Si permanece sobre Bosque durante todo el turno, puede convertirse en una Espora Evolucionada al siguiente turno.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "Evolve"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "bestia-micelial",
+      "name": "Bestia Micelial",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 0,
+      "subtypes": [
+        "Criatura",
+        "Bestia",
+        "Hongo"
+      ],
+      "energyCost": 3,
+      "health": 5,
+      "attack": 3,
+      "movement": 2,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        1,
+        2
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "VENENO",
+        "BESTIA",
+        "BOSQUE",
+        "PANTANO"
+      ],
+      "description": "Mientras esté sobre Bosque o Pantano, sus ataques aplican Envenenado 1.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "PoisonAttack"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "guardian-del-bosque",
+      "name": "Guardián del Bosque",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 0,
+      "subtypes": [
+        "Defensor",
+        "Guardián"
+      ],
+      "energyCost": 4,
+      "health": 7,
+      "attack": 3,
+      "movement": 1,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "DEFENSA",
+        "PROTECCIÓN",
+        "BOSQUE"
+      ],
+      "description": "Las unidades aliadas adyacentes reciben 1 punto menos de daño del primer ataque que reciban cada ronda.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "FirstAttackGuard"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "cazador-de-esporas",
+      "name": "Cazador de Esporas",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 0,
+      "subtypes": [
+        "Soldado",
+        "Cazador",
+        "Hongo"
+      ],
+      "energyCost": 4,
+      "health": 5,
+      "attack": 4,
+      "movement": 3,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        1,
+        2
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "VENENO",
+        "SOLDADO",
+        "BOSQUE",
+        "PANTANO"
+      ],
+      "description": "Si ataca a una unidad Envenenada, obtiene +1 ATQ durante ese combate.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "PoisonHunter"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "chaman-micelial",
+      "name": "Chamán Micelial",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 0,
+      "subtypes": [
+        "Místico",
+        "Soporte",
+        "Hongo"
+      ],
+      "energyCost": 4,
+      "health": 5,
+      "attack": 2,
+      "movement": 2,
+      "range": 2,
+      "movementType": "Ground",
+      "biomes": [
+        1,
+        2
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "ESPORAS",
+        "SOPORTE",
+        "BOSQUE",
+        "PANTANO"
+      ],
+      "description": "Puede retirar 1 Espora una vez por turno para extender un efecto de una carta de Zukgrok a una unidad aliada adyacente.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "ExtendBuff"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "coloso-de-esporas",
+      "name": "Coloso de Esporas",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 0,
+      "subtypes": [
+        "Pesada",
+        "Hongo"
+      ],
+      "energyCost": 5,
+      "health": 9,
+      "attack": 5,
+      "movement": 1,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        1,
+        2
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "PESADA",
+        "AURA",
+        "BOSQUE",
+        "PANTANO"
+      ],
+      "description": "Las unidades Hongo aliadas adyacentes reciben +1 ATQ.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "FungusAttackAura"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "matriarca-micelial",
+      "name": "Matriarca Micelial",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 0,
+      "subtypes": [
+        "Criatura",
+        "Matriarca",
+        "Hongo"
+      ],
+      "energyCost": 5,
+      "health": 8,
+      "attack": 4,
+      "movement": 2,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "ESPORAS",
+        "GENERACIÓN",
+        "BOSQUE"
+      ],
+      "description": "Al inicio de tu turno genera 1 Espora si está sobre Bosque.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "ForestSpore"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "ancestro-micelial",
+      "name": "Ancestro Micelial",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 0,
+      "subtypes": [
+        "Ancestro",
+        "Hongo"
+      ],
+      "energyCost": 6,
+      "health": 10,
+      "attack": 6,
+      "movement": 2,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "AVANZADA",
+        "TERRAFORMACIÓN",
+        "BOSQUE"
+      ],
+      "description": "Al entrar puede terraformar una casilla adyacente a Bosque.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "EnterForest"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "ciervo-de-esporas",
+      "name": "Ciervo de Esporas",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 0,
+      "subtypes": [
+        "Animal",
+        "Bestia"
+      ],
+      "energyCost": 3,
+      "health": 4,
+      "attack": 2,
+      "movement": 4,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "ANIMAL",
+        "VÍA RÁPIDA",
+        "BOSQUE"
+      ],
+      "description": "Puede atravesar una Vía Rápida sin gastar movimiento adicional.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "FreeRoute"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "semillero-micelial",
+      "name": "Semillero Micelial",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 1,
+      "subtypes": [
+        "Generación",
+        "Semillero"
+      ],
+      "energyCost": 2,
+      "health": 5,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        1,
+        2
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "ESPORAS",
+        "PRODUCCIÓN",
+        "BOSQUE",
+        "PANTANO"
+      ],
+      "description": "Al inicio de tu turno crea 1 Espora en una casilla adyacente libre.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "SporeToken"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "nido-de-esporas",
+      "name": "Nido de Esporas",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 1,
+      "subtypes": [
+        "Defensiva",
+        "Nido"
+      ],
+      "energyCost": 3,
+      "health": 6,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "DEFENSA",
+        "HONGO",
+        "BOSQUE"
+      ],
+      "description": "Las unidades Hongo aliadas adyacentes obtienen +1 defensa.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "FungusDefenseAura"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "santuario-del-bosque",
+      "name": "Santuario del Bosque",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 1,
+      "subtypes": [
+        "Santuario",
+        "Económica"
+      ],
+      "energyCost": 4,
+      "health": 7,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "TERRAFORMACIÓN",
+        "DESCUENTO",
+        "BOSQUE"
+      ],
+      "description": "La primera terraformación de Bosque de cada turno cuesta 1 Energía menos.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "ForestDiscount"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "jardin-micelial",
+      "name": "Jardín Micelial",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 1,
+      "subtypes": [
+        "Jardín",
+        "Reacción"
+      ],
+      "energyCost": 3,
+      "health": 5,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        1,
+        2
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "ESPORAS",
+        "REACCIÓN",
+        "BOSQUE",
+        "PANTANO"
+      ],
+      "description": "Cuando una unidad aliada es afectada por un efecto negativo, genera 1 Espora. Máximo una por evento.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "NegativeSpore"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "red-micelial",
+      "name": "Red Micelial",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 1,
+      "subtypes": [
+        "Conexión",
+        "Red"
+      ],
+      "energyCost": 5,
+      "health": 8,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        1,
+        2
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "VÍA RÁPIDA",
+        "CONEXIÓN",
+        "BOSQUE",
+        "PANTANO"
+      ],
+      "description": "Conecta dos casillas de Bosque o Pantano y permite tratarlas como parte de la misma Vía Rápida.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "FastNetwork"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "torre-de-esporas",
+      "name": "Torre de Esporas",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 1,
+      "subtypes": [
+        "Torre",
+        "Control"
+      ],
+      "energyCost": 4,
+      "health": 6,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "VENENO",
+        "MAGIA",
+        "BOSQUE"
+      ],
+      "description": "Una Magia que aplique Envenenado puede alcanzar 1 casilla adicional una vez por turno.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "PoisonRange"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "corazon-del-hongo",
+      "name": "Corazón del Hongo",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 1,
+      "subtypes": [
+        "Núcleo",
+        "Motor"
+      ],
+      "energyCost": 6,
+      "health": 9,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "ESPORAS",
+        "VENENO",
+        "MOTOR",
+        "BOSQUE"
+      ],
+      "description": "Cada vez que una unidad enemiga sea Envenenada, obtienes 1 Espora.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "PoisonSpore"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "santuario-del-sueno",
+      "name": "Santuario del Sueño",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 1,
+      "subtypes": [
+        "Santuario",
+        "Control"
+      ],
+      "energyCost": 5,
+      "health": 7,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        1,
+        2
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "DORMIDO",
+        "MOVIMIENTO",
+        "BOSQUE",
+        "PANTANO"
+      ],
+      "description": "Una vez por ronda, cuando una unidad enemiga queda Dormida, puedes mover 1 unidad aliada una casilla.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "SleepStep"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "arbol-madre",
+      "name": "Árbol Madre",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 1,
+      "subtypes": [
+        "Árbol",
+        "Avanzada"
+      ],
+      "energyCost": 7,
+      "health": 11,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "AVANZADA",
+        "ESPORAS",
+        "BOSQUE"
+      ],
+      "description": "Al inicio de tu turno, si controlas tres o más Bosques conectados, genera 2 Esporas.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "ConnectedSpores"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "brote-repentino",
+      "name": "Brote Repentino",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 2,
+      "subtypes": [
+        "Terraformación",
+        "Brote"
+      ],
+      "energyCost": 1,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "None",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "TERRAFORMACIÓN",
+        "BOSQUE"
+      ],
+      "description": "Terraformar una casilla válida convirtiéndola en Bosque.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [],
+      "effects": [
+        {
+          "operation": "Terraform",
+          "target": "Terraform",
+          "amount": 1,
+          "count": 1,
+          "biome": "Forest",
+          "trigger": "Play",
+          "duration": 1
+        }
+      ],
+      "allowedPhases": [
+        1
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "lluvia-de-esporas",
+      "name": "Lluvia de Esporas",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 2,
+      "subtypes": [
+        "Mejora",
+        "Esporas"
+      ],
+      "energyCost": 2,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "None",
+      "biomes": [
+        1,
+        2
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "ESPORAS",
+        "MEJORA",
+        "BOSQUE",
+        "PANTANO"
+      ],
+      "description": "Crea 1 Espora y una unidad aliada obtiene +1 ATQ durante este turno.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [],
+      "effects": [
+        {
+          "operation": "Spore",
+          "target": "AllyUnit",
+          "amount": 1,
+          "count": 1,
+          "biome": "",
+          "trigger": "Play",
+          "duration": 1
+        },
+        {
+          "operation": "Buff",
+          "target": "AllyUnit",
+          "amount": 1,
+          "count": 1,
+          "biome": "",
+          "trigger": "Play",
+          "duration": 1
+        }
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "espora-somnifera",
+      "name": "Espora Somnífera",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 2,
+      "subtypes": [
+        "Control",
+        "Esporas"
+      ],
+      "energyCost": 2,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "None",
+      "biomes": [
+        1,
+        2
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "DORMIDO",
+        "CONTROL",
+        "BOSQUE",
+        "PANTANO"
+      ],
+      "description": "Una unidad enemiga sobre Bosque o Pantano queda Dormida durante su próximo turno.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [],
+      "effects": [
+        {
+          "operation": "Sleep",
+          "target": "EnemyForestSwamp",
+          "amount": 1,
+          "count": 1,
+          "biome": "",
+          "trigger": "Play",
+          "duration": 1
+        }
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "nube-de-esporas",
+      "name": "Nube de Esporas",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 2,
+      "subtypes": [
+        "Control",
+        "Área"
+      ],
+      "energyCost": 3,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "None",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "ENVENENADO",
+        "ÁREA",
+        "BOSQUE"
+      ],
+      "description": "Hasta 2 unidades enemigas dentro de un Bosque reciben Envenenado 1.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [],
+      "effects": [
+        {
+          "operation": "Poison",
+          "target": "EnemyForest",
+          "amount": 1,
+          "count": 2,
+          "biome": "",
+          "trigger": "Play",
+          "duration": 1
+        }
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "crecimiento-descontrolado",
+      "name": "Crecimiento Descontrolado",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 2,
+      "subtypes": [
+        "Terraformación",
+        "Área"
+      ],
+      "energyCost": 3,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "None",
+      "biomes": [
+        1,
+        2
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "TERRAFORMACIÓN",
+        "ÁREA",
+        "BOSQUE",
+        "PANTANO"
+      ],
+      "description": "Convierte hasta 2 casillas adyacentes válidas en Bosque o Pantano.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [],
+      "effects": [
+        {
+          "operation": "Terraform",
+          "target": "AdjacentTerraform",
+          "amount": 1,
+          "count": 2,
+          "biome": "ChooseForestSwamp",
+          "trigger": "Play",
+          "duration": 1
+        }
+      ],
+      "allowedPhases": [
+        1
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "marcha-micelial",
+      "name": "Marcha Micelial",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 2,
+      "subtypes": [
+        "Movimiento",
+        "Vía Rápida"
+      ],
+      "energyCost": 4,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "None",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "VÍA RÁPIDA",
+        "MOVIMIENTO",
+        "BOSQUE"
+      ],
+      "description": "Mueve hasta 2 unidades aliadas utilizando una Vía Rápida sin consumir su movimiento normal.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [],
+      "effects": [
+        {
+          "operation": "March",
+          "target": "Route",
+          "amount": 1,
+          "count": 2,
+          "biome": "",
+          "trigger": "Play",
+          "duration": 1
+        }
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "sueno-micelial",
+      "name": "Sueño Micelial",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 2,
+      "subtypes": [
+        "Control",
+        "Sueño"
+      ],
+      "energyCost": 4,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "None",
+      "biomes": [
+        1,
+        2
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "DORMIDO",
+        "VENENO",
+        "BOSQUE",
+        "PANTANO"
+      ],
+      "description": "Una unidad enemiga queda Dormida. Si estaba Envenenada, recibe además 1 daño.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [],
+      "effects": [
+        {
+          "operation": "SleepPoisonDamage",
+          "target": "EnemyUnit",
+          "amount": 1,
+          "count": 1,
+          "biome": "",
+          "trigger": "Play",
+          "duration": 1
+        }
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "explosion-de-esporas",
+      "name": "Explosión de Esporas",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 2,
+      "subtypes": [
+        "Daño",
+        "Esporas"
+      ],
+      "energyCost": 4,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "None",
+      "biomes": [
+        1,
+        2
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "ESPORAS",
+        "ÁREA",
+        "BOSQUE",
+        "PANTANO"
+      ],
+      "description": "Consume hasta 3 Esporas. Por cada una consumida, una unidad enemiga adyacente recibe 1 daño.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [],
+      "effects": [
+        {
+          "operation": "SporeDamage",
+          "target": "EnemyAdjacent",
+          "amount": 1,
+          "count": 3,
+          "biome": "",
+          "trigger": "Play",
+          "duration": 1
+        }
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "rey-micelial",
+      "name": "Rey Micelial",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 3,
+      "subtypes": [
+        "Unidad Épica",
+        "Hongo"
+      ],
+      "energyCost": 6,
+      "health": 12,
+      "attack": 7,
+      "movement": 2,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        6
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "LATENTE",
+        "ÉPICA",
+        "HONGO",
+        "VENENO",
+        "CENIZA"
+      ],
+      "description": "Solo puede jugarse desde Tierra Ceniza. Al entrar, las unidades Hongo aliadas obtienen +1 ATQ y las unidades enemigas sobre Bosque reciben Envenenado 1.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": true,
+      "traits": [
+        "EnterKing"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "bosque-eterno",
+      "name": "Bosque Eterno",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 3,
+      "subtypes": [
+        "Terreno",
+        "Estructura"
+      ],
+      "energyCost": 7,
+      "health": 10,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        6
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "NATURAL",
+        "LATENTE",
+        "TERRAFORMACIÓN",
+        "VÍA RÁPIDA",
+        "CENIZA"
+      ],
+      "description": "Solo puede jugarse desde Tierra Ceniza. Convierte hasta 3 casillas adyacentes en Bosque. Las Vías Rápidas conectadas no pueden ser destruidas mediante efectos normales.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": true,
+      "traits": [
+        "EternalForest"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "nomada-de-arena",
+      "name": "Nómada de Arena",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 0,
+      "subtypes": [
+        "Soldado",
+        "Nómada"
+      ],
+      "energyCost": 1,
+      "health": 3,
+      "attack": 1,
+      "movement": 3,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "MOVILIDAD",
+        "NÓMADA"
+      ],
+      "description": "Puede moverse por Desierto sin realizar la tirada de Terreno Inestable.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "IgnoreUnstable"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "escorpion-solar",
+      "name": "Escorpión Solar",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 0,
+      "subtypes": [
+        "Criatura",
+        "Depredador"
+      ],
+      "energyCost": 2,
+      "health": 4,
+      "attack": 2,
+      "movement": 3,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "ARENA",
+        "INMUNIDAD"
+      ],
+      "description": "Una vez por turno puede ignorar una tirada de Terreno Inestable.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "IgnoreUnstable"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "guardian-del-obelisco",
+      "name": "Guardián del Obelisco",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 0,
+      "subtypes": [
+        "Soldado",
+        "Defensor"
+      ],
+      "energyCost": 3,
+      "health": 6,
+      "attack": 3,
+      "movement": 2,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "DEFENSA",
+        "ESTRUCTURAS"
+      ],
+      "description": "Mientras esté junto a una Estructura, obtiene +1 defensa.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "StructureGuard"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "sacerdote-solar",
+      "name": "Sacerdote Solar",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 0,
+      "subtypes": [
+        "Místico",
+        "Soporte"
+      ],
+      "energyCost": 4,
+      "health": 5,
+      "attack": 2,
+      "movement": 2,
+      "range": 2,
+      "movementType": "Ground",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "SOPORTE",
+        "ENERGÍA"
+      ],
+      "description": "Una vez por turno reduce en 1 el coste de la siguiente Estructura que juegues.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "StructureDiscount"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "bestia-de-las-dunas",
+      "name": "Bestia de las Dunas",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 0,
+      "subtypes": [
+        "Criatura",
+        "Bestia",
+        "Pesada"
+      ],
+      "energyCost": 5,
+      "health": 9,
+      "attack": 6,
+      "movement": 1,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "BESTIA",
+        "PESADA"
+      ],
+      "description": "Obtiene +2 ATQ mientras esté sobre Desierto controlado por Sahria.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "DesertAttack"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "avatar-del-sol",
+      "name": "Avatar del Sol",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 0,
+      "subtypes": [
+        "Entidad",
+        "Avanzada"
+      ],
+      "energyCost": 6,
+      "health": 10,
+      "attack": 6,
+      "movement": 2,
+      "range": 2,
+      "movementType": "Flying",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "AVANZADA",
+        "VOLADORA",
+        "TERRAFORMACIÓN"
+      ],
+      "description": "Al entrar puede convertir una casilla adyacente en Desierto. Ignora Terreno Inestable.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "EnterDesert"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "obelisco-solar",
+      "name": "Obelisco Solar",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 1,
+      "subtypes": [
+        "Obelisco",
+        "Soporte"
+      ],
+      "energyCost": 2,
+      "health": 5,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "AURA",
+        "ATAQUE"
+      ],
+      "description": "Las unidades Sahria adyacentes reciben +1 ATQ.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "SolarAttackAura"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "campamento-nomada",
+      "name": "Campamento Nómada",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 1,
+      "subtypes": [
+        "Campamento",
+        "Movilidad"
+      ],
+      "energyCost": 2,
+      "health": 5,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "MOVIMIENTO",
+        "NÓMADA"
+      ],
+      "description": "Una unidad aliada puede reposicionarse 1 casilla adicional por turno.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "CampStep"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "santuario-de-arena",
+      "name": "Santuario de Arena",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 1,
+      "subtypes": [
+        "Santuario",
+        "Económica"
+      ],
+      "energyCost": 3,
+      "health": 6,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "TERRAFORMACIÓN",
+        "DESCUENTO"
+      ],
+      "description": "La primera terraformación de Desierto de cada turno cuesta 1 Energía menos.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "DesertDiscount"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "obelisco-de-ruptura",
+      "name": "Obelisco de Ruptura",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 1,
+      "subtypes": [
+        "Obelisco",
+        "Control"
+      ],
+      "energyCost": 4,
+      "health": 7,
+      "attack": 0,
+      "movement": 0,
+      "range": 1,
+      "movementType": "Fixed",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "DESTRUCCIÓN",
+        "NEUTRO"
+      ],
+      "description": "Permite destruir un bioma normal adyacente y convertirlo en Neutro.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "DestroyBiome"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "templo-de-ceniza",
+      "name": "Templo de Ceniza",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 1,
+      "subtypes": [
+        "Templo",
+        "Latencia"
+      ],
+      "energyCost": 5,
+      "health": 8,
+      "attack": 0,
+      "movement": 0,
+      "range": 2,
+      "movementType": "Fixed",
+      "biomes": [
+        5,
+        7
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "TIERRA CENIZA",
+        "LATENTE",
+        "YERMO"
+      ],
+      "description": "Reduce en 1 el coste necesario para revelar Tierra Ceniza en una casilla compatible.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "AshDiscount"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "trono-solar",
+      "name": "Trono Solar",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 1,
+      "subtypes": [
+        "Trono",
+        "Motor"
+      ],
+      "energyCost": 6,
+      "health": 10,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "ENERGÍA",
+        "AURA",
+        "MOTOR"
+      ],
+      "description": "Las Estructuras de Desierto aliadas conectadas reciben +1 defensa y generan 1 Energía adicional al inicio de tu turno.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "SolarEngine"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "arena-profunda",
+      "name": "Arena Profunda",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 1,
+      "subtypes": [
+        "Terreno",
+        "Trampa"
+      ],
+      "energyCost": 3,
+      "health": 6,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "TERRENO INESTABLE",
+        "ARENA"
+      ],
+      "description": "Las unidades terrestres que no compartan la etiqueta compatible lanzan 1d6 al entrar: 4+ entra; 1–3 recibe 2 daño y termina movimiento. Voladoras ignoran.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "DeepSand",
+        "Passable"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "dunas-movedizas",
+      "name": "Dunas Movedizas",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 1,
+      "subtypes": [
+        "Terreno",
+        "Trampa"
+      ],
+      "energyCost": 4,
+      "health": 7,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "TERRENO INESTABLE",
+        "MOVIMIENTO"
+      ],
+      "description": "Las unidades terrestres no compatibles lanzan 1d6 al entrar y salir: 4+ supera; 1–3 recibe 1 daño al entrar o permanece al intentar salir. Voladoras ignoran.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "MovingDunes",
+        "Passable"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "tormenta-de-arena",
+      "name": "Tormenta de Arena",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 2,
+      "subtypes": [
+        "Control",
+        "Arena"
+      ],
+      "energyCost": 1,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "None",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "ARENA",
+        "MOVIMIENTO"
+      ],
+      "description": "Una unidad terrestre enemiga tiene -1 MOV durante este turno.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [],
+      "effects": [
+        {
+          "operation": "Slow",
+          "target": "EnemyGround",
+          "amount": 1,
+          "count": 1,
+          "biome": "",
+          "trigger": "Play",
+          "duration": 1
+        }
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "terraformacion-solar",
+      "name": "Terraformación Solar",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 2,
+      "subtypes": [
+        "Terraformación",
+        "Desierto"
+      ],
+      "energyCost": 2,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "None",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "TERRAFORMACIÓN"
+      ],
+      "description": "Convierte una casilla válida en Desierto.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [],
+      "effects": [
+        {
+          "operation": "Terraform",
+          "target": "Terraform",
+          "amount": 1,
+          "count": 1,
+          "biome": "Desert",
+          "trigger": "Play",
+          "duration": 1
+        }
+      ],
+      "allowedPhases": [
+        1
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "erosion",
+      "name": "Erosión",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 2,
+      "subtypes": [
+        "Daño",
+        "Desgaste"
+      ],
+      "energyCost": 3,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "None",
+      "biomes": [],
+      "terrainTags": [
+        "SOLAR",
+        "DAÑO",
+        "DESGASTE"
+      ],
+      "description": "Una unidad o Estructura enemiga recibe 2 de daño.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [],
+      "effects": [
+        {
+          "operation": "Damage",
+          "target": "EnemyPiece",
+          "amount": 2,
+          "count": 1,
+          "biome": "",
+          "trigger": "Play",
+          "duration": 1
+        }
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "ruptura-del-terreno",
+      "name": "Ruptura del Terreno",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 2,
+      "subtypes": [
+        "Destrucción",
+        "Neutralización"
+      ],
+      "energyCost": 4,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "None",
+      "biomes": [],
+      "terrainTags": [
+        "SOLAR",
+        "DESTRUCCIÓN",
+        "NEUTRO"
+      ],
+      "description": "Destruye un bioma normal enemigo y convierte la casilla en Neutro.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [],
+      "effects": [
+        {
+          "operation": "DestroyBiome",
+          "target": "EnemyBiome",
+          "amount": 1,
+          "count": 1,
+          "biome": "",
+          "trigger": "Play",
+          "duration": 1
+        }
+      ],
+      "allowedPhases": [
+        1
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "despertar-de-las-ruinas",
+      "name": "Despertar de las Ruinas",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 2,
+      "subtypes": [
+        "Estructuras",
+        "Reactivación"
+      ],
+      "energyCost": 5,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "None",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "ESTRUCTURAS",
+        "REACTIVACIÓN",
+        "RUINAS",
+        "DESIERTO"
+      ],
+      "description": "Activa nuevamente la habilidad de una Estructura de Sahria utilizada este turno.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [],
+      "effects": [
+        {
+          "operation": "Reactivate",
+          "target": "UsedStructure",
+          "amount": 1,
+          "count": 1,
+          "biome": "",
+          "trigger": "Play",
+          "duration": 1
+        }
+      ],
+      "allowedPhases": [
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "mar-de-arena",
+      "name": "Mar de Arena",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 2,
+      "subtypes": [
+        "Terreno",
+        "Control"
+      ],
+      "energyCost": 5,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "None",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "TERRENO INESTABLE",
+        "ÁREA"
+      ],
+      "description": "Convierte hasta 2 casillas de Desierto en Mar de Arena durante dos rondas. Las unidades terrestres no compatibles necesitan 5+ para entrar y salir. Voladoras ignoran.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [],
+      "effects": [
+        {
+          "operation": "Unstable",
+          "target": "Desert",
+          "amount": 1,
+          "count": 2,
+          "biome": "",
+          "trigger": "Play",
+          "duration": 2
+        }
+      ],
+      "allowedPhases": [
+        1
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "llamado-del-oasis",
+      "name": "Llamado del Oasis",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 2,
+      "subtypes": [
+        "Soporte",
+        "Recuperación"
+      ],
+      "energyCost": 3,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "None",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "SOPORTE",
+        "CURACIÓN"
+      ],
+      "description": "Una unidad Sahria sobre Desierto recupera 2 de vida, sin superar su vida máxima.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [],
+      "effects": [
+        {
+          "operation": "Heal",
+          "target": "AllyDesertUnit",
+          "amount": 2,
+          "count": 1,
+          "biome": "",
+          "trigger": "Play",
+          "duration": 1
+        }
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "guardian-del-oasis",
+      "name": "Guardián del Oasis",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 0,
+      "subtypes": [
+        "Criatura",
+        "Guardián",
+        "Oasis"
+      ],
+      "energyCost": 3,
+      "health": 6,
+      "attack": 3,
+      "movement": 2,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "OASIS",
+        "DEFENSA"
+      ],
+      "description": "Mientras esté en una casilla de Oasis, reduce en 1 el primer daño que reciba cada ronda.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "OasisGuard"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "halconero-solar",
+      "name": "Halconero Solar",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 0,
+      "subtypes": [
+        "Soldado",
+        "Explorador"
+      ],
+      "energyCost": 3,
+      "health": 4,
+      "attack": 3,
+      "movement": 3,
+      "range": 2,
+      "movementType": "Flying",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "VOLADORA",
+        "EXPLORADOR"
+      ],
+      "description": "Puede ignorar Terreno Inestable y, al entrar al centro, revelar un recurso oculto de la casilla.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "RevealResource"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "escarabajo-de-cobre",
+      "name": "Escarabajo de Cobre",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 0,
+      "subtypes": [
+        "Animal",
+        "Bestia",
+        "Recolector"
+      ],
+      "energyCost": 2,
+      "health": 4,
+      "attack": 2,
+      "movement": 3,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "ANIMAL",
+        "RECURSO"
+      ],
+      "description": "Cuando ocupa una casilla con recurso, genera 1 Recurso Solar adicional una vez por turno.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "ExtraResource"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "emperador-de-las-dunas",
+      "name": "Emperador de las Dunas",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 0,
+      "subtypes": [
+        "Emperador",
+        "Nómada",
+        "Avanzada"
+      ],
+      "energyCost": 6,
+      "health": 10,
+      "attack": 6,
+      "movement": 2,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "EMPERADOR",
+        "AVANZADA",
+        "NÓMADA"
+      ],
+      "description": "Las unidades Nómada aliadas adyacentes reciben +1 MOV y +1 ATQ mientras estén sobre Desierto.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "NomadAura"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "oasis-de-cristal",
+      "name": "Oasis de Cristal",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 1,
+      "subtypes": [
+        "Oasis",
+        "Recurso"
+      ],
+      "energyCost": 2,
+      "health": 5,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "OASIS",
+        "RECURSO"
+      ],
+      "description": "Al inicio de tu turno genera 1 Recurso Solar si permanece bajo tu control.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": false,
+      "traits": [
+        "SolarResource",
+        "Oasis",
+        "Passable"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "titan-de-ceniza",
+      "name": "Titán de Ceniza",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 3,
+      "subtypes": [
+        "Unidad Épica",
+        "Pesada"
+      ],
+      "energyCost": 7,
+      "health": 13,
+      "attack": 8,
+      "movement": 1,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        6
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "LATENTE",
+        "PESADA",
+        "CENIZA",
+        "CONTROL"
+      ],
+      "description": "Solo puede jugarse desde Tierra Ceniza. Las unidades terrestres enemigas adyacentes lanzan 1d6: 5+ evita el efecto; 1–4 recibe 3 daño.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": true,
+      "traits": [
+        "EnterTitan"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "ciudad-sepultada",
+      "name": "Ciudad Sepultada",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 3,
+      "subtypes": [
+        "Terreno",
+        "Estructura"
+      ],
+      "energyCost": 7,
+      "health": 11,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "movementType": "Fixed",
+      "biomes": [
+        6
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO",
+        "LATENTE",
+        "RUINAS",
+        "OBELISCOS",
+        "CENIZA"
+      ],
+      "description": "Solo puede jugarse desde Tierra Ceniza. Crea dos Obeliscos de Arena en casillas libres adyacentes y convierte la casilla central en Tierra Ceniza permanente.",
+      "quantity": 0,
+      "maxCopies": 3,
+      "requiresAshLand": true,
+      "traits": [
+        "BuriedCity"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "espora",
+      "name": "Espora",
+      "leader": "ZUKGROK",
+      "factionTag": "MICELIAL",
+      "category": 0,
+      "subtypes": [
+        "Hongo",
+        "Ficha"
+      ],
+      "energyCost": 0,
+      "health": 1,
+      "attack": 1,
+      "movement": 1,
+      "range": 1,
+      "movementType": "Ground",
+      "biomes": [
+        1,
+        2
+      ],
+      "terrainTags": [
+        "MICELIAL",
+        "BOSQUE",
+        "PANTANO"
+      ],
+      "description": "Ficha generada; no pertenece al Main Deck. Estadísticas configurables de prototipo.",
+      "quantity": 0,
+      "maxCopies": 0,
+      "requiresAshLand": false,
+      "traits": [
+        "Token"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "obelisco-de-arena",
+      "name": "Obelisco de Arena",
+      "leader": "SAHRIA",
+      "factionTag": "SOLAR",
+      "category": 1,
+      "subtypes": [
+        "Obelisco"
+      ],
+      "energyCost": 0,
+      "health": 4,
+      "attack": 0,
+      "movement": 0,
+      "range": 1,
+      "movementType": "Fixed",
+      "biomes": [
+        5
+      ],
+      "terrainTags": [
+        "SOLAR",
+        "DESIERTO"
+      ],
+      "description": "Ficha generada; no pertenece al Main Deck. Estadísticas configurables de prototipo.",
+      "quantity": 0,
+      "maxCopies": 0,
+      "requiresAshLand": false,
+      "traits": [
+        "Token",
+        "SolarAttackAura"
+      ],
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "timingPermissionText": "",
+      "deckCopies": []
+    },
+    {
+      "id": "terraform",
+      "name": "Terraform",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 1,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Terraformar un Slab válido al bioma elegido. Robar 1.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "GenericTerraform",
+          "target": "Terraform",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 3
+        },
+        {
+          "leader": "ZUKGROK",
+          "count": 3
+        },
+        {
+          "leader": "FAUNAR",
+          "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "clearing-space",
+      "name": "Clearing Space",
+      "leader": "GENERIC",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 1,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Convertir un Slab válido en Yermo. Robar 2.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "ClearingSpace",
+          "target": "Terraform",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 3
+        },
+        {
+          "leader": "ZUKGROK",
+          "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "cleansing-conquest",
+      "name": "Cleansing Conquest",
+      "leader": "GENERIC",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 3,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Convertir un Slab válido en Yermo. Mover allí una unidad aliada a 8rad del destino.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "CleansingConquest",
+          "target": "Terraform",
+          "count": 2,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "its-a-trap",
+      "name": "It's a Trap",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [
+        "Trap"
+      ],
+      "energyCost": 2,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Eliminar una unidad seleccionada. Trap.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "KillUnit",
+          "target": "Unit",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "FAUNAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "one-for-the-team",
+      "name": "One for the Team",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 2,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Elegir y descartar 1 carta de tu mano. Después robar 2.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "DiscardDraw",
+          "target": "Self",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 3
+        },
+        {
+          "leader": "ZUKGROK",
+          "count": 3
+        },
+        {
+          "leader": "FAUNAR",
+          "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "a-price-to-pay",
+      "name": "A Price to Pay",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 4,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 1,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Robar 3. Después elegir y descartar 2 cartas de tu mano.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "DrawDiscard",
+          "target": "Self",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 3
+        },
+        {
+          "leader": "ZUKGROK",
+          "count": 3
+        },
+        {
+          "leader": "FAUNAR",
+          "count": 1
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "from-the-ashes",
+      "name": "From the Ashes",
+      "leader": "GENERIC",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 4,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Eliminar el Yermo del Slab seleccionado mediante las reglas de destrucción de bioma.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "DestroyWasteland",
+          "target": "Wasteland",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 1
+        },
+        {
+          "leader": "ZUKGROK",
+          "count": 1
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "resourceful-replenish",
+      "name": "Resourceful Replenish",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 1,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Robar 1 carta por cada Token propio en el tablero.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "TokenDraw",
+          "target": "Self",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "ZUKGROK",
+          "count": 3
+        },
+        {
+          "leader": "FAUNAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "last-gift",
+      "name": "Last Gift",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [],
+      "energyCost": 2,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 2,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Eliminar una unidad aliada. Robar tantas cartas como HP tenía antes de morir.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "LastGift",
+          "target": "AllyUnit",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        0,
+        1,
+        2
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "ZUKGROK",
+          "count": 3
+        },
+        {
+          "leader": "FAUNAR",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "engage",
+      "name": "Engage",
+      "leader": "GENERIC",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [
+        "Combat Spell"
+      ],
+      "energyCost": 2,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Elegir un aliado y un enemigo a 6rad del aliado. Infligir su ATK actual. Si el enemigo muere, mover al aliado a ese Slab.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "Engage",
+          "target": "AllyUnit",
+          "count": 2,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "canRespond": true,
+      "canInterrupt": true,
+      "canReact": true,
+      "combatSpell": true,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 3
+        },
+        {
+          "leader": "ZUKGROK",
+          "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "time-to-move",
+      "name": "Time to Move",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [
+        "Combat Spell"
+      ],
+      "energyCost": 1,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 2,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Elegir un Slab. Todas las unidades a 8rad reciben +4 MOV hasta el final del turno actual.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "TimeToMove",
+          "target": "Slab",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "canRespond": true,
+      "canInterrupt": true,
+      "canReact": true,
+      "combatSpell": true,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 3
+        },
+        {
+          "leader": "ZUKGROK",
+          "count": 3
+        },
+        {
+          "leader": "FAUNAR",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "bomb",
+      "name": "Bomb",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 2,
+      "subtypes": [
+        "Combat Spell"
+      ],
+      "energyCost": 2,
+      "movement": 0,
+      "health": 0,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "None",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [],
+      "description": "Infligir exactamente 3 de daño a una Structure seleccionada.",
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "Bomb",
+          "target": "Structure",
+          "count": 1,
+          "amount": 1
+        }
+      ],
+      "allowedPhases": [
+        2
+      ],
+      "allowedTiming": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "canRespond": true,
+      "canInterrupt": true,
+      "canReact": true,
+      "combatSpell": true,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 2
+        },
+        {
+          "leader": "ZUKGROK",
+          "count": 2
+        },
+        {
+          "leader": "FAUNAR",
+          "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "valiant-seal",
+      "name": "Valiant Seal",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 3,
+      "movement": 0,
+      "health": 3,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [
+        "GlobalAttack"
+      ],
+      "description": "Tus unidades reciben +1 ATK mientras esta estructura permanezca en juego.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 2
+        },
+        {
+          "leader": "ZUKGROK",
+          "count": 3
+        },
+        {
+          "leader": "FAUNAR",
+          "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "courage-seal",
+      "name": "Courage Seal",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 2,
+      "movement": 0,
+      "health": 2,
+      "attack": 0,
+      "range": 0,
+      "quantity": 2,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [
+        "GlobalMovement"
+      ],
+      "description": "Tus unidades reciben +1 MOV mientras esta estructura permanezca en juego.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 2
+        },
+        {
+          "leader": "ZUKGROK",
+          "count": 3
+        },
+        {
+          "leader": "FAUNAR",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "med-camp",
+      "name": "Med Camp",
+      "leader": "GENERIC",
+      "factionTag": "GENERICA",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 4,
+      "movement": 0,
+      "health": 5,
+      "attack": 0,
+      "range": 0,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [
+        "MedCamp"
+      ],
+      "description": "Una vez por turno, curar 4 HP a hasta 4 unidades aliadas a 5rad. Sin superar su HP máximo.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "resting-camp",
+      "name": "Resting Camp",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 5,
+      "movement": 0,
+      "health": 3,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [
+        "RestingCamp"
+      ],
+      "description": "Una vez por turno, curar 2 HP a todas las unidades aliadas a 4rad.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 1
+        },
+        {
+          "leader": "FAUNAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "vigilant-tower",
+      "name": "Vigilant Tower",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 4,
+      "movement": 0,
+      "health": 2,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [
+        "VigilantTower"
+      ],
+      "description": "Una vez por turno, infligir 1 de daño a una unidad a 6rad.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 2
+        },
+        {
+          "leader": "ZUKGROK",
+          "count": 3
+        },
+        {
+          "leader": "FAUNAR",
+          "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "emergency-seal",
+      "name": "Emergency Seal",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 3,
+      "movement": 0,
+      "health": 2,
+      "attack": 0,
+      "range": 0,
+      "quantity": 1,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [
+        "EmergencySeal"
+      ],
+      "description": "Al ser destruida, elegir una unidad aliada y moverla al Slab que ocupaba, si está libre.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 1
+        },
+        {
+          "leader": "FAUNAR",
+          "count": 1
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "mana-pool",
+      "name": "Mana Pool",
+      "leader": "FAUNAR",
+      "factionTag": "GENERICA",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 4,
+      "movement": 0,
+      "health": 1,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [],
+      "traits": [
+        "ManaPool"
+      ],
+      "description": "Al inicio de tu turno, obtener +1 Energía sin cambiar el límite permanente.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "ZUKGROK",
+          "count": 1
+        },
+        {
+          "leader": "FAUNAR",
+          "count": 3
+        },
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "berry-bush",
+      "name": "Berry Bush",
+      "leader": "FAUNAR",
+      "factionTag": "FAUNAR",
+      "category": 1,
+      "subtypes": [],
+      "energyCost": 2,
+      "movement": 0,
+      "health": 3,
+      "attack": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "FAUNAR",
+        "BOSQUE",
+        "NATURAL"
+      ],
+      "traits": [
+        "RabbitProducer"
+      ],
+      "description": "Al inicio de tu turno, invocar 1 Rabbit Token en un Slab adyacente libre.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "FAUNAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "charming-mongoose",
+      "name": "Charming Mongoose",
+      "leader": "FAUNAR",
+      "factionTag": "FAUNAR",
+      "category": 0,
+      "subtypes": [
+        "Animal"
+      ],
+      "energyCost": 2,
+      "movement": 2,
+      "health": 2,
+      "attack": 2,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "FAUNAR",
+        "BOSQUE",
+        "NATURAL"
+      ],
+      "traits": [
+        "ForestDraw"
+      ],
+      "description": "MOV/HP/ATK 2/2/2. Al jugarla en Bosque, robar 1 carta.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "FAUNAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "ferret-eluding-hunter",
+      "name": "Ferret, Eluding Hunter",
+      "leader": "FAUNAR",
+      "factionTag": "FAUNAR",
+      "category": 0,
+      "subtypes": [
+        "Animal"
+      ],
+      "energyCost": 5,
+      "movement": 3,
+      "health": 5,
+      "attack": 2,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "FAUNAR",
+        "BOSQUE",
+        "NATURAL"
+      ],
+      "traits": [
+        "KillHeal",
+        "ForestLeap"
+      ],
+      "description": "MOV/HP/ATK 3/5/2. Al matar una unidad, curarse hasta su HP máximo. Una vez por turno, saltar junto a una estructura aliada en Bosque o con etiqueta BOSQUE a 4rad.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "FAUNAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "bober-reinforcer",
+      "name": "Bober, Reinforcer",
+      "leader": "FAUNAR",
+      "factionTag": "FAUNAR",
+      "category": 0,
+      "subtypes": [
+        "Animal"
+      ],
+      "energyCost": 4,
+      "movement": 2,
+      "health": 4,
+      "attack": 3,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "FAUNAR",
+        "BOSQUE",
+        "NATURAL"
+      ],
+      "traits": [
+        "StructureHeal",
+        "ForestBuild"
+      ],
+      "description": "MOV/HP/ATK 2/4/3. Al inicio del turno, curar 1 HP a todas tus estructuras. Mientras esté en Bosque, permite desplegar estructuras a 2rad respetando ocupación y bioma.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "FAUNAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "panther-stealthy-assassin",
+      "name": "Panther, Stealthy Assassin",
+      "leader": "FAUNAR",
+      "factionTag": "FAUNAR",
+      "category": 0,
+      "subtypes": [
+        "Animal"
+      ],
+      "energyCost": 6,
+      "movement": 3,
+      "health": 6,
+      "attack": 3,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "FAUNAR",
+        "BOSQUE",
+        "NATURAL"
+      ],
+      "traits": [
+        "ForestPanther"
+      ],
+      "description": "MOV/HP/ATK 3/6/3. Al salir de Bosque hacia otro bioma, puede infligir 2 de daño a una unidad a 2rad del destino. Al entrar en Bosque desde otro bioma, curarse hasta su HP máximo.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "FAUNAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "rabbit-token",
+      "name": "Rabbit Token",
+      "leader": "GENERIC",
+      "factionTag": "FAUNAR",
+      "category": 0,
+      "subtypes": [
+        "Animal"
+      ],
+      "energyCost": 0,
+      "movement": 2,
+      "health": 2,
+      "attack": 1,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        1
+      ],
+      "terrainTags": [
+        "FAUNAR",
+        "BOSQUE",
+        "NATURAL"
+      ],
+      "traits": [
+        "Token",
+        "ForestHealth"
+      ],
+      "description": "Token Animal. MOV/HP/ATK 2/2/1. Mientras esté en Bosque, +2 HP máximos. No se acumula. No pertenece al mazo ni al descarte.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "timingPermissionText": "",
+      "requiresAshLand": false,
+      "deckCopies": []
+    },
+    {
+      "id": "sandy-anthill",
+      "name": "Sandy Anthill",
+      "leader": "SAHRIA",
+      "factionTag": "SAHRIA",
+      "category": 1,
+      "subtypes": [
+        "Animal",
+        "Ant"
+      ],
+      "energyCost": 2,
+      "movement": 0,
+      "health": 3,
+      "attack": 0,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8
+      ],
+      "terrainTags": [
+        "SAHRIA"
+      ],
+      "traits": [
+        "AntProducer"
+      ],
+      "description": "Al entrar: invoca un Battle Ant Token en un Slab adyacente.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "battle-ant-token",
+      "name": "Battle Ant Token",
+      "leader": "SAHRIA",
+      "factionTag": "SAHRIA",
+      "category": 0,
+      "subtypes": [
+        "Animal",
+        "Ant"
+      ],
+      "energyCost": 0,
+      "movement": 1,
+      "health": 1,
+      "attack": 2,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        5,
+        7
+      ],
+      "terrainTags": [
+        "SAHRIA",
+        "DESIERTO"
+      ],
+      "traits": [
+        "AntTogether",
+        "Token"
+      ],
+      "description": "1/1/2. Si hay otra Ant a 3rad, +1 ATK (una sola vez).",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": []
+    },
+    {
+      "id": "sandy-ember",
+      "name": "Sandy Ember",
+      "leader": "SAHRIA",
+      "factionTag": "SAHRIA",
+      "category": 0,
+      "subtypes": [
+        "Desert",
+        "Ember"
+      ],
+      "energyCost": 2,
+      "movement": 3,
+      "health": 2,
+      "attack": 2,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        5,
+        7
+      ],
+      "terrainTags": [
+        "SAHRIA",
+        "DESIERTO"
+      ],
+      "traits": [
+        "SandyEmber"
+      ],
+      "description": "Al jugar: elige cualquier Structure en Desierto e inflige 1 daño. Si no hay ninguna, elige y descarta 1 carta.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "dune-cammel",
+      "name": "Dune Cammel",
+      "leader": "SAHRIA",
+      "factionTag": "SAHRIA",
+      "category": 0,
+      "subtypes": [
+        "Desert",
+        "Animal"
+      ],
+      "energyCost": 2,
+      "movement": 4,
+      "health": 2,
+      "attack": 1,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        5,
+        7
+      ],
+      "terrainTags": [
+        "SAHRIA",
+        "DESIERTO"
+      ],
+      "traits": [
+        "DuneCammel"
+      ],
+      "description": "Al moverse: puedes desplazar una Unit a 1rad en la misma dirección. Al salir de Desierto, aliados a 1rad del origen ganan +1 HP y +1 ATK hasta tu próximo turno.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "old-mummy",
+      "name": "Old Mummy",
+      "leader": "SAHRIA",
+      "factionTag": "SAHRIA",
+      "category": 0,
+      "subtypes": [
+        "Desert",
+        "Undead"
+      ],
+      "energyCost": 4,
+      "movement": 0,
+      "health": 5,
+      "attack": 4,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        5,
+        7
+      ],
+      "terrainTags": [
+        "SAHRIA",
+        "DESIERTO"
+      ],
+      "traits": [
+        "OldMummy"
+      ],
+      "description": "Al inicio de tu turno en Desierto: se cura y recibe +1 MOV durante ese turno, sin acumulación permanente.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "wandering-beast",
+      "name": "Wandering Beast",
+      "leader": "SAHRIA",
+      "factionTag": "SAHRIA",
+      "category": 0,
+      "subtypes": [
+        "Desert",
+        "Beast"
+      ],
+      "energyCost": 4,
+      "movement": 2,
+      "health": 5,
+      "attack": 5,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        7
+      ],
+      "terrainTags": [
+        "SAHRIA",
+        "DESIERTO"
+      ],
+      "traits": [
+        "WanderingBeast"
+      ],
+      "description": "Solo puede jugarse en Yermo. Una vez por turno: 2 daño a cualquier Unit/Structure a 3rad. Al morir: roba 4.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "baby-phoenix",
+      "name": "Baby Phoenix",
+      "leader": "SAHRIA",
+      "factionTag": "SAHRIA",
+      "category": 0,
+      "subtypes": [
+        "Desert",
+        "Flying",
+        "Phoenix"
+      ],
+      "energyCost": 6,
+      "movement": 2,
+      "health": 1,
+      "attack": 7,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Flying",
+      "biomes": [
+        5,
+        7
+      ],
+      "terrainTags": [
+        "SAHRIA",
+        "DESIERTO"
+      ],
+      "traits": [
+        "BabyPhoenix"
+      ],
+      "description": "Al morir: terraforma su Slab y vuelve a tu mano. No ataca el turno en que se juega, salvo si fue jugado en Yermo.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": [
+        {
+          "leader": "SAHRIA",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "frogpit",
+      "name": "Frogpit",
+      "leader": "ZUKGROK",
+      "factionTag": "ZUKGROK",
+      "category": 1,
+      "subtypes": [
+        "Swamp",
+        "Frog"
+      ],
+      "energyCost": 3,
+      "movement": 0,
+      "health": 4,
+      "attack": 0,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        2,
+        7
+      ],
+      "terrainTags": [
+        "ZUKGROK",
+        "PANTANO"
+      ],
+      "traits": [
+        "FrogProducer"
+      ],
+      "description": "Al entrar: invoca un Frog Token adyacente.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": [
+        {
+          "leader": "ZUKGROK",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "micelium-root",
+      "name": "Micelium Root",
+      "leader": "ZUKGROK",
+      "factionTag": "ZUKGROK",
+      "category": 1,
+      "subtypes": [
+        "Swamp",
+        "Mushroom"
+      ],
+      "energyCost": 3,
+      "movement": 0,
+      "health": 3,
+      "attack": 0,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        2,
+        7
+      ],
+      "terrainTags": [
+        "ZUKGROK",
+        "PANTANO"
+      ],
+      "traits": [
+        "MushroomProducer"
+      ],
+      "description": "Al entrar: invoca un Mushroom Token adyacente.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": [
+        {
+          "leader": "ZUKGROK",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "firefly-nest",
+      "name": "Firefly Nest",
+      "leader": "ZUKGROK",
+      "factionTag": "ZUKGROK",
+      "category": 1,
+      "subtypes": [
+        "Swamp",
+        "Insect"
+      ],
+      "energyCost": 3,
+      "movement": 0,
+      "health": 3,
+      "attack": 0,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "biomes": [
+        2,
+        7
+      ],
+      "terrainTags": [
+        "ZUKGROK",
+        "PANTANO"
+      ],
+      "traits": [
+        "FireflyProducer"
+      ],
+      "description": "Al entrar: invoca 2 Firefly Tokens en Slabs adyacentes libres.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": [
+        {
+          "leader": "ZUKGROK",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "frog-token",
+      "name": "Frog Token",
+      "leader": "ZUKGROK",
+      "factionTag": "ZUKGROK",
+      "category": 0,
+      "subtypes": [
+        "Swamp",
+        "Frog"
+      ],
+      "energyCost": 0,
+      "movement": 2,
+      "health": 2,
+      "attack": 2,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        2,
+        7
+      ],
+      "terrainTags": [
+        "ZUKGROK",
+        "PANTANO"
+      ],
+      "traits": [
+        "FrogToken",
+        "Token"
+      ],
+      "description": "2/2/2. Al atacar, envenena al objetivo. Mientras esté en Pantano: +2 MOV, sin acumular.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": []
+    },
+    {
+      "id": "mushroom-token",
+      "name": "Mushroom Token",
+      "leader": "ZUKGROK",
+      "factionTag": "ZUKGROK",
+      "category": 0,
+      "subtypes": [
+        "Swamp",
+        "Mushroom"
+      ],
+      "energyCost": 0,
+      "movement": 1,
+      "health": 2,
+      "attack": 2,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        2,
+        7
+      ],
+      "terrainTags": [
+        "ZUKGROK",
+        "PANTANO"
+      ],
+      "traits": [
+        "MushroomToken",
+        "Token"
+      ],
+      "description": "Una vez por turno: envenena una Unit a 2rad, +1rad por cada OTRO Mushroom Token propio.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": []
+    },
+    {
+      "id": "firefly-token",
+      "name": "Firefly Token",
+      "leader": "ZUKGROK",
+      "factionTag": "ZUKGROK",
+      "category": 0,
+      "subtypes": [
+        "Swamp",
+        "Insect"
+      ],
+      "energyCost": 0,
+      "movement": 4,
+      "health": 1,
+      "attack": 1,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        2,
+        7
+      ],
+      "terrainTags": [
+        "ZUKGROK",
+        "PANTANO"
+      ],
+      "traits": [
+        "FireflyToken",
+        "Token"
+      ],
+      "description": "Puede sacrificarse para envenenar una Unit a 2rad. Su muerte activa la terraformación gratuita de Zukgrok.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": []
+    },
+    {
+      "id": "lushroom",
+      "name": "Lushroom",
+      "leader": "ZUKGROK",
+      "factionTag": "ZUKGROK",
+      "category": 0,
+      "subtypes": [
+        "Swamp",
+        "Mushroom"
+      ],
+      "energyCost": 3,
+      "movement": 0,
+      "health": 5,
+      "attack": 1,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        2,
+        7
+      ],
+      "terrainTags": [
+        "ZUKGROK",
+        "PANTANO"
+      ],
+      "traits": [
+        "Lushroom"
+      ],
+      "description": "Mientras esté en Pantano: el veneno enemigo inflige +1 daño por turno. Las Units enemigas envenenadas en Pantano no pueden curarse.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": [
+        {
+          "leader": "ZUKGROK",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "alligator-revengeful-bite",
+      "name": "Alligator, Revengeful Bite",
+      "leader": "ZUKGROK",
+      "factionTag": "ZUKGROK",
+      "category": 0,
+      "subtypes": [
+        "Swamp",
+        "Animal",
+        "Reptile"
+      ],
+      "energyCost": 5,
+      "movement": 1,
+      "health": 4,
+      "attack": 1,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        2,
+        7
+      ],
+      "terrainTags": [
+        "ZUKGROK",
+        "PANTANO"
+      ],
+      "traits": [
+        "Alligator"
+      ],
+      "description": "Cuando muere una Unit no Token: cura 1 HP. +1 HP y +1 ATK por Token propio. Al matar una Unit, puedes invocar un Alligator Token.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": [
+        {
+          "leader": "ZUKGROK",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "alligator-token",
+      "name": "Alligator Token",
+      "leader": "ZUKGROK",
+      "factionTag": "ZUKGROK",
+      "category": 0,
+      "subtypes": [
+        "Swamp",
+        "Animal",
+        "Reptile"
+      ],
+      "energyCost": 0,
+      "movement": 1,
+      "health": 1,
+      "attack": 1,
+      "range": 1,
+      "quantity": 0,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "biomes": [
+        2,
+        7
+      ],
+      "terrainTags": [
+        "ZUKGROK",
+        "PANTANO"
+      ],
+      "traits": [
+        "AlligatorToken",
+        "Token"
+      ],
+      "description": "1/1/1. En Pantano: +3 MOV. Efecto de muerte «give +1hp»: incompleto, pendiente de definición.",
+      "effects": [],
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "combatSpell": false,
+      "deckCopies": []
+    },
+    {
+      "id": "under-the-darkness",
+      "name": "Under the Darkness",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 2,
+      "subtypes": [],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [],
+      "effects": [
+        {
+          "trigger": "Play",
+          "operation": "UnderDarkness",
+          "target": "Self",
+          "amount": 1,
+          "count": 1,
+          "duration": 1
+        }
+      ],
+      "energyCost": 5,
+      "health": 0,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "quantity": 2,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "description": "Juega una Unit real de tu descarte. Al final de cada turno, muere si no está en Void; el efecto permanece hasta que salga del tablero.",
+      "allowedPhases": [
+        0,
+        2,
+        1
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "void-beacon",
+      "name": "Void Beacon",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 1,
+      "subtypes": [
+        "Void"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "VoidBeacon"
+      ],
+      "effects": [],
+      "energyCost": 4,
+      "health": 2,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "description": "Al morir una Unit aliada en Void, puedes destruir esta Structure y volver a jugar esa carta aquí. Muere al final de tu turno salvo que pagues su coste original +2.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "portal",
+      "name": "Portal",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 1,
+      "subtypes": [
+        "Void"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "Portal"
+      ],
+      "effects": [],
+      "energyCost": 4,
+      "health": 2,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "description": "Una vez por turno, paga 2 Energía: mueve una Unit en Void a 6rad a un Slab adyacente al Portal.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "insolator",
+      "name": "Insolator",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 1,
+      "subtypes": [
+        "Void"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "Insolator"
+      ],
+      "effects": [],
+      "energyCost": 4,
+      "health": 2,
+      "attack": 0,
+      "movement": 0,
+      "range": 0,
+      "quantity": 2,
+      "maxCopies": 3,
+      "movementType": "Fixed",
+      "description": "Inflige 2 de daño a las Units a 3rad. Si esta activación mata al menos una, terraforma un Slab en Void.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "crystal-minion",
+      "name": "Crystal Minion",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 0,
+      "subtypes": [
+        "Void",
+        "Crystal",
+        "Minion"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "CrystalMinion"
+      ],
+      "effects": [],
+      "energyCost": 3,
+      "health": 3,
+      "attack": 3,
+      "movement": 1,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "description": "Puede moverse de Void a Void a 3rad.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "dark-fly",
+      "name": "Dark Fly",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 0,
+      "subtypes": [
+        "Void",
+        "Flying",
+        "Insect"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "DarkFly"
+      ],
+      "effects": [],
+      "energyCost": 3,
+      "health": 2,
+      "attack": 2,
+      "movement": 3,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Flying",
+      "description": "Al moverse, se cura. Puede reemplazar su movimiento del turno por un segundo ataque.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "the-eternal-eye",
+      "name": "The Eternal Eye",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 0,
+      "subtypes": [
+        "Void",
+        "Eye",
+        "Flying"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "EternalEye"
+      ],
+      "effects": [],
+      "energyCost": 9,
+      "health": 10,
+      "attack": 1,
+      "movement": 0,
+      "range": 1,
+      "quantity": 1,
+      "maxCopies": 3,
+      "movementType": "Flying",
+      "description": "En Void no puede ser objetivo de cartas/efectos y las cartas rivales cuestan +1. Los rivales pueden terraformar su Slab desde cualquier lugar. Paga 1 por cada movimiento Void → Void, sin límite de usos. No puede curarse.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "void-hole",
+      "name": "Void Hole",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 0,
+      "subtypes": [
+        "Void"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "VoidHole"
+      ],
+      "effects": [],
+      "energyCost": 5,
+      "health": 3,
+      "attack": 0,
+      "movement": 1,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "description": "Una vez por turno, puede recibir 1 daño para prevenir un impacto a otra Unit aliada a 5rad. No puede curarse.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "sprinting-sprite",
+      "name": "Sprinting Sprite",
+      "leader": "XIL'THAR",
+      "factionTag": "VOID",
+      "category": 0,
+      "subtypes": [
+        "Void",
+        "Sprite"
+      ],
+      "terrainTags": [
+        "VOID"
+      ],
+      "biomes": [
+        8
+      ],
+      "traits": [
+        "SprintingSprite"
+      ],
+      "effects": [],
+      "energyCost": 2,
+      "health": 1,
+      "attack": 1,
+      "movement": 4,
+      "range": 1,
+      "quantity": 3,
+      "maxCopies": 3,
+      "movementType": "Ground",
+      "description": "En Void, paga 1 Energía y sacrifícala para mover otra Unit a su Slab.",
+      "allowedPhases": [
+        0
+      ],
+      "allowedTiming": [
+        0
+      ],
+      "timingPermissionText": "",
+      "canRespond": false,
+      "canInterrupt": false,
+      "canReact": false,
+      "combatSpell": false,
+      "requiresAshLand": false,
+      "deckCopies": [
+        {
+          "leader": "XIL'THAR",
+          "count": 3
+        }
+      ]
+    }
+  ]
+}
