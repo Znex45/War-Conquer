@@ -24,7 +24,9 @@ namespace WarConquer
             var visual=Object.Instantiate(prefab,parent,false);visual.name="Líder 3D · "+leader;
             foreach(var child in visual.GetComponentsInChildren<Transform>(true))child.gameObject.layer=BoardMeshFactory.Layer;
             foreach(var animator in visual.GetComponentsInChildren<Animator>(true))animator.applyRootMotion=false;
-            if(leader=="SAHRIA"||leader=="XIL'THAR")visual.AddComponent<LeaderIdlePresentation>().Initialize(leader);
+            // Xilthar uses the original looping clip: only his orbiting rocks move.
+            if(leader=="SAHRIA")visual.AddComponent<LeaderIdlePresentation>().Initialize(leader);
+            if(leader=="XIL'THAR"||leader=="ZUKGROK"||leader=="FAUNAR")visual.AddComponent<LeaderPoseCorrection>().Initialize(leader);
             return true;
         }
     }

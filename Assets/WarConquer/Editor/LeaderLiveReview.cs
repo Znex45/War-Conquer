@@ -46,6 +46,21 @@ namespace WarConquer.Editor
                     if(!bones[i].Where((t,j)=>Vector3.Distance(t.localPosition,positions[i][j])>.00001f||Quaternion.Angle(t.localRotation,rotations[i][j])>.01f).Any())throw new Exception("Live idle frozen: "+Names[i]);
                     foreach(var skin in bones[i][0].GetComponentsInChildren<SkinnedMeshRenderer>())if(skin.sharedMesh==null||skin.bones.Any(b=>b==null)||!float.IsFinite(skin.bounds.size.x))throw new Exception("Broken skin: "+Names[i]);
                 }
+                var xil=root.transform.Find(Names[0]);var visual=xil.GetComponentInChildren<LeaderPoseCorrection>();
+                if(visual!=null)
+                {
+                    if(!xil.GetComponentInChildren<Animator>().enabled||xil.GetComponentInChildren<LeaderIdlePresentation>()!=null)throw new Exception("Xil original idle disabled");
+                    var wings=new[]{"Cube.013","Cube.014","Cube.017","Cube.044"}.Select(n=>visual.transform.Find(n).GetComponent<Renderer>()).ToArray();
+                    for(int i=0;i<4;i++)for(int j=i+1;j<4;j++)if(wings[i].bounds.Intersects(wings[j].bounds))throw new Exception("Overlapping back crystals");
+                    for(int i=1;i<=2;i++)
+                    {
+                        var transforms=root.transform.Find(Names[i]).GetComponentsInChildren<Transform>();
+                        var shaft=transforms.First(t=>t.name==(i==1?"Cube.002":"Circle.004"));var grip=transforms.First(t=>t.name=="Agarre del bastón");
+                        var point=i==1?new Vector3(.00167213f,-.00049391f,-.00036230f):new Vector3(-.00000002f,-.00000018f,.25570990f);
+                        if(Vector3.Distance(shaft.TransformPoint(point),grip.position)>.001f)throw new Exception("Staff separated from hand");
+                    }
+                    Debug.Log("LEADER_POSE_PASSED: original Xil idle active; four separated back crystals; both staff grip anchors remain attached.");
+                }
                 Capture("live-front-later");
                 foreach(float angle in new[]{90f,180f,270f}){for(int i=0;i<4;i++)root.transform.Find(Names[i]).localRotation=Quaternion.Euler(0,angle,0);Capture("live-"+angle);}
                 Debug.Log("LEADER_LIVE_PASSED: all four leaders animate in Play Mode; valid skins; front, sides and back rendered.");active=false;EditorApplication.Exit(0);

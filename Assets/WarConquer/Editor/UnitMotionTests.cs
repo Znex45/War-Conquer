@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -37,7 +37,7 @@ namespace WarConquer.Editor
                 if(step==1)
                 {
                     var pos=world.UnitVisual(unit.id).localPosition;Check(Vector3.Distance(pos,origin)>.01f&&Vector3.Distance(pos,destination)>.01f,"No intermediate movement");
-                    Check(pos.y>origin.y,"Missing board-piece lift");step=2;due=EditorApplication.timeSinceStartup+1.8;return;
+                    Check(pos.y>origin.y,"Missing board-piece lift");step=2;due=EditorApplication.timeSinceStartup+3.2;return;
                 }
                 if(step==2)
                 {

@@ -10,7 +10,7 @@ namespace WarConquer
     {
         sealed class TileVisual
         {
-            public Transform root,decor,baseModel,leaderPlatform;
+            public Transform root,surface,decor,baseModel,leaderPlatform;
             public MeshRenderer ground,ring;
             public TextMesh number,baseLabel;
             public string decorationKey;
@@ -42,6 +42,7 @@ namespace WarConquer
         BoardDiceVisual dice;
         BoardLeaderAbilityVfx leaderVfx;
         BoardBiomeVisuals biomes;
+        BoardLandingWave landingWaves;
         GameManager observed;
         readonly Dictionary<int,List<int>> movementPaths=new Dictionary<int,List<int>>();
         void RecordMovement(int id,int from,int to)
@@ -51,7 +52,7 @@ namespace WarConquer
         }
         public Transform LeaderVisual(int owner)=>tiles.Values.FirstOrDefault(t=>t.baseOwner==owner)?.leaderPlatform;
         public Transform UnitVisual(int id)=>pieces.TryGetValue(id,out var p)?p.root:null;
-        public bool IsAnimating=>(dice!=null&&dice.IsAnimating)||pieces.Values.Any(p=>(p.motion!=null&&p.motion.IsMoving)||(p.assembly!=null&&p.assembly.IsBuilding));
+        public bool IsAnimating=>(landingWaves!=null&&landingWaves.IsActive)||(dice!=null&&dice.IsAnimating)||pieces.Values.Any(p=>(p.motion!=null&&p.motion.IsMoving)||(p.assembly!=null&&p.assembly.IsBuilding));
         public Camera BoardCamera { get; private set; }
         public RenderTexture Texture { get; private set; }
         public const float DefaultZoom=1.6f;
@@ -66,6 +67,7 @@ namespace WarConquer
         {
             if(mesh!=null)return;
             mesh=new BoardMeshFactory();
+            landingWaves=gameObject.AddComponent<BoardLandingWave>();
             biomes=gameObject.AddComponent<BoardBiomeVisuals>();biomes.Initialize(mesh);
             dice=gameObject.AddComponent<BoardDiceVisual>();dice.Initialize(mesh,this);
             leaderVfx=gameObject.AddComponent<BoardLeaderAbilityVfx>();leaderVfx.Initialize(mesh,this);
@@ -93,11 +95,11 @@ namespace WarConquer
         }
         TileVisual CreateTile(HexTile t)
         {
-            var root=mesh.Group(transform,"HEX "+(t.id+1),Position(t));var tile=new TileVisual{root=root};
-            var ground=mesh.Part(root,"Casilla hexagonal 3D",mesh.Hex,Vector3.zero,Vector3.one,Color.gray,true);
+            var root=mesh.Group(transform,"HEX "+(t.id+1),Position(t));var surface=mesh.Group(root,"Superficie · onda de impacto",Vector3.zero);var tile=new TileVisual{root=root,surface=surface};landingWaves.Register(t,surface);
+            var ground=mesh.Part(surface,"Casilla hexagonal 3D",mesh.Hex,Vector3.zero,Vector3.one,Color.gray,true);
             ground.AddComponent<Hex3DTarget>().tileId=t.id;tile.ground=ground.GetComponent<MeshRenderer>();
-            var ring=mesh.Part(root,"Borde de selección",mesh.Ring,new Vector3(0,BoardMeshFactory.Surface+.045f,0),Vector3.one,Color.green);tile.ring=ring.GetComponent<MeshRenderer>();tile.ring.shadowCastingMode=ShadowCastingMode.Off;
-            tile.number=mesh.Label(root,"Número de casilla",new Vector3(-.22f,BoardMeshFactory.Surface+.16f,-.39f),.032f,new Color(.83f,.86f,.88f));labels.Add(tile.number);
+            var ring=mesh.Part(surface,"Borde de selección",mesh.Ring,new Vector3(0,BoardMeshFactory.Surface+.045f,0),Vector3.one,Color.green);tile.ring=ring.GetComponent<MeshRenderer>();tile.ring.shadowCastingMode=ShadowCastingMode.Off;
+            tile.number=mesh.Label(surface,"Número de casilla",new Vector3(-.22f,BoardMeshFactory.Surface+.16f,-.39f),.032f,new Color(.83f,.86f,.88f));labels.Add(tile.number);
             tiles.Add(t.id,tile);return tile;
         }
         public void Sync(GameManager game,HashSet<int> valid,HashSet<int> selected,int focus)
@@ -110,7 +112,7 @@ namespace WarConquer
                 foreach(var tile in tiles.Values)BoardMeshFactory.Release(tile.root.gameObject);
                 foreach(var piece in pieces.Values)BoardMeshFactory.Release(piece.root.gameObject);
                 foreach(var route in routes)BoardMeshFactory.Release(route);
-                movementPaths.Clear();biomes.Clear();tiles.Clear();pieces.Clear();labels.Clear();routes.Clear();routeKey=null;
+                movementPaths.Clear();landingWaves.Clear();biomes.Clear();tiles.Clear();pieces.Clear();labels.Clear();routes.Clear();routeKey=null;
             }
             state=game.State;dice.Sync(game);
             foreach(var t in state.tiles)
@@ -123,7 +125,7 @@ namespace WarConquer
                 v.number.characterSize=central?.06f:.032f;
                 if(t.specialEffect!=null&&v.terrainStatus==null)
                 {
-                    var effectRoot=mesh.Group(v.root,"Estado del terreno",Vector3.up*(BoardMeshFactory.Surface+.018f));
+                    var effectRoot=mesh.Group(v.surface,"Estado del terreno",Vector3.up*(BoardMeshFactory.Surface+.018f));
                     v.terrainStatus=effectRoot.gameObject.AddComponent<BoardTerrainStatusVisual>();v.terrainStatus.Initialize(mesh,BoardCamera);
                 }
                 if(v.terrainStatus!=null)v.terrainStatus.Sync(t.specialEffect);
@@ -134,7 +136,7 @@ namespace WarConquer
                 if(decoration!=v.decorationKey)
                 {
                     if(v.decor!=null){v.decor.gameObject.SetActive(false);BoardMeshFactory.Release(v.decor.gameObject);}
-                    v.decor=mesh.Group(v.root,"Bioma "+Names.Biomes[(int)t.biome],Vector3.zero);
+                    v.decor=mesh.Group(v.surface,"Bioma "+Names.Biomes[(int)t.biome],Vector3.zero);
                     biomes.Sync(t,v.decor,v.ground,v.decorationKey!=null,v.groundColor);
                     if(v.decorationKey==null)mesh.Paint(v.ground,color);
                     v.groundColor=color;
@@ -188,7 +190,7 @@ namespace WarConquer
                     var root=mesh.Group(transform,(card.IsStructure?"ESTRUCTURA ":"UNIDAD ")+card.name+" · J"+(p.owner+1)+" · "+p.id,Vector3.zero);
                     v=new PieceVisual{root=root,shape=shape,target=root.gameObject.AddComponent<Hex3DTarget>()};mesh.PieceModel(root,card,GrayboxUI.PlayerColor(p.owner));root.localScale=Vector3.one*1.25f;
                     if(card.IsStructure&&newPiece&&!rebuilding){v.assembly=root.gameObject.AddComponent<BoardStructureAssembly>();v.assembly.Begin();}
-                    if(!card.IsStructure)v.motion=root.gameObject.AddComponent<BoardPieceMotion>();
+                    if(!card.IsStructure){v.motion=root.gameObject.AddComponent<BoardPieceMotion>();v.motion.Landed=landingWaves.Impact;}
                     v.status=root.gameObject.AddComponent<BoardStatusVisual>();v.status.Initialize(mesh,BoardCamera);
                     var collider=root.gameObject.AddComponent<BoxCollider>();collider.center=new Vector3(0,.6f,0);collider.size=new Vector3(.94f,card.Has("Passable")?.25f:1.6f,.94f);
                     if(card.Has("Passable"))collider.center=new Vector3(0,.12f,0);
@@ -200,8 +202,8 @@ namespace WarConquer
                 else if(v.tileId!=p.tileId)
                 {
                     if(movementPaths.TryGetValue(p.id,out var path)&&path.Count>0&&path[path.Count-1]==p.tileId)
-                        foreach(int stop in path)v.motion.Enqueue(Position(state.tiles[stop])+Vector3.up*BoardMeshFactory.Surface);
-                    else v.motion.Enqueue(destination);
+                        foreach(int stop in path)v.motion.Enqueue(Position(state.tiles[stop])+Vector3.up*BoardMeshFactory.Surface,stop);
+                    else v.motion.Enqueue(destination,p.tileId);
                 }
                 v.tileId=p.tileId;movementPaths.Remove(p.id);
                 string shortName=string.Concat(card.name.Split(' ').Where(w=>w.Length>2).Take(2).Select(w=>w[0]));
