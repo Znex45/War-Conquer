@@ -164,7 +164,7 @@ namespace WarConquer
             if(card.health>=10)body.localScale=Vector3.one*1.13f;
         }
         public BoardBiomeVisuals.Habitat BiomeModel(Transform parent,HexTile tile)
-        {return BoardBiomeVisuals.Build(this,parent,tile);}
+        {return ImportedBiomeVisuals.TryBuild(parent,tile,out var imported)?imported:BoardBiomeVisuals.Build(this,parent,tile);}
         public TextMesh Label(Transform parent,string name,Vector3 position,float size,Color color)
         {
             var group=Group(parent,name,position);var text=group.gameObject.AddComponent<TextMesh>();text.font=GrayboxUI.Font;text.fontSize=64;text.characterSize=size;text.anchor=TextAnchor.MiddleCenter;text.alignment=TextAlignment.Center;text.color=color;

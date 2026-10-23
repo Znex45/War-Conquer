@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,6 +17,7 @@ namespace WarConquer
 
         // Fondo independiente (cambia según la pantalla: menú o partida).
         Image bgImage;
+        CanvasScaler cachedScaler;CanvasGroup cachedMatchGroup;
 
         bool mainMenuVisible;
         bool setupVisible, scoreDetails;
@@ -112,7 +113,7 @@ namespace WarConquer
             canvasObject.GetComponent<Canvas>().renderMode =
                 RenderMode.ScreenSpaceOverlay;
 
-            var scaler = canvasObject.GetComponent<CanvasScaler>();
+            var scaler = canvasObject.GetComponent<CanvasScaler>();cachedScaler=scaler;
 
             scaler.uiScaleMode =
                 CanvasScaler.ScaleMode.ConstantPixelSize;
@@ -176,7 +177,7 @@ namespace WarConquer
                 1000
             );
 
-            matchRoot.gameObject.AddComponent<CanvasGroup>();
+            cachedMatchGroup=matchRoot.gameObject.AddComponent<CanvasGroup>();
 
             header = GrayboxUI.Rect(
                 matchRoot,
@@ -550,7 +551,7 @@ namespace WarConquer
                 return;
 
             var canvas =
-                root.GetComponentInParent<CanvasScaler>();
+                cachedScaler;
 
             float scale =
                 Mathf.Min(
@@ -571,9 +572,7 @@ namespace WarConquer
 
             board?.Tick();
 
-            matchRoot
-                .GetComponent<CanvasGroup>()
-                .interactable =
+            cachedMatchGroup.interactable =
                     !board.World.IsAnimating;
 
             RefreshRewind();

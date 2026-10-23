@@ -15,12 +15,13 @@ namespace WarConquer
     {
         // Unity serializes inline custom classes by value, including null slots.
         // Occupancy masks retain explicit absence instead of reconstructing phantom pieces on load.
-        public static string Serialize(GameState s)
+        public static string Serialize(GameState s)=>Serialize(s,true);
+        public static string Serialize(GameState s,bool prettyPrint)
         {
             return JsonUtility.ToJson(new GameSnapshot {state=s,hasBattle=s.battle!=null,
                 unitSlots=s.tiles.Where(t=>t.unit!=null).Select(t=>t.id).ToArray(),
                 structureSlots=s.tiles.Where(t=>t.structure!=null).Select(t=>t.id).ToArray(),
-                terrainSlots=s.tiles.Where(t=>t.specialEffect!=null).Select(t=>t.id).ToArray()},true);
+                terrainSlots=s.tiles.Where(t=>t.specialEffect!=null).Select(t=>t.id).ToArray()},prettyPrint);
         }
         public static GameState Deserialize(string json)
         {

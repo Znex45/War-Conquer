@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,7 +19,9 @@ namespace WarConquer
             var seen=new Dictionary<(int,bool),int>(); var best=new Dictionary<int,int>();
             while(open.Count>0)
             {
-                var cur=open.OrderBy(n=>n.cost).First(); open.Remove(cur);
+                // Stable minimum selection retains the original tie order without sorting/allocating.
+                int minimum=0;for(int i=1;i<open.Count;i++)if(open[i].cost<open[minimum].cost)minimum=i;
+                var cur=open[minimum];open.RemoveAt(minimum);
                 if(seen.TryGetValue((cur.tile,cur.route),out int old)&&old<=cur.cost) continue;
                 seen[(cur.tile,cur.route)]=cur.cost;
                 if(cur.tile!=p.tileId&&CanStop(g,p,cur.tile)&&(!best.ContainsKey(cur.tile)||cur.cost<best[cur.tile])) { result[cur.tile]=cur.path; best[cur.tile]=cur.cost; }

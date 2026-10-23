@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -14,6 +14,7 @@ namespace WarConquer
             public MeshRenderer ground,ring;
             public TextMesh number,baseLabel;
             public string decorationKey;
+            public Biome lastBiome;public bool lastBlocked;public int lastDecorationBase;
             public Color groundColor;
             public string baseLeader;
             public int baseOwner=-2;
@@ -24,7 +25,7 @@ namespace WarConquer
             public Transform root;
             public TextMesh label;
             public Hex3DTarget target;
-            public string shape;
+            public string shape,shortName;
             public BoardStatusVisual status;
             public BoardPieceMotion motion;
             public BoardStructureAssembly assembly;
@@ -42,6 +43,8 @@ namespace WarConquer
         BoardDiceVisual dice;
         BoardLeaderAbilityVfx leaderVfx;
         BoardBiomeVisuals biomes;
+        LeaderSkybox leaderSkybox;
+        BoardTurnNeon turnNeon;
         BoardLandingWave landingWaves;
         GameManager observed;
         readonly Dictionary<int,List<int>> movementPaths=new Dictionary<int,List<int>>();
@@ -50,9 +53,17 @@ namespace WarConquer
             if(!movementPaths.TryGetValue(id,out var path))movementPaths[id]=path=new List<int>();
             path.Add(to);
         }
-        public Transform LeaderVisual(int owner)=>tiles.Values.FirstOrDefault(t=>t.baseOwner==owner)?.leaderPlatform;
+        public Transform LeaderVisual(int owner){foreach(var tile in tiles.Values)if(tile.baseOwner==owner)return tile.leaderPlatform;return null;}
         public Transform UnitVisual(int id)=>pieces.TryGetValue(id,out var p)?p.root:null;
-        public bool IsAnimating=>(landingWaves!=null&&landingWaves.IsActive)||(dice!=null&&dice.IsAnimating)||pieces.Values.Any(p=>(p.motion!=null&&p.motion.IsMoving)||(p.assembly!=null&&p.assembly.IsBuilding));
+        public bool IsAnimating
+        {
+            get
+            {
+                if((landingWaves!=null&&landingWaves.IsActive)||(dice!=null&&dice.IsAnimating))return true;
+                foreach(var piece in pieces.Values)if((piece.motion!=null&&piece.motion.IsMoving)||(piece.assembly!=null&&piece.assembly.IsBuilding))return true;
+                return false;
+            }
+        }
         public Camera BoardCamera { get; private set; }
         public RenderTexture Texture { get; private set; }
         public const float DefaultZoom=1.6f;
@@ -69,6 +80,8 @@ namespace WarConquer
             mesh=new BoardMeshFactory();
             landingWaves=gameObject.AddComponent<BoardLandingWave>();
             biomes=gameObject.AddComponent<BoardBiomeVisuals>();biomes.Initialize(mesh);
+            leaderSkybox=gameObject.AddComponent<LeaderSkybox>();
+            turnNeon=gameObject.AddComponent<BoardTurnNeon>();turnNeon.Initialize();
             dice=gameObject.AddComponent<BoardDiceVisual>();dice.Initialize(mesh,this);
             leaderVfx=gameObject.AddComponent<BoardLeaderAbilityVfx>();leaderVfx.Initialize(mesh,this);
             previousMain=Camera.main;if(previousMain!=null){previousMask=previousMain.cullingMask;previousMain.cullingMask&=~(1<<BoardMeshFactory.Layer);}
@@ -82,7 +95,7 @@ namespace WarConquer
             var light=key.gameObject.AddComponent<Light>();light.type=LightType.Directional;light.color=new Color(1,.93f,.81f);light.intensity=1.15f;light.shadows=LightShadows.Soft;light.shadowBias=.04f;light.shadowNormalBias=.2f;light.cullingMask=1<<BoardMeshFactory.Layer;
             var fill=mesh.Group(transform,"Luz de relleno",Vector3.zero);fill.rotation=Quaternion.Euler(32,145,0);
             var fillLight=fill.gameObject.AddComponent<Light>();fillLight.type=LightType.Directional;fillLight.color=new Color(.64f,.77f,1);fillLight.intensity=.45f;fillLight.cullingMask=1<<BoardMeshFactory.Layer;
-            mesh.Part(transform,"Suelo bajo el tablero",mesh.Cube,new Vector3(0,-.2f,0),new Vector3(56,.22f,56),new Color(.035f,.05f,.075f));
+            // Leave the space between floating tiles open to the leader skybox.
         }
         public void ResizeTexture(int width,int height)
         {
@@ -112,9 +125,9 @@ namespace WarConquer
                 foreach(var tile in tiles.Values)BoardMeshFactory.Release(tile.root.gameObject);
                 foreach(var piece in pieces.Values)BoardMeshFactory.Release(piece.root.gameObject);
                 foreach(var route in routes)BoardMeshFactory.Release(route);
-                movementPaths.Clear();landingWaves.Clear();biomes.Clear();tiles.Clear();pieces.Clear();labels.Clear();routes.Clear();routeKey=null;
+                movementPaths.Clear();landingWaves.Clear();biomes.Clear();turnNeon.Clear();tiles.Clear();pieces.Clear();labels.Clear();routes.Clear();routeKey=null;
             }
-            state=game.State;dice.Sync(game);
+            state=game.State;dice.Sync(game);leaderSkybox.Sync(game,BoardCamera);
             foreach(var t in state.tiles)
             {
                 if(!tiles.TryGetValue(t.id,out var v))v=CreateTile(t);
@@ -132,8 +145,7 @@ namespace WarConquer
                 string number=central?"+1 PC":(t.id+1).ToString()+(t.owner>=0?" · J"+(t.owner+1):"")+(t.specialEffect!=null?" !":"");
                 if(v.number.text!=number)v.number.text=number;
                 v.number.gameObject.SetActive(central||ShowLabels||t.id==focus||valid.Contains(t.id)||selected.Contains(t.id));
-                string decoration=t.biome+"/"+t.blocked+"/"+t.baseOwner;
-                if(decoration!=v.decorationKey)
+                if(v.decorationKey==null||v.lastBiome!=t.biome||v.lastBlocked!=t.blocked||v.lastDecorationBase!=t.baseOwner)
                 {
                     if(v.decor!=null){v.decor.gameObject.SetActive(false);BoardMeshFactory.Release(v.decor.gameObject);}
                     v.decor=mesh.Group(v.surface,"Bioma "+Names.Biomes[(int)t.biome],Vector3.zero);
@@ -141,7 +153,7 @@ namespace WarConquer
                     if(v.decorationKey==null)mesh.Paint(v.ground,color);
                     v.groundColor=color;
                     if(t.blocked){var mountain=mesh.Part(v.decor,"Relieve no transitable",mesh.Cone,new Vector3(0,BoardMeshFactory.Surface,0),new Vector3(1.1f,1.2f,1.1f),new Color(.37f,.42f,.47f),true);mountain.AddComponent<Hex3DTarget>().tileId=t.id;}
-                    v.decorationKey=decoration;
+                    v.decorationKey="initialized";v.lastBiome=t.biome;v.lastBlocked=t.blocked;v.lastDecorationBase=t.baseOwner;
                 }
                 string baseLeader=t.baseOwner>=0?state.players[t.baseOwner].leader:"";
                 if(v.baseOwner!=t.baseOwner||v.baseLeader!=baseLeader)
@@ -174,6 +186,7 @@ namespace WarConquer
                         v.baseLabel=mesh.Label(v.leaderPlatform,"Líder y Conquista",new Vector3(0,6.5f,0),.09f,faction);labels.Add(v.baseLabel);
                     }
                 }
+                turnNeon.Register(t,v.root);
                 if(t.baseOwner>=0)
                 {
                     var player=state.players[t.baseOwner];v.baseLabel.text="J"+(player.id+1)+(player.isAI?" · IA":"")+(ShowLabels?"\n"+player.conquestPoints+" / 10 PC":"");
@@ -188,7 +201,7 @@ namespace WarConquer
                 if(v==null)
                 {
                     var root=mesh.Group(transform,(card.IsStructure?"ESTRUCTURA ":"UNIDAD ")+card.name+" · J"+(p.owner+1)+" · "+p.id,Vector3.zero);
-                    v=new PieceVisual{root=root,shape=shape,target=root.gameObject.AddComponent<Hex3DTarget>()};mesh.PieceModel(root,card,GrayboxUI.PlayerColor(p.owner));root.localScale=Vector3.one*1.25f;
+                    v=new PieceVisual{root=root,shape=shape,shortName=string.Concat(card.name.Split(' ').Where(w=>w.Length>2).Take(2).Select(w=>w[0])),target=root.gameObject.AddComponent<Hex3DTarget>()};mesh.PieceModel(root,card,GrayboxUI.PlayerColor(p.owner));root.localScale=Vector3.one*1.25f;
                     if(card.IsStructure&&newPiece&&!rebuilding){v.assembly=root.gameObject.AddComponent<BoardStructureAssembly>();v.assembly.Begin();}
                     if(!card.IsStructure){v.motion=root.gameObject.AddComponent<BoardPieceMotion>();v.motion.Landed=landingWaves.Impact;}
                     v.status=root.gameObject.AddComponent<BoardStatusVisual>();v.status.Initialize(mesh,BoardCamera);
@@ -206,7 +219,7 @@ namespace WarConquer
                     else v.motion.Enqueue(destination,p.tileId);
                 }
                 v.tileId=p.tileId;movementPaths.Remove(p.id);
-                string shortName=string.Concat(card.name.Split(' ').Where(w=>w.Length>2).Take(2).Select(w=>w[0]));
+                string shortName=v.shortName;
                 v.label.text=shortName+" · "+p.health+" ♥"+(p.poison>0?" · VEN "+FactionCardRules.PoisonDamage(game,p):"");
                 v.label.color=p.poison>0?new Color(.8f,.56f,1):Color.white;v.status.Sync(game,p);
             }
@@ -225,7 +238,7 @@ namespace WarConquer
                 routeKey=nextRoutes;
             }
             movementPaths.Clear();
-            leaderVfx.Sync(game);UpdateCamera();Physics.SyncTransforms();
+            turnNeon.Sync(game,this);leaderVfx.Sync(game);UpdateCamera();Physics.SyncTransforms();
         }
         public void UpdateCamera()
         {
@@ -235,18 +248,21 @@ namespace WarConquer
             Pitch=Mathf.Repeat(Pitch,360f);Yaw=Mathf.Repeat(Yaw,360f);
             var rotation=Quaternion.Euler(Pitch,Yaw,0);var inverse=Quaternion.Inverse(rotation);
             float maxX=0,maxY=0;
-            foreach(var tile in state.tiles)foreach(float height in new[]{0f,1.9f})
+            foreach(var tile in state.tiles)for(int level=0;level<2;level++)
             {
-                var local=inverse*(Position(tile)+Vector3.up*height);maxX=Mathf.Max(maxX,Mathf.Abs(local.x)+.9f);maxY=Mathf.Max(maxY,Mathf.Abs(local.y)+.9f);
+                float height=level==0?0:1.9f;var local=inverse*(Position(tile)+Vector3.up*height);maxX=Mathf.Max(maxX,Mathf.Abs(local.x)+.9f);maxY=Mathf.Max(maxY,Mathf.Abs(local.y)+.9f);
             }
-            foreach(var tile in tiles.Values.Where(v=>v.leaderPlatform!=null))
-            foreach(float height in new[]{-2f,6.9f})
+            foreach(var tile in tiles.Values)
             {
-                var local=inverse*(tile.leaderPlatform.position-transform.position+Vector3.up*height);
+            if(tile.leaderPlatform==null)continue;
+            for(int level=0;level<2;level++)
+            {
+                float height=level==0?-2f:6.9f;var local=inverse*(tile.leaderPlatform.position-transform.position+Vector3.up*height);
                 maxX=Mathf.Max(maxX,Mathf.Abs(local.x)+2.5f);maxY=Mathf.Max(maxY,Mathf.Abs(local.y)+2.5f);
             }
+            }
             BoardCamera.orthographicSize=Mathf.Max(maxY,maxX/Mathf.Max(.5f,BoardCamera.aspect))*1.03f/Zoom;
-            float radius=state.tiles.Max(t=>Position(t).magnitude)+16f;
+            float radius=0;foreach(var tile in state.tiles)radius=Mathf.Max(radius,Position(tile).magnitude);radius+=16f;
             float distance=Mathf.Max(28f,radius);
             BoardCamera.nearClipPlane=.01f;BoardCamera.farClipPlane=distance+radius+Pan.magnitude*.016f+Mathf.Abs(PanHeight)+100f;
             Vector3 center=new Vector3(-Pan.x*.016f,.35f+PanHeight,Pan.y*.016f);BoardCamera.transform.SetPositionAndRotation(center-rotation*Vector3.forward*distance,rotation);

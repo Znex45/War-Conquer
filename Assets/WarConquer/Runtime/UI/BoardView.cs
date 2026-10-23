@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,13 +11,14 @@ namespace WarConquer
     {
         readonly RectTransform root;
         readonly RawImage viewport;
+        readonly Canvas canvas;
         public readonly Board3DScene World;
         public RectTransform Overlay { get; }
         public float Zoom {get=>World.Zoom;set=>World.Zoom=value;}
         public Vector2 Pan {get=>World.Pan;set=>World.Pan=value;}
         public BoardView(RectTransform parent,WarConquerController controller)
         {
-            root=parent;
+            root=parent;canvas=root.GetComponentInParent<Canvas>();
             var world=new GameObject("WAR & CONQUER · TABLERO 3D");world.transform.SetParent(controller.transform,false);World=world.AddComponent<Board3DScene>();World.Initialize();
             var imageRoot=GrayboxUI.Rect(parent,"Vista del tablero 3D",0,0,982,648);viewport=imageRoot.gameObject.AddComponent<RawImage>();viewport.color=Color.white;
             var input=imageRoot.gameObject.AddComponent<BoardViewportInput>();input.Click=position=>{int id=World.Pick(position);if(id>=0)controller.TileClick(id);};
@@ -33,7 +34,7 @@ namespace WarConquer
         {GrayboxUI.Clear(Overlay);World.Sync(game,valid,selected,focus);Tick();}
         public void Tick()
         {
-            var canvas=root.GetComponentInParent<Canvas>();float scale=canvas!=null?canvas.scaleFactor:1;
+            float scale=canvas!=null?canvas.scaleFactor:1;
             World.ResizeTexture(Mathf.RoundToInt(root.rect.width*scale),Mathf.RoundToInt(root.rect.height*scale));
             if(viewport.texture!=World.Texture)viewport.texture=World.Texture;
         }

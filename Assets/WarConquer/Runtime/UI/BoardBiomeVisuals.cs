@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -20,22 +20,25 @@ namespace WarConquer
             public bool emerging;
         }
         readonly Dictionary<int,Habitat> active=new Dictionary<int,Habitat>();
+        readonly List<Habitat> animated=new List<Habitat>();
         BoardMeshFactory mesh;
-        Material particles,waterMaterial;
+        Material particles,waterMaterial,neonParticles;
         float nextFrame;
         public int HabitatCount=>active.Count;
         public void Initialize(BoardMeshFactory factory)
         {
             mesh=factory;
+            neonParticles=new Material(Resources.Load<Shader>("WarConquer/Materials/NeonGlow"));neonParticles.name="Shared biome neon particles";
             // Shared transparent material: no per-slab material instances or lights.
             particles=new Material(Resources.Load<Shader>("WarConquer/Materials/TerrainTransparent"));
             particles.name="Partículas de terreno compartidas";particles.SetFloat("_SoftParticle",1);
             waterMaterial=new Material(particles);waterMaterial.name="Agua turbia compartida";waterMaterial.SetFloat("_SoftParticle",0);
             waterMaterial.SetColor("_BaseColor",new Color(.16f,.34f,.27f,.58f));
         }
-        public void Clear(){active.Clear();}
+        public void Clear(){active.Clear();animated.Clear();}
         public void Sync(HexTile tile,Transform root,Renderer ground,bool animate,Color previous)
         {
+            if(active.TryGetValue(tile.id,out var previousHabitat))animated.Remove(previousHabitat);
             active.Remove(tile.id);
             var h=mesh.BiomeModel(root,tile);h.ground=ground;h.from=previous;
             h.to=tile.biome==Biome.Neutral?GrayboxUI.TerritoryColor(tile.territory):GrayboxUI.BiomeColor(tile.biome);
@@ -52,28 +55,31 @@ namespace WarConquer
                 MakeParticles(root,"Ambiente "+tile.biome,color,true,tile.id,tile.biome);
             }
             active[tile.id]=h;
+            if(h.emerging||h.moving!=null||h.water!=null||h.fauna!=null)animated.Add(h);
         }
         ParticleSystem MakeParticles(Transform root,string name,Color color,bool loop,int seed,Biome biome=Biome.Neutral)
         {
-            var obj=mesh.Group(root,name,Vector3.up*(BoardMeshFactory.Surface+(loop&&biome==Biome.Tundra?.5f:.04f)));var ps=obj.gameObject.AddComponent<ParticleSystem>();ps.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
+            var obj=mesh.Group(root,name,Vector3.up*(BoardMeshFactory.Surface+(loop?.5f:.04f)));var ps=obj.gameObject.AddComponent<ParticleSystem>();ps.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
             ps.useAutoRandomSeed=false;ps.randomSeed=(uint)(seed+923);
             var main=ps.main;main.loop=loop;main.playOnAwake=false;main.duration=1;
-            main.startLifetime=loop?1.8f:.85f;main.startSpeed=loop?.06f:.24f;main.startSize=loop?.035f:.12f;main.startColor=color;
-            main.maxParticles=loop?8:22;main.simulationSpace=ParticleSystemSimulationSpace.Local;
-            var emission=ps.emission;emission.rateOverTime=loop?3:0;
+            main.useUnscaledTime=true;main.startLifetime=loop?2.2f:.85f;main.startSpeed=loop?.09f:.24f;main.startSize=loop?.12f:.12f;main.startColor=color;
+            if(loop){BiomeNeonPalette.Get(biome,out var first,out var second);first.a=.8f;second.a=.7f;main.startColor=new ParticleSystem.MinMaxGradient(first,second);}
+            main.maxParticles=loop?18:22;main.simulationSpace=ParticleSystemSimulationSpace.Local;
+            var emission=ps.emission;emission.rateOverTime=loop?7:0;
             var shape=ps.shape;shape.shapeType=ParticleSystemShapeType.Circle;shape.radius=.52f;shape.rotation=new Vector3(-90,0,0);
             var velocity=ps.velocityOverLifetime;velocity.enabled=true;velocity.space=ParticleSystemSimulationSpace.Local;velocity.y=loop?(biome==Biome.Tundra?-.12f:.06f):.18f;velocity.x=loop&&biome==Biome.Desert?.12f:0;
             var fade=ps.colorOverLifetime;fade.enabled=true;
             var gradient=new Gradient();gradient.SetKeys(new[]{new GradientColorKey(Color.white,0),new GradientColorKey(Color.white,1)},new[]{new GradientAlphaKey(0,0),new GradientAlphaKey(1,.18f),new GradientAlphaKey(0,1)});fade.color=gradient;
-            var renderer=ps.GetComponent<ParticleSystemRenderer>();renderer.sharedMaterial=particles;renderer.shadowCastingMode=ShadowCastingMode.Off;renderer.receiveShadows=false;
+            var renderer=ps.GetComponent<ParticleSystemRenderer>();renderer.sharedMaterial=loop?neonParticles:particles;renderer.shadowCastingMode=ShadowCastingMode.Off;renderer.receiveShadows=false;
             ps.Play();return ps;
         }
         void Update()
         {
             float now=Time.unscaledTime;if(now<nextFrame)return;nextFrame=now+1f/30;
-            foreach(var h in active.Values)
+            for(int index=animated.Count-1;index>=0;index--)
             {
-                if(h.root==null)continue;
+                var h=animated[index];
+                if(h.root==null){animated.RemoveAt(index);continue;}
                 if(h.emerging)
                 {
                     float t=Mathf.Clamp01((now-h.started)/1.05f),ease=t*t*(3-2*t);
@@ -88,9 +94,10 @@ namespace WarConquer
                 }
                 if(h.water!=null)h.water.localPosition=new Vector3(.22f,BoardMeshFactory.Surface+.012f+wave*.004f,.22f);
                 if(h.fauna!=null){h.fauna.localPosition=h.faunaOrigin+new Vector3(Mathf.Sin(now*.5f+h.offset)*.07f,0,Mathf.Cos(now*.5f+h.offset)*.03f);h.fauna.localRotation=Quaternion.Euler(0,Mathf.Sin(now*.7f+h.offset)*16,0);}
+                if(!h.emerging&&h.moving==null&&h.water==null&&h.fauna==null)animated.RemoveAt(index);
             }
         }
-        void OnDestroy(){BoardMeshFactory.Release(particles);BoardMeshFactory.Release(waterMaterial);}
+        void OnDestroy(){BoardMeshFactory.Release(neonParticles);BoardMeshFactory.Release(particles);BoardMeshFactory.Release(waterMaterial);}
 
         // Small peripheral scenery keeps the center free for units and selection markers.
         public static Habitat Build(BoardMeshFactory m,Transform root,HexTile t)
