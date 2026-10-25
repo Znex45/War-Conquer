@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -27,6 +28,7 @@ namespace WarConquer.Editor
                 var light=new GameObject("Key").AddComponent<Light>();light.transform.SetParent(root.transform);light.type=LightType.Directional;light.intensity=1.4f;light.color=new Color(1,.94f,.84f);light.transform.rotation=Quaternion.Euler(42,-28,0);light.cullingMask=camera.cullingMask;
                 var fill=new GameObject("Fill").AddComponent<Light>();fill.transform.SetParent(root.transform);fill.type=LightType.Directional;fill.intensity=.6f;fill.color=new Color(.62f,.75f,1);fill.transform.rotation=Quaternion.Euler(20,150,0);fill.cullingMask=camera.cullingMask;
                 var cards=CardCatalog.Load().All.ToArray();int reviewed=0;
+                var identities=new Dictionary<string,string>();var costs=new List<string>();
                 foreach(var c in cards.Where(c=>c.category==Category.Spell))
                 {var empty=m.Group(root.transform,"Excluded "+c.id,Vector3.zero);m.PieceModel(empty,c,Color.yellow);Check(empty.childCount==0,"Spell received a model: "+c.id);BoardMeshFactory.Release(empty.gameObject);}
                 foreach(var faction in new[]{"ZUKGROK","SAHRIA","FAUNAR","XIL'THAR","GENERIC"})
@@ -39,9 +41,15 @@ namespace WarConquer.Editor
                         {
                             var c=entries[page*18+i];var slot=m.Group(gallery,c.id,new Vector3((i%6-2.5f)*1.55f,0,i/6*1.8f));
                             m.PieceModel(slot,c,GrayboxUI.PlayerColor(page%2));reviewed++;
-                            Check(slot.GetComponentsInChildren<MeshFilter>().Length>=12,"Empty sculpture "+c.id);
+                            Check(slot.Find("Escultura de carta").GetComponentsInChildren<MeshFilter>().Length>=3,"Empty sculpture "+c.id);
                             Check(slot.GetComponentInChildren<Animator>()==null,"Leader animation copied to card "+c.id);
                             Check(slot.Find("Escultura de carta")!=null,"Missing sculpture group "+c.id);
+                            if(!c.IsStructure)
+                            {
+                                var idle=slot.gameObject.AddComponent<CardUnitPresentation>();idle.Initialize(m,c,page*18+i,false);
+                                Check(idle.Sculpture!=null&&!idle.IsSpawning,"Invalid idle rig "+c.id);
+                            }
+                            identities[c.id]=GeometryIdentity(slot);costs.Add(c.id+","+slot.GetComponentsInChildren<MeshRenderer>().Length);
                             foreach(var f in slot.GetComponentsInChildren<MeshFilter>())
                             {
                                 Check(f.sharedMesh!=null&&f.sharedMesh.vertexCount>0,"Missing geometry "+c.id);
@@ -55,15 +63,46 @@ namespace WarConquer.Editor
                         Capture(camera,output+"/"+faction+"-"+page+".png");BoardMeshFactory.Release(gallery.gameObject);
                     }
                 }
+                foreach(var pair in new[]{
+                    new[]{"nomada-de-arena","guardian-del-obelisco"},new[]{"guardian-del-obelisco","emperador-de-las-dunas"},
+                    new[]{"charming-mongoose","ferret-eluding-hunter"},new[]{"ferret-eluding-hunter","bober-reinforcer"},
+                    new[]{"bober-reinforcer","panther-stealthy-assassin"},new[]{"battle-ant-token","escarabajo-de-cobre"},
+                    new[]{"semillero-micelial","jardin-micelial"},new[]{"red-micelial","micelium-root"},
+                    new[]{"arbol-madre","bosque-eterno"},new[]{"santuario-de-arena","templo-de-ceniza"},
+                    new[]{"arena-profunda","dunas-movedizas"}})
+                    Check(identities[pair[0]]!=identities[pair[1]],"Identical silhouettes: "+string.Join(" / ",pair));
+                File.WriteAllLines(output+"/renderer-counts.csv",new[]{"card,renderers"}.Concat(costs));
+                Portraits(m,root.transform,camera,cards,output);
                 File.WriteAllText(output+"/review.txt","Validated "+reviewed+" unique card entries: materials, geometry, footprint, seating, no leader rigs, excluded spells.");
                 Debug.Log("CARD_MODEL_GALLERY_PASSED count="+reviewed);
             }
             finally{BoardMeshFactory.Release(root);m.Dispose();EditorSceneManager.ClosePreviewScene(scene);}
         }
-        static void Capture(Camera camera,string path)
+        static string GeometryIdentity(Transform slot)
         {
-            var target=new RenderTexture(1800,1050,24);target.Create();camera.targetTexture=target;camera.aspect=1800f/1050;camera.Render();
-            var previous=RenderTexture.active;RenderTexture.active=target;var pixels=new Texture2D(1800,1050,TextureFormat.RGB24,false);pixels.ReadPixels(new Rect(0,0,1800,1050),0,0);pixels.Apply();File.WriteAllBytes(path,pixels.EncodeToPNG());
+            return string.Join("|",slot.GetComponentsInChildren<MeshFilter>().Select(f=>
+            {
+                var matrix=slot.worldToLocalMatrix*f.transform.localToWorldMatrix;
+                var numbers=new string[12];for(int row=0;row<3;row++)for(int col=0;col<4;col++)numbers[row*4+col]=matrix[row,col].ToString("F4",CultureInfo.InvariantCulture);
+                return f.sharedMesh.name+":"+string.Join(",",numbers);
+            }).OrderBy(s=>s,StringComparer.Ordinal));
+        }
+        static void Portraits(BoardMeshFactory m,Transform parent,Camera camera,CardData[] cards,string output)
+        {
+            Directory.CreateDirectory(output+"/Portraits");
+            var position=camera.transform.position;var rotation=camera.transform.rotation;float size=camera.orthographicSize;
+            camera.orthographicSize=1.04f;camera.transform.position=new Vector3(2.1f,2.05f,-3.8f);camera.transform.LookAt(new Vector3(0,.68f,0));
+            foreach(var c in cards.Where(c=>c.category!=Category.Spell))
+            {
+                var slot=m.Group(parent,c.id,Vector3.zero);m.PieceModel(slot,c,GrayboxUI.PlayerColor(0));
+                Capture(camera,output+"/Portraits/"+c.id+".png",300,360);BoardMeshFactory.Release(slot.gameObject);
+            }
+            camera.transform.SetPositionAndRotation(position,rotation);camera.orthographicSize=size;
+        }
+        static void Capture(Camera camera,string path,int width=1800,int height=1050)
+        {
+            var target=new RenderTexture(width,height,24);target.Create();camera.targetTexture=target;camera.aspect=(float)width/height;camera.Render();
+            var previous=RenderTexture.active;RenderTexture.active=target;var pixels=new Texture2D(width,height,TextureFormat.RGB24,false);pixels.ReadPixels(new Rect(0,0,width,height),0,0);pixels.Apply();File.WriteAllBytes(path,pixels.EncodeToPNG());
             RenderTexture.active=previous;camera.targetTexture=null;target.Release();UnityEngine.Object.DestroyImmediate(target);UnityEngine.Object.DestroyImmediate(pixels);
         }
         public static void Batch(){try{Gallery();EditorApplication.Exit(0);}catch(Exception e){Debug.LogException(e);EditorApplication.Exit(1);}}

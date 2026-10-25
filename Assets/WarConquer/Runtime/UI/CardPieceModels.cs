@@ -4,7 +4,7 @@ using UnityEngine;
 namespace WarConquer
 {
     // Original sculptures, independent of leader prefabs, rigs and textures.
-    public static class CardPieceModels
+    public static partial class CardPieceModels
     {
         public static Biome Habitat(CardData c)
         {
@@ -19,7 +19,7 @@ namespace WarConquer
             if(c.category==Category.Spell)return null;
             return new Sculptor(m,parent,c,owner).Build();
         }
-        sealed class Sculptor
+        sealed partial class Sculptor
         {
             readonly BoardMeshFactory m;readonly Transform parent;readonly CardData card;
             readonly string id;readonly Biome biome;readonly Color owner;
@@ -71,7 +71,8 @@ namespace WarConquer
                 P(parent,"Bisel de la peana",m.Cylinder,Vector3.up*.064f,new Vector3(.81f,.025f,.81f),trim);
                 P(parent,"Suelo del hábitat",m.Cylinder,Vector3.up*.09f,new Vector3(.78f,.035f,.78f),stone);
                 model=G(parent,"Escultura de carta",Vector3.up*.125f);
-                if(card.IsStructure)Structure();else Unit();
+                if(card.IsStructure)EnhanceStructureIdentity();
+                else{Unit();EnhanceUnitIdentity();}
                 return model;
             }
             void Unit()
