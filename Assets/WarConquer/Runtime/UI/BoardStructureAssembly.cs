@@ -15,9 +15,11 @@ namespace WarConquer
         public bool IsBuilding {get;private set;}
         public void Begin()
         {
+            int count=GetComponentsInChildren<MeshRenderer>().Length;
+            float stagger=Mathf.Min(.11f,.9f/Mathf.Max(1,count-1));
             parts=GetComponentsInChildren<MeshRenderer>().OrderBy(r=>r.transform.localPosition.y)
                 .Select((r,i)=>new Part{node=r.transform,renderer=r,position=r.transform.localPosition,
-                    rotation=r.transform.localRotation,visible=r.enabled,delay=i*.11f}).ToArray();
+                    rotation=r.transform.localRotation,visible=r.enabled,delay=i*stagger}).ToArray();
             elapsed=0;IsBuilding=parts.Length>0;
             foreach(var part in parts){part.renderer.enabled=false;part.node.localPosition=part.position+Vector3.up*6f;}
             enabled=IsBuilding;

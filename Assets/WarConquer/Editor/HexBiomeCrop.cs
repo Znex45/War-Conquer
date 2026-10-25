@@ -137,18 +137,94 @@ namespace WarConquer.Editor
             UnityEngine.Object.DestroyImmediate(source);
             SeatAndSeal(root,folder,foundationMaterial);
         }
+        public const float TerrainLevel=BoardMeshFactory.Surface+.04f;
+        public static float GroundLevel(IEnumerable<MeshFilter> filters)
+        {
+            // Measure the supporting rim, excluding central mountains and scenery.
+            var probes=new List<Vector2>();
+            for(int edge=0;edge<6;edge++)
+            {
+                float angle=(edge+.5f)*Mathf.PI/3;var normal=new Vector2(Mathf.Cos(angle),Mathf.Sin(angle));var tangent=new Vector2(-normal.y,normal.x);
+                for(int i=0;i<9;i++)probes.Add((normal*(Radius*Mathf.Cos(Mathf.PI/6))+tangent*Mathf.Lerp(-Radius*.49f,Radius*.49f,i/8f))*.97f);
+            }
+            var heights=Enumerable.Repeat(float.PositiveInfinity,probes.Count).ToArray();
+            foreach(var filter in filters)
+            {
+                var mesh=filter.sharedMesh;var points=mesh.vertices;var indices=mesh.triangles;
+                for(int i=0;i<indices.Length;i+=3)
+                {
+                    var a=points[indices[i]];var b=points[indices[i+1]];var c=points[indices[i+2]];
+                    if(Vector3.Cross(b-a,c-a).y<=.00000001f)continue;
+                    float minX=Mathf.Min(a.x,Mathf.Min(b.x,c.x)),maxX=Mathf.Max(a.x,Mathf.Max(b.x,c.x)),minZ=Mathf.Min(a.z,Mathf.Min(b.z,c.z)),maxZ=Mathf.Max(a.z,Mathf.Max(b.z,c.z));
+                    float den=(b.z-c.z)*(a.x-c.x)+(c.x-b.x)*(a.z-c.z);if(Mathf.Abs(den)<.00000001f)continue;
+                    for(int sample=0;sample<probes.Count;sample++)
+                    {
+                        var p=probes[sample];if(p.x<minX||p.x>maxX||p.y<minZ||p.y>maxZ)continue;
+                        float u=((b.z-c.z)*(p.x-c.x)+(c.x-b.x)*(p.y-c.z))/den;
+                        float v=((c.z-a.z)*(p.x-c.x)+(a.x-c.x)*(p.y-c.z))/den;float w=1-u-v;
+                        if(u>=-.00001f&&v>=-.00001f&&w>=-.00001f)heights[sample]=Mathf.Min(heights[sample],u*a.y+v*b.y+w*c.y);
+                    }
+                }
+            }
+            var valid=heights.Where(v=>!float.IsInfinity(v)).OrderBy(v=>v).ToArray();if(valid.Length==0)throw new Exception("Terrain has no ground surface");return valid[valid.Length/2];
+        }
         struct RimSegment {public float a,b,ya,yb;public float Height(float t)=>Mathf.Lerp(ya,yb,(t-a)/(b-a));}
         static void SeatAndSeal(GameObject root,string folder,Material material)
         {
             var filters=root.GetComponentsInChildren<MeshFilter>().Where(f=>f.name.StartsWith("Hex crop ",StringComparison.Ordinal)).ToArray();
             float floor=BoardMeshFactory.Surface-.012f;
-            float lowest=filters.Min(f=>f.sharedMesh.vertices.Min(v=>v.y));
-            float offset=lowest-floor;
+            // Keep the source UVs for a thin textured underlay where thick authored bases are buried.
+            var originals=filters.Select(f=>new {filter=f,points=f.sharedMesh.vertices,normals=f.sharedMesh.normals,uv=f.sharedMesh.uv,colors=f.sharedMesh.colors,indices=Enumerable.Range(0,f.sharedMesh.subMeshCount).Select(sub=>f.sharedMesh.GetTriangles(sub)).ToArray()}).ToArray();
+            float totalOffset=0;
+            for(int pass=0;pass<8;pass++)
+            {
+                float correction=GroundLevel(filters)-TerrainLevel;totalOffset+=correction;
+                if(Mathf.Abs(correction)<.0001f)break;
             foreach(var filter in filters)
             {
-                var mesh=filter.sharedMesh;var points=mesh.vertices;
-                for(int i=0;i<points.Length;i++)points[i].y-=offset;
-                mesh.vertices=points;mesh.RecalculateBounds();EditorUtility.SetDirty(mesh);
+                var mesh=filter.sharedMesh;var points=mesh.vertices;var normals=mesh.normals;var uv=mesh.uv;var colors=mesh.colors;
+                var croppedVertices=new List<Vertex>();var croppedTriangles=new List<int>[mesh.subMeshCount];
+                for(int sub=0;sub<mesh.subMeshCount;sub++)
+                {
+                    croppedTriangles[sub]=new List<int>();var indices=mesh.GetTriangles(sub);
+                    for(int i=0;i<indices.Length;i+=3)
+                    {
+                        var polygon=new List<Vertex>();for(int j=0;j<3;j++){int n=indices[i+j];var point=points[n];point.y-=correction;polygon.Add(new Vertex{p=point,n=normals[n],uv=uv[n],color=colors.Length>n?colors[n]:Color.white});}
+                        var clipped=new List<Vertex>();var previous=polygon[polygon.Count-1];float dp=previous.p.y-floor;
+                        foreach(var next in polygon){float dn=next.p.y-floor;if((dp>=0)!=(dn>=0))clipped.Add(Vertex.Mix(previous,next,dp/(dp-dn)));if(dn>=0)clipped.Add(next);previous=next;dp=dn;}
+                        for(int j=1;j+1<clipped.Count;j++){int start=croppedVertices.Count;croppedVertices.Add(clipped[0]);croppedVertices.Add(clipped[j]);croppedVertices.Add(clipped[j+1]);croppedTriangles[sub].AddRange(new[]{start,start+1,start+2});}
+                    }
+                }
+                filter.sharedMesh=SaveMesh(AssetDatabase.GetAssetPath(mesh),croppedVertices,croppedTriangles);
+            }
+            }
+            float offset=totalOffset;
+            int underlayIndex=0;
+            foreach(var original in originals)
+            {
+                var underlayVertices=new List<Vertex>();var underlayTriangles=new List<int>[original.indices.Length];
+                for(int sub=0;sub<original.indices.Length;sub++)
+                {
+                    underlayTriangles[sub]=new List<int>();var indices=original.indices[sub];
+                    for(int i=0;i<indices.Length;i+=3)
+                    {
+                        var polygon=new List<Vertex>();for(int j=0;j<3;j++){int n=indices[i+j];var point=original.points[n];point.y-=totalOffset;polygon.Add(new Vertex{p=point,n=Vector3.up,uv=original.uv[n],color=original.colors.Length>n?original.colors[n]:Color.white});}
+                        if(Vector3.Cross(polygon[1].p-polygon[0].p,polygon[2].p-polygon[0].p).y<=.00000001f)continue;
+                        var clipped=new List<Vertex>();var previous=polygon[2];float dp=floor-previous.p.y;
+                        foreach(var next in polygon){float dn=floor-next.p.y;if((dp>=0)!=(dn>=0))clipped.Add(Vertex.Mix(previous,next,dp/(dp-dn)));if(dn>=0)clipped.Add(next);previous=next;dp=dn;}
+                        for(int j=1;j+1<clipped.Count;j++)
+                        {
+                            int start=underlayVertices.Count;
+                            foreach(var vertex in new[]{clipped[0],clipped[j+1],clipped[j]}){var v=vertex;v.p.y=BoardMeshFactory.Surface+.009f+Mathf.Clamp(v.p.y-floor,-.4f,0)*.006f;v.n=Vector3.up;underlayVertices.Add(v);}
+                            underlayTriangles[sub].AddRange(new[]{start,start+1,start+2});
+                        }
+                    }
+                }
+                if(underlayVertices.Count==0)continue;
+                var underlay=new GameObject("Textured terrain underlay");underlay.layer=BoardMeshFactory.Layer;underlay.transform.SetParent(root.transform,false);
+                underlay.AddComponent<MeshFilter>().sharedMesh=SaveMesh(folder+"/Underlay_"+(underlayIndex++)+".asset",underlayVertices,underlayTriangles);
+                var underlayRenderer=underlay.AddComponent<MeshRenderer>();underlayRenderer.sharedMaterials=original.filter.GetComponent<MeshRenderer>().sharedMaterials;underlayRenderer.shadowCastingMode=ShadowCastingMode.Off;
+                foreach(var surface in underlayRenderer.sharedMaterials)if(surface!=null){surface.SetFloat("_Cull",0);EditorUtility.SetDirty(surface);}
             }
             var rims=new List<RimSegment>[6];for(int edge=0;edge<6;edge++)rims[edge]=new List<RimSegment>();
             foreach(var filter in filters)

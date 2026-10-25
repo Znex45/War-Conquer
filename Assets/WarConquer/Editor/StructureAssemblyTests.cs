@@ -31,7 +31,9 @@ namespace WarConquer.Editor
                     Check(world.UnitVisual(old.id).GetComponent<BoardStructureAssembly>()==null,"Existing structure replayed on load");
                     building=game.Place(card.id,0,tiles[1].id);Sync();
                     var root=world.UnitVisual(building.id);Check(root.GetComponent<BoardStructureAssembly>().IsBuilding,"New structure not animated");
-                    parts=root.Cast<Transform>().Where(t=>t.GetComponent<MeshFilter>()!=null).ToArray();final=parts.Select(t=>t.localPosition-Vector3.up*6).ToArray();
+                    // Sculptures now have articulated/nested groups; inspect every staged mesh,
+                    // excluding status labels added after Begin(), rather than just the plinth.
+                    parts=root.GetComponentsInChildren<MeshFilter>().Select(f=>f.transform).Where(t=>t.localPosition.y>5).ToArray();final=parts.Select(t=>t.localPosition-Vector3.up*6).ToArray();
                     Check(parts.Length>1&&parts.All(t=>!t.GetComponent<Renderer>().enabled),"Parts not staged in sky");
                     var unit=game.Place(cards.All.First(c=>c.category==Category.Unit).id,0,tiles[2].id);Sync();Check(world.UnitVisual(unit.id).GetComponent<BoardStructureAssembly>()==null,"Unit received building animation");
                     snapshot=GamePersistence.Serialize(game.State);step=1;due=EditorApplication.timeSinceStartup+.18;return;

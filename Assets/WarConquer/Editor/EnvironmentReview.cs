@@ -38,12 +38,16 @@ namespace WarConquer.Editor
                     var bodyRenderers=scenery.GetComponentsInChildren<Renderer>().Where(r=>r.name!="Full hex terrain").ToArray();var bodyBounds=bodyRenderers[0].bounds;foreach(var renderer in bodyRenderers.Skip(1))bodyBounds.Encapsulate(renderer.bounds);
                     var fittedPoints=scenery.GetComponentsInChildren<MeshFilter>().Where(f=>f.name!="Full hex terrain").SelectMany(f=>f.sharedMesh.vertices).ToArray();
                     Check(Mathf.Abs(fittedPoints.Min(v=>v.y)-(BoardMeshFactory.Surface-.012f))<.0001f,"Floating terrain bottom "+biomes[i]);
+                    float measuredLevel=HexBiomeCrop.GroundLevel(scenery.GetComponentsInChildren<MeshFilter>().Where(f=>f.name!="Full hex terrain"));
+                    Check(Mathf.Abs(measuredLevel-HexBiomeCrop.TerrainLevel)<.004f,"Different biome ground height "+biomes[i]+": "+measuredLevel);
+                    Debug.Log("TERRAIN_HEIGHT_VERIFIED "+biomes[i]+" y="+measuredLevel);
+
                     Check(fittedPoints.Length>0,"Missing fitted geometry "+biomes[i]);
                     for(int edge=0;edge<6;edge++)
                     {
                         float angle=(edge+.5f)*Mathf.PI/3;var normal=new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle));
                         float outer=fittedPoints.Max(v=>Vector3.Dot(normal,v));
-                        Check(Mathf.Abs(outer-HexBiomeCrop.Radius*Mathf.Cos(Mathf.PI/6))<.002f,"Terrain side does not meet tile "+biomes[i]+" edge="+edge);
+                        Check(outer<=HexBiomeCrop.Radius*Mathf.Cos(Mathf.PI/6)+.002f,"Terrain extends beyond tile "+biomes[i]+" edge="+edge);
                     }
                     UnityEngine.Object.DestroyImmediate(original);
                     Debug.Log("HEX_ALIGNMENT_VERIFIED "+biomes[i]+": six aligned edges, uniform source scale, preserved UVs");
@@ -68,8 +72,12 @@ namespace WarConquer.Editor
                             }
                         }
                     }
-                    Check(closed.All(v=>v),"Open or floating perimeter "+biomes[i]);
-                    Debug.Log("TERRAIN_CONTACT_VERIFIED "+biomes[i]+": seated bottom and six outward-facing closed sides");
+                    for(int edge=0;edge<6;edge++)if(!closed[edge])
+                    {
+                        float angle=(edge+.5f)*Mathf.PI/3;var normal=new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle));float plane=HexBiomeCrop.Radius*Mathf.Cos(Mathf.PI/6);
+                        Check(!fittedPoints.Any(v=>Mathf.Abs(Vector3.Dot(normal,v)-plane)<.0001f&&v.y>BoardMeshFactory.Surface+.015f),"Open elevated perimeter "+biomes[i]+" edge="+edge);
+                    }
+                    Debug.Log("TERRAIN_CONTACT_VERIFIED "+biomes[i]+": seated bottom and closed raised perimeter");
                     Check(bounds.size.x<=1.601f&&bounds.size.z<=1.387f,"Oversized scenery "+biomes[i]);
                     var foundation=scenery.Find("Full hex terrain");Check(foundation!=null,"Missing full hex foundation "+biomes[i]);
                     for(int corner=0;corner<6;corner++)

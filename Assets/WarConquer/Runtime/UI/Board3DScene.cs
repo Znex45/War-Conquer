@@ -28,6 +28,7 @@ namespace WarConquer
             public string shape,shortName;
             public BoardStatusVisual status;
             public BoardPieceMotion motion;
+            public CardUnitPresentation presentation;
             public BoardStructureAssembly assembly;
             public int tileId=-1;
         }
@@ -60,7 +61,7 @@ namespace WarConquer
             get
             {
                 if((landingWaves!=null&&landingWaves.IsActive)||(dice!=null&&dice.IsAnimating))return true;
-                foreach(var piece in pieces.Values)if((piece.motion!=null&&piece.motion.IsMoving)||(piece.assembly!=null&&piece.assembly.IsBuilding))return true;
+                foreach(var piece in pieces.Values)if((piece.motion!=null&&piece.motion.IsMoving)||(piece.assembly!=null&&piece.assembly.IsBuilding)||(piece.presentation!=null&&piece.presentation.IsSpawning))return true;
                 return false;
             }
         }
@@ -203,7 +204,11 @@ namespace WarConquer
                     var root=mesh.Group(transform,(card.IsStructure?"ESTRUCTURA ":"UNIDAD ")+card.name+" · J"+(p.owner+1)+" · "+p.id,Vector3.zero);
                     v=new PieceVisual{root=root,shape=shape,shortName=string.Concat(card.name.Split(' ').Where(w=>w.Length>2).Take(2).Select(w=>w[0])),target=root.gameObject.AddComponent<Hex3DTarget>()};mesh.PieceModel(root,card,GrayboxUI.PlayerColor(p.owner));root.localScale=Vector3.one*1.25f;
                     if(card.IsStructure&&newPiece&&!rebuilding){v.assembly=root.gameObject.AddComponent<BoardStructureAssembly>();v.assembly.Begin();}
-                    if(!card.IsStructure){v.motion=root.gameObject.AddComponent<BoardPieceMotion>();v.motion.Landed=landingWaves.Impact;}
+                    if(!card.IsStructure)
+                    {
+                        v.motion=root.gameObject.AddComponent<BoardPieceMotion>();v.motion.Landed=landingWaves.Impact;
+                        v.presentation=root.gameObject.AddComponent<CardUnitPresentation>();v.presentation.Initialize(mesh,card,p.id,newPiece&&!rebuilding);
+                    }
                     v.status=root.gameObject.AddComponent<BoardStatusVisual>();v.status.Initialize(mesh,BoardCamera);
                     var collider=root.gameObject.AddComponent<BoxCollider>();collider.center=new Vector3(0,.6f,0);collider.size=new Vector3(.94f,card.Has("Passable")?.25f:1.6f,.94f);
                     if(card.Has("Passable"))collider.center=new Vector3(0,.12f,0);

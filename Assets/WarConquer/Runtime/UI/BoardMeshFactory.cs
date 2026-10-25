@@ -10,6 +10,7 @@ namespace WarConquer
         public const int Layer=30;
         public const float Surface=.36f;
         public readonly Mesh Hex, Ring, Cylinder, Cone, Cube, Sphere, Vortex;
+        public readonly Mesh Carved, Crystal, Petal, MushroomCap, Bell;
         public readonly Material Lit;
         readonly List<Mesh> owned=new List<Mesh>();
         readonly MaterialPropertyBlock properties=new MaterialPropertyBlock();
@@ -22,6 +23,24 @@ namespace WarConquer
             Hex=Prism(.8f,Surface,.035f,6);Ring=MakeRing(.799f,.744f);Vortex=MakeVortex();
             Cylinder=Prism(.5f,1,0,16);Cone=Taper(.5f,0,1,8);
             Cube=PrimitiveMesh(PrimitiveType.Cube);Sphere=PrimitiveMesh(PrimitiveType.Sphere);
+            Carved=Profile("Faceted miniature",new[]{new Vector2(0,-.5f),new Vector2(.32f,-.4f),new Vector2(.48f,-.18f),new Vector2(.5f,.12f),new Vector2(.36f,.4f),new Vector2(0,.5f)},10);
+            Crystal=Profile("Cut crystal",new[]{new Vector2(0,-.5f),new Vector2(.32f,-.2f),new Vector2(.36f,.18f),new Vector2(0,.5f)},6);
+            Petal=Profile("Carved leaf",new[]{new Vector2(0,-.5f),new Vector2(.3f,-.15f),new Vector2(.22f,.18f),new Vector2(0,.5f)},4);
+            MushroomCap=Profile("Organic mushroom cap",new[]{new Vector2(0,-.08f),new Vector2(.42f,-.08f),new Vector2(.5f,0),new Vector2(.4f,.15f),new Vector2(.2f,.29f),new Vector2(0,.34f)},12);
+            Bell=Profile("Sculpted tunic",new[]{new Vector2(.48f,0),new Vector2(.5f,.08f),new Vector2(.29f,.74f),new Vector2(.32f,1)},10);
+        }
+        Mesh Profile(string name,Vector2[] profile,int sides)
+        {
+            var b=new Builder();
+            for(int row=0;row<profile.Length-1;row++)for(int i=0;i<sides;i++)
+            {
+                var a=profile[row];var c=profile[row+1];
+                b.Quad(Point(i,sides,a.x,a.y),Point(i,sides,c.x,c.y),Point(i+1,sides,c.x,c.y),Point(i+1,sides,a.x,a.y));
+            }
+            // Open profile ends are capped, so tunics have no visible holes from below.
+            if(profile[0].x>0)for(int i=0;i<sides;i++)b.Tri(Vector3.up*profile[0].y,Point(i,sides,profile[0].x,profile[0].y),Point(i+1,sides,profile[0].x,profile[0].y));
+            var last=profile[profile.Length-1];if(last.x>0)for(int i=0;i<sides;i++)b.Tri(Vector3.up*last.y,Point(i+1,sides,last.x,last.y),Point(i,sides,last.x,last.y));
+            var result=b.Build(name);owned.Add(result);return result;
         }
         static Mesh PrimitiveMesh(PrimitiveType type)
         {
@@ -102,66 +121,7 @@ namespace WarConquer
         }
         public void PieceModel(Transform parent,CardData card,Color faction)
         {
-            bool fungus=card.leader=="ZUKGROK";Color pale=new Color(.8f,.81f,.72f),dark=new Color(.16f,.2f,.27f);
-            bool passable=card.Has("Passable");
-            Part(parent,"Peana de facción",card.IsStructure?Cube:Cylinder,card.IsStructure?new Vector3(0,.055f,0):Vector3.zero,new Vector3(.77f,.1f,.77f),Color.Lerp(faction,dark,.3f));
-            if(card.IsStructure)
-            {
-                if(passable)
-                {
-                    Part(parent,"Terreno transitable",Cylinder,new Vector3(0,.1f,0),new Vector3(.63f,.045f,.63f),card.Has("Oasis")?new Color(.2f,.72f,.81f):faction);
-                    for(int i=0;i<3;i++)Part(parent,"Señal de terreno",Cone,Point(i,3,.48f,.1f),new Vector3(.17f,.24f,.17f),faction);
-                }
-                else if(fungus)
-                {
-                    for(int i=0;i<3;i++){float h=i==0?.88f:.54f;var pos=Point(i,3,.22f,.1f);Part(parent,"Columna micelial",Cylinder,pos,new Vector3(.2f,h,.2f),pale);Part(parent,"Cúpula micelial",Sphere,pos+Vector3.up*h,new Vector3(.59f,.26f,.59f),faction);}
-                }
-                else
-                {
-                    Part(parent,"Edificio solar",Cube,new Vector3(0,.34f,0),new Vector3(.6f,.5f,.6f),pale);
-                    Part(parent,"Obelisco",Cube,new Vector3(0,.77f,0),new Vector3(.22f,.65f,.22f),faction);
-                    Part(parent,"Cima",Cone,new Vector3(0,1.09f,0),new Vector3(.33f,.25f,.33f),faction);
-                    for(int i=0;i<4;i++)Part(parent,"Pilar",Cylinder,new Vector3(i%2==0?-.3f:.3f,.1f,i<2?-.3f:.3f),new Vector3(.13f,.62f,.13f),faction);
-                }
-                return;
-            }
-            bool animal=Array.Exists(card.subtypes,s=>s=="Animal");
-            bool beast=animal||Array.Exists(card.subtypes,s=>s=="Bestia"||s=="Criatura");
-            float hover=card.movementType=="Flying"?.48f:0;var body=Group(parent,"Miniatura "+card.name,new Vector3(0,hover,0));
-            if(beast)
-            {
-                for(int i=0;i<4;i++)Part(body,"Pata",Cube,new Vector3(i%2==0?-.2f:.2f,.25f,i<2?-.22f:.22f),new Vector3(.14f,.32f,.14f),dark);
-                Part(body,"Cuerpo de criatura",Sphere,new Vector3(0,.52f,0),new Vector3(.65f,.46f,.73f),faction);
-                Part(body,"Cabeza",Sphere,new Vector3(0,.61f,-.3f),new Vector3(.39f,.38f,.37f),pale);
-            }
-            else
-            {
-                Part(body,"Pie izquierdo",Cube,new Vector3(-.13f,.18f,0),new Vector3(.17f,.32f,.22f),dark);
-                Part(body,"Pie derecho",Cube,new Vector3(.13f,.18f,0),new Vector3(.17f,.32f,.22f),dark);
-                Part(body,"Cuerpo",fungus?Cylinder:Cube,new Vector3(0,fungus?.2f:.48f,0),new Vector3(.43f,fungus?.51f:.42f,.33f),pale);
-                Part(body,"Cabeza",Sphere,new Vector3(0,.81f,0),new Vector3(.35f,.35f,.35f),pale);
-                if(!fungus)
-                {
-                    Part(body,"Armadura",Cube,new Vector3(0,.49f,-.19f),new Vector3(.42f,.29f,.08f),faction);
-                    Part(body,"Escudo",Cylinder,new Vector3(-.33f,.36f,0),new Vector3(.13f,.5f,.35f),faction);
-                    Part(body,"Lanza",Cylinder,new Vector3(.31f,.13f,0),new Vector3(.045f,1.03f,.045f),dark);
-                    Part(body,"Punta",Cone,new Vector3(.31f,1.16f,0),new Vector3(.15f,.22f,.15f),faction);
-                }
-            }
-            if(fungus)
-            {
-                Part(body,"Sombrero de hongo",Sphere,new Vector3(0,.91f,0),new Vector3(.88f,.3f,.77f),faction);
-                for(int i=0;i<3;i++)Part(body,"Espora del sombrero",Sphere,Point(i,3,.23f,1.03f),Vector3.one*.1f,pale);
-            }
-            else if(animal)
-            {
-                for(int i=0;i<2;i++)Part(body,"Oreja",Sphere,new Vector3(i==0?-.12f:.12f,.87f,-.3f),new Vector3(.12f,card.Has("Token")?.43f:.18f,.12f),faction);
-                Part(body,"Cola",Sphere,new Vector3(0,.55f,.4f),new Vector3(.17f,.14f,card.Has("Token")?.17f:.42f),faction);
-            }
-            else Part(body,"Casco solar",Sphere,new Vector3(0,.93f,0),new Vector3(.41f,.2f,.39f),faction);
-            for(int i=0;i<2;i++)Part(body,"Ojo",Sphere,new Vector3(i==0?-.085f:.085f,beast?.67f:.83f,beast?-.48f:-.16f),Vector3.one*.065f,dark);
-            if(hover>0)for(int i=0;i<2;i++){var wing=Part(body,"Ala",Sphere,new Vector3(i==0?-.43f:.43f,.65f,.05f),new Vector3(.64f,.08f,.4f),faction);wing.transform.localRotation=Quaternion.Euler(0,0,i==0?-20:20);}
-            if(card.health>=10)body.localScale=Vector3.one*1.13f;
+            CardPieceModels.Build(this,parent,card,faction);
         }
         public BoardBiomeVisuals.Habitat BiomeModel(Transform parent,HexTile tile)
         {return ImportedBiomeVisuals.TryBuild(parent,tile,out var imported)?imported:BoardBiomeVisuals.Build(this,parent,tile);}
