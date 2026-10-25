@@ -79,6 +79,7 @@ namespace WarConquer
                 model=G(parent,"Escultura de carta",Vector3.up*.125f);
                 if(card.IsStructure)EnhanceStructureIdentity();
                 else{Unit();EnhanceUnitIdentity();FinishUnitSculpture();}
+                ApplyFactionStyle();
                 return model;
             }
             void Unit()
