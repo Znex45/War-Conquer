@@ -39,8 +39,8 @@ namespace WarConquer
             bool Has(string text)=>id.IndexOf(text,StringComparison.Ordinal)>=0;
             Transform G(Transform p,string n,Vector3 pos)=>m.Group(p,n,pos);
             Transform P(Transform p,string n,Mesh mesh,Vector3 pos,Vector3 scale,Color color)=>m.Part(p,n,mesh,pos,scale,color).transform;
-            Transform Ball(Transform p,string n,Vector3 pos,Vector3 scale,Color color)=>P(p,n,m.Carved,pos,scale,color);
-            Transform Box(Transform p,string n,Vector3 pos,Vector3 scale,Color color)=>P(p,n,m.Cube,pos,scale,color);
+            Transform Ball(Transform p,string n,Vector3 pos,Vector3 scale,Color color)=>P(p,n,m.SculptureBody,pos,scale,color);
+            Transform Box(Transform p,string n,Vector3 pos,Vector3 scale,Color color)=>P(p,n,m.SculptureBlock,pos,scale,color);
             Transform Stem(Transform p,string n,Vector3 pos,float width,float height,Color color)=>P(p,n,m.Cylinder,pos,new Vector3(width,height,width),color);
             Transform Gem(Transform p,string n,Vector3 pos,Vector3 scale,Color color)=>P(p,n,m.Crystal,pos,scale,color);
             Transform Bone(Transform p,string n,Vector3 a,Vector3 b,float width,Color color)
@@ -54,7 +54,13 @@ namespace WarConquer
             }
             void Eyes(Transform head,float x,float y,float z,float size=.055f,Color? eye=null)
             {
-                for(int s=-1;s<=1;s+=2){Ball(head,"Órbita",new Vector3(s*x,y,z),new Vector3(size*1.8f,size*1.8f,size*.8f),ivory);Ball(head,"Pupila",new Vector3(s*x,y,z-size*.4f),Vector3.one*size,eye??ink);}
+                for(int s=-1;s<=1;s+=2)
+                {
+                    // Recessed almond eyes, with a matching lid instead of protruding white balls.
+                    Ball(head,"Órbita",new Vector3(s*x,y,z+.006f),new Vector3(size*1.9f,size*1.05f,size*.85f),Color.Lerp(skin,dark,.5f));
+                    Ball(head,"Pupila",new Vector3(s*x,y,z-size*.25f),new Vector3(size*1.25f,size*.72f,size*.4f),eye??new Color(.16f,.1f,.055f));
+                    Ball(head,"Reflejo ocular",new Vector3(s*x-size*.15f,y+size*.15f,z-size*.43f),Vector3.one*size*.23f,ivory);
+                }
             }
             Transform Leaf(Transform p,string name,Vector3 pos,Vector3 scale,Color color,Vector3 angle)
             {var t=P(p,name,m.Petal,pos,scale,color);t.localRotation=Quaternion.Euler(angle);return t;}
@@ -72,7 +78,7 @@ namespace WarConquer
                 P(parent,"Suelo del hábitat",m.Cylinder,Vector3.up*.09f,new Vector3(.78f,.035f,.78f),stone);
                 model=G(parent,"Escultura de carta",Vector3.up*.125f);
                 if(card.IsStructure)EnhanceStructureIdentity();
-                else{Unit();EnhanceUnitIdentity();}
+                else{Unit();EnhanceUnitIdentity();FinishUnitSculpture();}
                 return model;
             }
             void Unit()
@@ -131,13 +137,20 @@ namespace WarConquer
                 Ball(model,"Torso animal",new Vector3(0,h,.04f),new Vector3(heavy?.55f:beaver?.47f:ferret?.27f:.34f,heavy?.45f:beaver?.38f:.29f,ferret?.73f:beaver?.52f:.64f),fur);
                 for(int i=0;i<4;i++)
                 {
-                    float s=i%2==0?-1:1,z=i<2?-.17f:.22f;
-                    Bone(model,"Pata articulada",new Vector3(s*.13f,h-.05f,z),new Vector3(s*.16f,.09f,z-.035f),heavy?.13f:.075f,fur);
-                    Ball(model,"Pezuña o garra",new Vector3(s*.16f,.065f,z-.065f),new Vector3(.12f,.1f,.17f),dark);
+                    float side=i%2==0?-1:1,z=i<2?-.17f:.22f;
+                    bool rear=i>=2;float thickness=heavy?.145f:beaver?.12f:rabbit&&rear?.14f:.09f;
+                    var hip=new Vector3(side*.12f,h-.015f,z);
+                    var knee=new Vector3(side*.155f,h*.52f,z+(rear?.07f:-.025f));
+                    var ankle=new Vector3(side*.16f,.09f,z-.035f);
+                    Ball(model,rear?"Anca anatómica":"Escápula anatómica",hip,new Vector3(thickness*1.65f,Mathf.Max(.19f,h*.58f),rear?.24f:.2f),fur);
+                    Flesh(model,"Muslo articulado",hip,knee,thickness,fur);
+                    Ball(model,"Rodilla animal",knee,Vector3.one*thickness*.92f,fur);
+                    Flesh(model,"Pata articulada",knee,ankle,thickness*.63f,fur);
+                    Ball(model,"Pezuña o garra",new Vector3(side*.16f,.055f,z-.065f),new Vector3(deer||camel?.095f:.12f,.095f,rabbit&&rear?.21f:.17f),dark);
                 }
-                float neck=camel||deer?.32f:.1f;Bone(model,"Cuello",new Vector3(0,h,-.2f),new Vector3(0,h+neck,-.31f),heavy?.23f:.17f,fur);
+                float neck=camel||deer?.32f:.1f;Flesh(model,"Cuello",new Vector3(0,h-.025f,-.17f),new Vector3(0,h+neck+.07f,-.31f),heavy?.25f:camel?.2f:.18f,fur);
                 var head=G(model,"Idle:Head",new Vector3(0,h+neck+.08f,-.29f));Ball(head,"Cabeza animal",Vector3.zero,new Vector3(heavy?.32f:beaver?.32f:ferret?.22f:.24f,beaver?.3f:.25f,.28f),fur);
-                Ball(head,"Hocico",new Vector3(0,-.04f,-.15f),new Vector3(panther?.2f:.18f,.13f,camel?.27f:.18f),ivory);Ball(head,"Nariz",new Vector3(0,-.015f,camel?-.285f:-.24f),new Vector3(.08f,.055f,.05f),ink);Eyes(head,.085f,.055f,-.105f,.042f,panther?glow:(Color?)null);
+                Ball(head,"Hocico",new Vector3(0,-.04f,-.15f),new Vector3(panther?.2f:.18f,.13f,camel?.27f:.18f),rabbit||beaver?ivory:Color.Lerp(fur,ivory,.24f));Ball(head,"Nariz",new Vector3(0,-.015f,camel?-.285f:-.24f),new Vector3(.08f,.055f,.05f),ink);Eyes(head,.085f,.055f,-.105f,.042f,panther?glow:(Color?)null);
                 for(int s=-1;s<=1;s+=2)
                 {
                     if(ferret||mongoose||beaver)Ball(head,"Oreja redonda",new Vector3(s*.12f,.13f,.01f),new Vector3(.13f,.14f,.065f),fur);

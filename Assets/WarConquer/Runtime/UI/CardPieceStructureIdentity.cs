@@ -54,6 +54,7 @@ namespace WarConquer
                     case "insolator":IsolationCage();break;
                     default:Structure();break;
                 }
+                FinishStructureSculpture();
                 model=sculpture;
             }
             void StructureDisc(float radius,float height,Color color)

@@ -10,7 +10,7 @@ namespace WarConquer
         public const int Layer=30;
         public const float Surface=.36f;
         public readonly Mesh Hex, Ring, Cylinder, Cone, Cube, Sphere, Vortex;
-        public readonly Mesh Carved, Crystal, Petal, MushroomCap, Bell;
+        public readonly Mesh Carved, Crystal, Petal, MushroomCap, Bell, SculptureBody, SculptureBlock;
         public readonly Material Lit;
         readonly List<Mesh> owned=new List<Mesh>();
         readonly MaterialPropertyBlock properties=new MaterialPropertyBlock();
@@ -27,6 +27,8 @@ namespace WarConquer
             Crystal=Profile("Cut crystal",new[]{new Vector2(0,-.5f),new Vector2(.32f,-.2f),new Vector2(.36f,.18f),new Vector2(0,.5f)},6);
             Petal=Profile("Carved leaf",new[]{new Vector2(0,-.5f),new Vector2(.3f,-.15f),new Vector2(.22f,.18f),new Vector2(0,.5f)},4);
             MushroomCap=Profile("Organic mushroom cap",new[]{new Vector2(0,-.08f),new Vector2(.42f,-.08f),new Vector2(.5f,0),new Vector2(.4f,.15f),new Vector2(.2f,.29f),new Vector2(0,.34f)},12);
+            SculptureBody=Profile("Anatomical sculpture",new[]{new Vector2(0,-.5f),new Vector2(.22f,-.46f),new Vector2(.4f,-.32f),new Vector2(.49f,-.1f),new Vector2(.5f,.1f),new Vector2(.41f,.33f),new Vector2(.24f,.46f),new Vector2(0,.5f)},16);
+            SculptureBlock=BeveledSculptureBlock();
             Bell=Profile("Sculpted tunic",new[]{new Vector2(.48f,0),new Vector2(.5f,.08f),new Vector2(.29f,.74f),new Vector2(.32f,1)},10);
         }
         Mesh Profile(string name,Vector2[] profile,int sides)
@@ -41,6 +43,29 @@ namespace WarConquer
             if(profile[0].x>0)for(int i=0;i<sides;i++)b.Tri(Vector3.up*profile[0].y,Point(i,sides,profile[0].x,profile[0].y),Point(i+1,sides,profile[0].x,profile[0].y));
             var last=profile[profile.Length-1];if(last.x>0)for(int i=0;i<sides;i++)b.Tri(Vector3.up*last.y,Point(i+1,sides,last.x,last.y),Point(i,sides,last.x,last.y));
             var result=b.Build(name);owned.Add(result);return result;
+        }
+        Mesh BeveledSculptureBlock()
+        {
+            var b=new Builder();const float outer=.5f,inner=.44f;
+            Vector3 Axis(int axis,float v){var p=Vector3.zero;p[axis]=v;return p;}
+            void Face(Vector3 a,Vector3 c,Vector3 d,Vector3 e)
+            {if(Vector3.Dot(Vector3.Cross(c-a,d-a),(a+c+d+e)*.25f)<0)b.Quad(e,d,c,a);else b.Quad(a,c,d,e);}
+            for(int axis=0;axis<3;axis++)for(int sign=-1;sign<=1;sign+=2)
+            {
+                int u=(axis+1)%3,v=(axis+2)%3;var center=Axis(axis,sign*outer);
+                Face(center+Axis(u,-inner)+Axis(v,-inner),center+Axis(u,inner)+Axis(v,-inner),center+Axis(u,inner)+Axis(v,inner),center+Axis(u,-inner)+Axis(v,inner));
+            }
+            for(int a=0;a<3;a++)for(int c=a+1;c<3;c++)for(int sa=-1;sa<=1;sa+=2)for(int sc=-1;sc<=1;sc+=2)
+            {
+                int free=3-a-c;var p=Axis(a,sa*outer)+Axis(c,sc*inner);var q=Axis(a,sa*inner)+Axis(c,sc*outer);
+                Face(p+Axis(free,-inner),p+Axis(free,inner),q+Axis(free,inner),q+Axis(free,-inner));
+            }
+            for(int x=-1;x<=1;x+=2)for(int y=-1;y<=1;y+=2)for(int z=-1;z<=1;z+=2)
+            {
+                var a=new Vector3(x*outer,y*inner,z*inner);var c=new Vector3(x*inner,y*outer,z*inner);var d=new Vector3(x*inner,y*inner,z*outer);
+                if(Vector3.Dot(Vector3.Cross(c-a,d-a),a+c+d)<0)b.Tri(d,c,a);else b.Tri(a,c,d);
+            }
+            var mesh=b.Build("Beveled miniature masonry");owned.Add(mesh);return mesh;
         }
         static Mesh PrimitiveMesh(PrimitiveType type)
         {
