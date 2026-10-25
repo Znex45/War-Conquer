@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -46,14 +46,15 @@ namespace WarConquer
             int damage=AttackValue(g,attacker,victim);
             if(victim!=null)
             {
+                g.ReportAttack(attacker,battle.targetTile);
                 if(g.Data(attacker).Has("FrogToken"))EffectManager.Poison(g,victim,1,attacker.owner);
                 Damage(g,victim,damage,true,attacker);if(!XiltharRules.PendingHit(g,victim.id))GenericCardRules.OnKill(g,attacker,victim);
                 if(victim.health>0&&g.Data(attacker).Has("PoisonAttack")&&(g.State.tiles[attacker.tileId].biome==Biome.Forest||g.State.tiles[attacker.tileId].biome==Biome.Swamp))EffectManager.Poison(g,victim,1,attacker.owner);
             }
             else
             {
-                var leader=g.State.players[battle.defenderOwner];if(leader.eliminated)return;
-                leader.leaderHealth=Math.Max(0,leader.leaderHealth-damage);
+                var leader=g.State.players[battle.defenderOwner];if(leader.eliminated)return;g.ReportAttack(attacker,battle.targetTile);
+                int previousHealth=leader.leaderHealth;leader.leaderHealth=Math.Max(0,leader.leaderHealth-damage);g.ReportLeaderDamage(leader,tile.id,previousHealth-leader.leaderHealth,attacker);
                 g.State.Log("J"+(leader.id+1)+" pierde "+damage+" de vida de Líder.");
                 if(leader.leaderHealth==0){Eliminate(g,leader);tile.owner=attacker.owner;g.State.Log("J"+(attacker.owner+1)+" conquista la base de J"+(leader.id+1)+".");}
             }
@@ -69,20 +70,20 @@ namespace WarConquer
             var ownTile=g.State.tiles[p.tileId];
             bool oasis=c.Has("OasisGuard")&&ownTile.structure!=null&&g.Data(ownTile.structure).Has("Oasis");
             if((guard||oasis)&&p.protectionRound!=g.State.round){defense++;p.protectionRound=g.State.round;}
-            int actual=Math.Max(0,amount-defense);p.health-=actual;
+            int actual=Math.Max(0,amount-defense);p.health-=actual;g.ReportDamage(p,actual,source);
             g.State.Log(c.name+" recibe "+actual+" daño"+(defense>0?" (defensa "+defense+")":"")+".");
             if(p.health<=0)Remove(g,p);
         }
         public static void DirectDamage(GameManager g,Piece p,int amount,Piece source=null,bool bypass=false)
-        {if(p==null||p.health<=0)return;if(!bypass&&XiltharRules.PreventHit(g,p,amount,source,true,false))return;p.health-=Math.Max(0,amount);g.State.Log(g.Data(p).name+" recibe "+amount+" daño directo.");if(p.health<=0){XiltharRules.RegisterKill(g,source);Remove(g,p);GenericCardRules.OnKill(g,source,p);}}
+        {if(p==null||p.health<=0)return;if(!bypass&&XiltharRules.PreventHit(g,p,amount,source,true,false))return;int actual=Math.Max(0,amount);p.health-=actual;g.ReportDamage(p,actual,source);g.State.Log(g.Data(p).name+" recibe "+amount+" daño directo.");if(p.health<=0){XiltharRules.RegisterKill(g,source);Remove(g,p);GenericCardRules.OnKill(g,source,p);}}
         public static void PoisonDamage(GameManager g,Piece p,int amount)
         {
-            p.health-=Math.Min(p.health,amount);g.State.Log(g.Data(p).name+": pierde "+amount+" VIDA por veneno.");
+            int actual=Math.Min(p.health,amount);p.health-=actual;g.ReportDamage(p,actual);g.State.Log(g.Data(p).name+": pierde "+amount+" VIDA por veneno.");
             if(p.health<=0)Remove(g,p);
         }
         public static void Remove(GameManager g,Piece p,int poisonAfterId=-1)
         {
-            if(p==null)return;var t=g.State.tiles[p.tileId];if(t.unit!=p&&t.structure!=p)return;p.health=0;if(t.unit==p)t.unit=null;if(t.structure==p)t.structure=null;
+            if(p==null)return;var t=g.State.tiles[p.tileId];if(t.unit!=p&&t.structure!=p)return;g.ReportDeath(p);p.health=0;if(t.unit==p)t.unit=null;if(t.structure==p)t.structure=null;
             if(t.specialEffect!=null&&t.specialEffect.sourceId==p.id)t.specialEffect=null;
             if(!p.token&&!g.Data(p).Has("BabyPhoenix"))g.State.players[p.owner].discardPile.Add(new CardInstance {instanceId=p.id,cardId=p.cardId});
             XiltharRules.OnDeath(g,p);FactionCardRules.OnDestroyed(g,p,poisonAfterId);GenericCardRules.OnDestroyed(g,p);GenericCardRules.SyncAuras(g);TerrainManager.MaintainRoutes(g);ConquestManager.Refresh(g.State);g.State.Log(g.Data(p).name+" destruida"+(p.token?".":g.Data(p).Has("BabyPhoenix")?" → retorno a mano pendiente.":" → descarte."));

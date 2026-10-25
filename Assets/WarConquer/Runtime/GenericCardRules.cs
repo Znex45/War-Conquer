@@ -60,6 +60,7 @@ namespace WarConquer
                 case "Engage":
                     var ally=t.unit;var enemy=s.tiles[targets[1]].unit;int destination=enemy.tileId;
                     if(!TerrainManager.CheckAction(g,ally,"Engage"))break;
+                    g.ReportAttack(ally,enemy.tileId,BoardManager.AxialDistance(s.tiles[ally.tileId],s.tiles[enemy.tileId]));
                     CombatManager.DirectDamage(g,enemy,CombatManager.AttackValue(g,ally,enemy),ally);
                     if(XiltharRules.PendingHit(g,enemy.id))XiltharRules.DeferEngage(g,ally,enemy,destination);
                     if(enemy.health<=0&&CanLand(g,ally,s.tiles[destination]))SpecialMove(g,ally,destination);break;

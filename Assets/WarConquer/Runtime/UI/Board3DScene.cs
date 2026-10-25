@@ -47,6 +47,10 @@ namespace WarConquer
         LeaderSkybox leaderSkybox;
         BoardTurnNeon turnNeon;
         BoardLandingWave landingWaves;
+        BoardCombatPresentation combat;
+        Transform hoverRing;
+        readonly HashSet<int> actionTargets=new HashSet<int>();
+        readonly RaycastHit[] pickHits=new RaycastHit[128];
         GameManager observed;
         readonly Dictionary<int,List<int>> movementPaths=new Dictionary<int,List<int>>();
         void RecordMovement(int id,int from,int to)
@@ -60,7 +64,7 @@ namespace WarConquer
         {
             get
             {
-                if((landingWaves!=null&&landingWaves.IsActive)||(dice!=null&&dice.IsAnimating))return true;
+                if((landingWaves!=null&&landingWaves.IsActive)||(dice!=null&&dice.IsAnimating)||(combat!=null&&combat.IsAnimating))return true;
                 foreach(var piece in pieces.Values)if((piece.motion!=null&&piece.motion.IsMoving)||(piece.assembly!=null&&piece.assembly.IsBuilding)||(piece.presentation!=null&&piece.presentation.IsSpawning))return true;
                 return false;
             }
@@ -72,6 +76,8 @@ namespace WarConquer
         public Vector2 Pan;
         public float PanHeight;
         public bool ShowLabels;
+        public BoardEffectDisplay EffectDisplay=BoardEffectDisplay.Compact;
+        public int FocusedPiece=-1;
         public int TileCount=>tiles.Count;
         public int PieceCount=>pieces.Count;
         public static Vector3 Position(HexTile tile)=>new Vector3(tile.x,0,tile.y);
@@ -79,6 +85,9 @@ namespace WarConquer
         {
             if(mesh!=null)return;
             mesh=new BoardMeshFactory();
+            hoverRing=mesh.Part(transform,"Casilla bajo el cursor",mesh.Ring,Vector3.zero,Vector3.one*1.01f,Color.white).transform;
+            hoverRing.gameObject.SetActive(false);hoverRing.GetComponent<Renderer>().shadowCastingMode=ShadowCastingMode.Off;
+            combat=gameObject.AddComponent<BoardCombatPresentation>();combat.Initialize(mesh,this);
             landingWaves=gameObject.AddComponent<BoardLandingWave>();
             biomes=gameObject.AddComponent<BoardBiomeVisuals>();biomes.Initialize(mesh);
             leaderSkybox=gameObject.AddComponent<LeaderSkybox>();
@@ -119,6 +128,7 @@ namespace WarConquer
         public void Sync(GameManager game,HashSet<int> valid,HashSet<int> selected,int focus)
         {
             Initialize();
+            combat.Observe(game);actionTargets.Clear();actionTargets.UnionWith(valid);Hover(-1);
             if(observed!=game){if(observed!=null)observed.PieceRelocated-=RecordMovement;observed=game;observed.PieceRelocated+=RecordMovement;movementPaths.Clear();}
             bool rebuilding=state!=game.State;
             if(rebuilding)
@@ -142,10 +152,15 @@ namespace WarConquer
                     var effectRoot=mesh.Group(v.surface,"Estado del terreno",Vector3.up*(BoardMeshFactory.Surface+.018f));
                     v.terrainStatus=effectRoot.gameObject.AddComponent<BoardTerrainStatusVisual>();v.terrainStatus.Initialize(mesh,BoardCamera);
                 }
-                if(v.terrainStatus!=null)v.terrainStatus.Sync(t.specialEffect);
+                if(v.terrainStatus!=null)
+                {
+                    v.terrainStatus.Sync(t.specialEffect);
+                    v.terrainStatus.gameObject.SetActive(t.specialEffect!=null&&EffectDisplay!=BoardEffectDisplay.Hidden
+                        &&(EffectDisplay==BoardEffectDisplay.Compact||selected.Contains(t.id)||t.id==focus));
+                }
                 string number=central?"+1 PC":(t.id+1).ToString()+(t.owner>=0?" · J"+(t.owner+1):"")+(t.specialEffect!=null?" !":"");
                 if(v.number.text!=number)v.number.text=number;
-                v.number.gameObject.SetActive(central||ShowLabels||t.id==focus||valid.Contains(t.id)||selected.Contains(t.id));
+                v.number.gameObject.SetActive(ShowLabels||!t.IsOccupied&&(central||t.id==focus||valid.Contains(t.id)||selected.Contains(t.id)));
                 if(v.decorationKey==null||v.lastBiome!=t.biome||v.lastBlocked!=t.blocked||v.lastDecorationBase!=t.baseOwner)
                 {
                     if(v.decor!=null){v.decor.gameObject.SetActive(false);BoardMeshFactory.Release(v.decor.gameObject);}
@@ -225,10 +240,17 @@ namespace WarConquer
                 }
                 v.tileId=p.tileId;movementPaths.Remove(p.id);
                 string shortName=v.shortName;
-                v.label.text=shortName+" · "+p.health+" ♥"+(p.poison>0?" · VEN "+FactionCardRules.PoisonDamage(game,p):"");
-                v.label.color=p.poison>0?new Color(.8f,.56f,1):Color.white;v.status.Sync(game,p);
+                bool pieceFocused=FocusedPiece>=0?p.id==FocusedPiece:p.tileId==focus||selected.Contains(p.tileId);
+                var occupiedTile=state.tiles[p.tileId];
+                bool primaryOccupant=occupiedTile.unit==null||occupiedTile.structure==null
+                    ||(FocusedPiece==occupiedTile.structure.id?p==occupiedTile.structure:p==occupiedTile.unit);
+                v.label.text=shortName+" · "+p.health+" ♥";
+                v.label.gameObject.SetActive(primaryOccupant&&ShowLabels);
+                v.label.color=p.poison>0?new Color(.8f,.56f,1):Color.white;v.status.Sync(game,p);v.status.SetDisplay(primaryOccupant?EffectDisplay:BoardEffectDisplay.Hidden,pieceFocused);
             }
-            foreach(int id in pieces.Keys.Where(id=>!alive.Contains(id)).ToList()){labels.Remove(pieces[id].label);BoardMeshFactory.Release(pieces[id].root.gameObject);pieces.Remove(id);}
+            combat.Sync(game);
+            foreach(int id in pieces.Keys.Where(id=>!alive.Contains(id)).ToList())
+            {labels.Remove(pieces[id].label);if(!combat.Retire(id,pieces[id].root))BoardMeshFactory.Release(pieces[id].root.gameObject);pieces.Remove(id);}
             string nextRoutes=string.Join("|",state.fastRoutes.Select(r=>r.owner+":"+r.a+":"+r.b));
             if(routeKey!=nextRoutes)
             {
@@ -310,10 +332,40 @@ namespace WarConquer
         public int Pick(Vector2 viewport)
         {
             if(BoardCamera==null||viewport.x<0||viewport.x>1||viewport.y<0||viewport.y>1)return -1;
+            int ground=-1;
+            if(state!=null&&GroundPoint(viewport,out var point))
+            {
+                float nearest=float.MaxValue;
+                foreach(var tile in state.tiles)
+                {
+                    var delta=point-Position(tile);float x=Mathf.Abs(delta.x),z=Mathf.Abs(delta.z);
+                    // Resolve the full hex, including bevels and tiny visual seams,
+                    // independently of tall models or non-interactive decoration.
+                    if(x>.805f||z>.6972f||.8660254f*x+.5f*z>.6972f)continue;
+                    float distance=delta.x*delta.x+delta.z*delta.z;
+                    if(distance<nearest){nearest=distance;ground=tile.id;}
+                }
+            }
+            if(actionTargets.Contains(ground))return ground;
             var ray=BoardCamera.ViewportPointToRay(viewport);
-            if(Physics.Raycast(ray,out var hit,BoardCamera.farClipPlane,1<<BoardMeshFactory.Layer))
-            {var target=hit.collider.GetComponentInParent<Hex3DTarget>();if(target!=null)return target.tileId;}
-            return -1;
+            int count=Physics.RaycastNonAlloc(ray,pickHits,BoardCamera.farClipPlane,1<<BoardMeshFactory.Layer,QueryTriggerInteraction.Ignore);
+            int hitId=-1;float closest=float.MaxValue;
+            for(int i=0;i<count;i++)
+            {
+                var hit=pickHits[i];var target=hit.collider.GetComponentInParent<Hex3DTarget>();
+                if(target==null||target.tileId<0||state==null||target.tileId>=state.tiles.Count)continue;
+                if(hit.distance<closest){closest=hit.distance;hitId=target.tileId;}
+            }
+            return hitId>=0?hitId:ground;
+        }
+        public void Hover(int tile)
+        {
+            if(hoverRing==null)return;
+            bool visible=state!=null&&tile>=0&&tile<state.tiles.Count;
+            hoverRing.gameObject.SetActive(visible);
+            if(!visible)return;
+            hoverRing.localPosition=Position(state.tiles[tile])+Vector3.up*(BoardMeshFactory.Surface+.064f);
+            mesh.Paint(hoverRing.GetComponent<Renderer>(),actionTargets.Contains(tile)?new Color(.65f,1,.8f):Color.white);
         }
         public Vector2 ViewportOf(int tile,float height=BoardMeshFactory.Surface)
         {var point=BoardCamera.WorldToViewportPoint(Position(state.tiles[tile])+Vector3.up*height);return new Vector2(point.x,point.y);}

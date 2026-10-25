@@ -27,6 +27,7 @@ namespace WarConquer
                 else World.DragCamera(from,to);
             };
             input.Scroll=(amount,cursor)=>World.ZoomAt(amount,cursor);
+            input.Hover=position=>World.Hover(position.HasValue?World.Pick(position.Value):-1);
             Overlay=GrayboxUI.Rect(parent,"Información sobre el tablero",0,0,982,648);
             Tick();
         }
@@ -43,28 +44,49 @@ namespace WarConquer
         public void Reset(){Zoom=Board3DScene.DefaultZoom;Pan=Vector2.zero;World.PanHeight=0;World.Yaw=0;World.Pitch=53;World.UpdateCamera();}
         public void Dispose(){if(viewport!=null)viewport.texture=null;if(World!=null)BoardMeshFactory.Release(World.gameObject);}
     }
-    public sealed class BoardViewportInput : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IBeginDragHandler,IDragHandler,IScrollHandler
+    public sealed class BoardViewportInput : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IBeginDragHandler,IDragHandler,IEndDragHandler,IScrollHandler,IPointerMoveHandler,IPointerExitHandler
     {
         public Action<Vector2> Click;
         public Action<Vector2,Vector2,bool> Drag;
         public Action<float,Vector2> Scroll;
-        bool dragged;
-        public void OnPointerDown(PointerEventData data){dragged=false;}
-        public void OnBeginDrag(PointerEventData data){dragged=true;}
+        public Action<Vector2?> Hover;
+        public const float IntentionalDragPixels=12f;
+        bool dragged,clicked;Vector2 pressed;
+        public void OnPointerDown(PointerEventData data){dragged=false;clicked=false;pressed=data.position;}
+        public void OnBeginDrag(PointerEventData data){}
         public static Vector2 Normalize(RectTransform rect,Vector2 local)=>new Vector2((local.x-rect.rect.xMin)/rect.rect.width,(local.y-rect.rect.yMin)/rect.rect.height);
         public void OnPointerClick(PointerEventData data)
         {
-            if(dragged||data.button!=PointerEventData.InputButton.Left)return;
+            if(dragged||clicked||data.button!=PointerEventData.InputButton.Left)return;
             var rect=(RectTransform)transform;
-            if(RectTransformUtility.ScreenPointToLocalPointInRectangle(rect,data.position,data.pressEventCamera,out var local))Click?.Invoke(Normalize(rect,local));
+            if(RectTransformUtility.ScreenPointToLocalPointInRectangle(rect,data.position,data.pressEventCamera,out var local))
+            {clicked=true;Click?.Invoke(Normalize(rect,local));}
         }
         public void OnDrag(PointerEventData data)
         {
+            if(data.button!=PointerEventData.InputButton.Left&&data.button!=PointerEventData.InputButton.Right)return;
+            bool beginning=!dragged;
+            if(beginning)
+            {
+                float threshold=Mathf.Max(IntentionalDragPixels,EventSystem.current!=null?EventSystem.current.pixelDragThreshold*2:0);
+                if((data.position-pressed).sqrMagnitude<threshold*threshold)return;
+                dragged=true;Hover?.Invoke(null);
+            }
             var rect=(RectTransform)transform;
-            if(RectTransformUtility.ScreenPointToLocalPointInRectangle(rect,data.position-data.delta,data.pressEventCamera,out var from)&&
+            if(RectTransformUtility.ScreenPointToLocalPointInRectangle(rect,beginning?pressed:data.position-data.delta,data.pressEventCamera,out var from)&&
                RectTransformUtility.ScreenPointToLocalPointInRectangle(rect,data.position,data.pressEventCamera,out var to))
                 Drag?.Invoke(Normalize(rect,from),Normalize(rect,to),data.button==PointerEventData.InputButton.Right);
         }
+        // The input module may begin a drag before our intentional threshold. Treat
+        // that small gesture as a click on release, once, rather than losing it.
+        public void OnEndDrag(PointerEventData data){if(!dragged)OnPointerClick(data);}
+        public void OnPointerMove(PointerEventData data)
+        {
+            if(data.dragging)return;
+            var rect=(RectTransform)transform;
+            if(RectTransformUtility.ScreenPointToLocalPointInRectangle(rect,data.position,data.enterEventCamera,out var local))Hover?.Invoke(Normalize(rect,local));
+        }
+        public void OnPointerExit(PointerEventData data){Hover?.Invoke(null);}
         public void OnScroll(PointerEventData data)
         {
             var rect=(RectTransform)transform;

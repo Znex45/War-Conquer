@@ -18,6 +18,7 @@ namespace WarConquer
         // Fondo independiente (cambia según la pantalla: menú o partida).
         Image bgImage;
         CanvasScaler cachedScaler;CanvasGroup cachedMatchGroup;
+        CanvasGroup stageActionsGroup,leaderActionsGroup,handActionsGroup;
 
         bool mainMenuVisible;
         bool setupVisible, scoreDetails;
@@ -572,8 +573,13 @@ namespace WarConquer
 
             board?.Tick();
 
-            cachedMatchGroup.interactable =
-                    !board.World.IsAnimating;
+            // Presentation pauses decisions, while camera, inspection and effect
+            // controls stay accessible throughout an animation or AI turn.
+            cachedMatchGroup.interactable = true;
+            SetActionPanelInput(left,ref stageActionsGroup);
+            SetActionPanelInput(leaderPanel,ref leaderActionsGroup);
+            SetActionPanelInput(hand,ref handActionsGroup);
+            RefreshSelectionActions();
 
             RefreshRewind();
 
@@ -675,6 +681,7 @@ namespace WarConquer
 
             DrawPiles(player);
 
+            board.World.FocusedPiece=selectedPiece?.id??-1;
             board.Render(
                 Game,
                 new HashSet<int>(ValidTargets()),
@@ -684,6 +691,7 @@ namespace WarConquer
 
             var chrome =
                 board.Overlay;
+            DrawEffectDisplayControl(chrome,386,11,178,30);
 
             GrayboxUI.Text(
                 chrome,
@@ -1169,6 +1177,7 @@ namespace WarConquer
 
         void Begin(string action)
         {
+            if(board.World.IsAnimating)return;
             mode = action;
 
             selectedCard = -1;
@@ -1204,12 +1213,13 @@ namespace WarConquer
 
         public void TileClick(int id)
         {
+            if(Game?.State==null||id<0||id>=Game.State.tiles.Count)return;
             if (
                 !Game.CanAct ||
                 Game.ActingPlayer.isAI ||
                 board.World.IsAnimating
             )
-                return;
+            {InspectTile(id,false);return;}
 
             if (Game.State.pendingChoices.Count > 0)
             {
@@ -1334,6 +1344,15 @@ namespace WarConquer
                 return;
             }
 
+            // The chosen action may be reassigned directly to another friendly
+            // piece. Do not discard card targets or mandatory board choices.
+            var clickedPiece=Game.State.tiles[id].unit??Game.State.tiles[id].structure;
+            if((mode=="move"||mode=="attack"||mode=="ability")&&clickedPiece!=null
+                &&clickedPiece.owner==Game.ActingPlayerId&&viewedPlayer==Game.ActingPlayerId
+                &&(mode=="ability"||!Game.Data(clickedPiece).IsStructure))
+            {
+                selectedPiece=clickedPiece;focus=id;selectedCard=-1;targets.Clear();Render();return;
+            }
             if (
                 mode != "inspect" &&
                 mode != "move"
@@ -1346,6 +1365,17 @@ namespace WarConquer
                 return;
             }
 
+            InspectTile(id,true);
+        }
+
+        void SetActionPanelInput(RectTransform panel,ref CanvasGroup group)
+        {
+            if(group==null)group=panel.gameObject.AddComponent<CanvasGroup>();
+            group.interactable=!board.World.IsAnimating;
+        }
+
+        void InspectTile(int id,bool selectAction)
+        {
             ClearAction();
 
             focus = id;
@@ -1355,7 +1385,7 @@ namespace WarConquer
                 Game.State.tiles[id].structure;
 
             if (
-                selectedPiece != null &&
+                selectAction && selectedPiece != null &&
                 selectedPiece.owner ==
                     Game.ActingPlayerId &&
                 viewedPlayer ==
@@ -1394,6 +1424,7 @@ namespace WarConquer
 
         void Confirm()
         {
+            if(board.World.IsAnimating)return;
             if (
                 !Game.CanAct ||
                 Game.ActingPlayer.isAI

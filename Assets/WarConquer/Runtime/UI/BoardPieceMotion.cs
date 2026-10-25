@@ -10,6 +10,7 @@ namespace WarConquer
         Vector3 start,end,restScale;float elapsed,travel;bool moving,landed;int tile;
         public Action<int> Landed;
         public bool IsMoving=>moving||route.Count>0;
+        public bool SuspendForCombat {get;set;}
         public void Enqueue(Vector3 point,int destination)
         {
             route.Enqueue(new Step{position=point,tile=destination});if(!moving){restScale=transform.localScale;Next();}
@@ -20,10 +21,11 @@ namespace WarConquer
             start=transform.localPosition;var step=route.Dequeue();end=step.position;tile=step.tile;elapsed=0;landed=false;
             travel=Mathf.Clamp(Vector3.Distance(start,end)*.085f,.15f,.32f);moving=true;
         }
-        void Update()
+        void Update()=>Tick(Time.unscaledDeltaTime);
+        public void Tick(float dt)
         {
-            if(!moving)return;
-            elapsed+=Time.unscaledDeltaTime;
+            if(!moving||SuspendForCombat)return;
+            elapsed+=Mathf.Max(0,dt);
             var axis=Vector3.Cross(Vector3.up,(end-start).normalized);
             if(elapsed<.42f)
             {

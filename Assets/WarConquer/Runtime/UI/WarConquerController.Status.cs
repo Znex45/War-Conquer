@@ -1,10 +1,24 @@
-﻿using System.Linq;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace WarConquer
 {
     public partial class WarConquerController
     {
+        CanvasGroup selectionActionGroup;
+        void RefreshSelectionActions()
+        {if(selectionActionGroup!=null)selectionActionGroup.interactable=board?.World==null||!board.World.IsAnimating;}
+        void DrawEffectDisplayControl(Transform parent,float x,float y,float width,float height)
+        {
+            string label=board.World.EffectDisplay==BoardEffectDisplay.Compact?"Efectos: compacto":board.World.EffectDisplay==BoardEffectDisplay.SelectedOnly?"Efectos: selección":"Efectos: ocultos";
+            GrayboxUI.Button(parent,label,x,y,width,height,()=>
+            {board.World.EffectDisplay=(BoardEffectDisplay)(((int)board.World.EffectDisplay+1)%3);Render();});
+        }
+        void SelectOccupant(Piece piece)
+        {
+            selectedPiece=piece;selectedCard=-1;mode="inspect";targets.Clear();Render();
+        }
         void DrawScoreboard()
         {
             var s=Game.State;GrayboxUI.Text(inspector,"CONQUISTA · 10 PC",12,12,220,26,16,GrayboxUI.Ink,FontStyle.Bold);
@@ -26,26 +40,41 @@ namespace WarConquer
         }
         void DrawSelection()
         {
+            selectionActionGroup=null;
             var s=Game.State;var box=GrayboxUI.Rect(inspector,"Detalle de selección",12,scoreDetails?358:280,300,274);
-            GrayboxUI.Text(box,ModeName(),0,0,209,23,14,GrayboxUI.Muted,FontStyle.Bold);
+            var focused=focus>=0?s.tiles[focus]:null;
+            if(focused?.unit!=null&&focused.structure!=null&&selectedPiece!=null)
+            {
+                GrayboxUI.Button(box,"Unidad",0,-2,101,26,()=>SelectOccupant(focused.unit),selectedPiece==focused.unit?GrayboxUI.Green:(Color?)null);
+                GrayboxUI.Button(box,"Estructura",108,-2,103,26,()=>SelectOccupant(focused.structure),selectedPiece==focused.structure?GrayboxUI.Green:(Color?)null);
+            }
+            else GrayboxUI.Text(box,ModeName(),0,0,209,23,14,GrayboxUI.Muted,FontStyle.Bold);
             if(selectedCard>=0||selectedPiece!=null||mode!="inspect")GrayboxUI.Button(box,"Cancelar",219,-2,81,26,()=>{ClearAction();Render();});
             var instance=s.players[viewedPlayer].hand.Find(c=>c.instanceId==selectedCard);
             var card=instance!=null?Game.Catalog[instance.cardId]:selectedPiece!=null?Game.Data(selectedPiece):null;
             if(card!=null)
             {
-                GrayboxUI.Text(box,card.name,0,32,300,45,21,GrayboxUI.PlayerColor(viewedPlayer),FontStyle.Bold);
-                var quote=EnergyManager.Quote(s.players[viewedPlayer],card,useResources);
+                GrayboxUI.Text(box,card.name,0,32,300,45,21,GrayboxUI.PlayerColor(selectedPiece?.owner??viewedPlayer),FontStyle.Bold);
+                var quote=EnergyManager.Quote(s.players[selectedPiece?.owner??viewedPlayer],card,useResources);
                 string stats="E "+quote.EnergyLabel+" · HP "+(selectedPiece!=null?selectedPiece.health+"/"+Game.MaxHealth(selectedPiece):card.health.ToString())+" · ATK "+(selectedPiece!=null?CombatManager.AttackValue(Game,selectedPiece):card.attack)+" · MOV "+(selectedPiece?.remainingMovement??card.movement);
-                GrayboxUI.Text(box,stats,0,80,300,35,14);GrayboxUI.Text(box,instance!=null?quote.Detail:Names.Categories[(int)card.category]+" · ALC "+card.range+(selectedPiece!=null?"\n"+(TerrainManager.GetTerrainStatModifier(Game,selectedPiece)>0?"Terreno: +1 MOV / +1 HP / +1 ATK":"Terreno: sin bonificación"):""),0,116,300,29,12,GrayboxUI.Muted);
-                GrayboxUI.Button(box,"Ver carta completa",0,153,190,28,()=>ShowCardModal(card,s.players[viewedPlayer]));
-                if(selectedPiece!=null&&!Game.ActingPlayer.isAI&&Game.CanTakeTurnAction(TurnStage.Assault)&&selectedPiece.owner==Game.ActingPlayerId)
+                var effects=selectedPiece!=null?PieceStatusPresentation.Collect(Game,selectedPiece):null;
+                string summary=effects==null?"":effects.Count==0?"Sin estados activos":string.Join(" · ",effects.Take(2).Select(e=>e.label))+(effects.Count>2?" · +"+(effects.Count-2):"");
+                GrayboxUI.Text(box,stats,0,80,300,35,14);GrayboxUI.Text(box,instance!=null?quote.Detail:Names.Categories[(int)card.category]+" · ALC "+card.range+(selectedPiece!=null?"\n"+summary:""),0,116,300,31,12,GrayboxUI.Muted);
+                GrayboxUI.Button(box,"Ver carta completa",0,153,190,28,()=>ShowCardModal(card,s.players[selectedPiece?.owner??viewedPlayer]));
+                if(selectedPiece!=null)GrayboxUI.Button(box,"Estados ("+effects.Count+")",199,153,101,28,()=>ShowPieceStates(selectedPiece),GrayboxUI.Purple);
+                if(selectedPiece!=null&&!Game.ActingPlayer.isAI&&Game.CanTakeTurnAction(TurnStage.Assault)&&selectedPiece.owner==Game.ActingPlayerId&&!(targets.Count>0&&(mode=="card"||mode=="leader"||mode=="ability")))
                 {
-                    GrayboxUI.Button(box,"Mover",0,187,92,29,()=>Begin("move"),null,MovementManager.Paths(Game,selectedPiece).Count>0);
-                    GrayboxUI.Button(box,"Atacar",101,187,92,29,()=>Begin("attack"),null,CombatManager.Targets(Game,selectedPiece).Count>0);
-                    GrayboxUI.Button(box,"+1 paso",202,187,98,29,()=>Begin("step"),null,Game.ActingPlayer.freeSteps>0);
+                    var actions=GrayboxUI.Rect(box,"Acciones de la unidad",0,187,300,29);selectionActionGroup=actions.gameObject.AddComponent<CanvasGroup>();
+                    GrayboxUI.Button(actions,"Mover",0,0,92,29,()=>{if(!board.World.IsAnimating)Begin("move");},null,MovementManager.Paths(Game,selectedPiece).Count>0);
+                    GrayboxUI.Button(actions,"Atacar",101,0,92,29,()=>{if(!board.World.IsAnimating)Begin("attack");},null,CombatManager.Targets(Game,selectedPiece).Count>0);
+                    GrayboxUI.Button(actions,"+1 paso",202,0,98,29,()=>{if(!board.World.IsAnimating)Begin("step");},null,Game.ActingPlayer.freeSteps>0);
                 }
                 else if(instance!=null)GrayboxUI.Text(box,viewedPlayer!=Game.ActingPlayerId?"Consulta de otra mano.":Game.CardBlockReason(instance,useResources),0,188,300,38,12,GrayboxUI.Yellow);
-                if(selectedPiece!=null)GrayboxUI.Text(box,Game.IsSleeping(selectedPiece)?"DORMIDO · No puede mover ni atacar":!FactionCardRules.CanAttack(Game,selectedPiece)?"NO ATACA EL TURNO EN QUE SE JUEGA":selectedPiece.attacked&&!XiltharRules.CanSecondAttack(Game,selectedPiece)?"ATAQUE YA USADO":CombatManager.Targets(Game,selectedPiece).Count>0?XiltharRules.CanSecondAttack(Game,selectedPiece)?"SEGUNDO ATAQUE · REEMPLAZA MOV":"PUEDE ATACAR": "SIN ATAQUE DISPONIBLE",0,218,300,18,11,Game.IsSleeping(selectedPiece)?GrayboxUI.Yellow:GrayboxUI.Green);
+                if(selectedPiece!=null)
+                {
+                    string availability=Game.IsSleeping(selectedPiece)?"DORMIDO · No puede actuar":card.IsStructure?AbilityManager.HasActive(card)?selectedPiece.abilityUsed?"HABILIDAD YA USADA":AbilityManager.CanActivate(Game,selectedPiece)?"HABILIDAD DISPONIBLE":"HABILIDAD NO DISPONIBLE":"ESTRUCTURA · EFECTOS PASIVOS":!FactionCardRules.CanAttack(Game,selectedPiece)?"NO ATACA EL TURNO EN QUE SE JUEGA":selectedPiece.attacked&&!XiltharRules.CanSecondAttack(Game,selectedPiece)?"ATAQUE YA USADO":CombatManager.Targets(Game,selectedPiece).Count>0?XiltharRules.CanSecondAttack(Game,selectedPiece)?"SEGUNDO ATAQUE · REEMPLAZA MOV":"PUEDE ATACAR": "SIN ATAQUE DISPONIBLE";
+                    GrayboxUI.Text(box,availability,0,218,300,18,11,Game.IsSleeping(selectedPiece)?GrayboxUI.Yellow:GrayboxUI.Green);
+                }
             }
             else if(mode=="terraform")
             {
@@ -61,10 +90,43 @@ namespace WarConquer
                 string info=tile==null?"Consulta los detalles aquí.\nLas reglas y controles están en Menú → Ayuda.":"Control: "+(tile.owner<0?"Nadie":"J"+(tile.owner+1))+"\nZona: "+(tile.territory==4?"Centro":"J"+(tile.territory+1))+" · Recurso +"+tile.resource+(tile.specialEffect!=null?"\nTerreno inestable: "+tile.specialEffect.threshold+"+":"");
                 GrayboxUI.Text(box,info,0,102,300,96,14,GrayboxUI.Muted);
             }
-            if(targets.Count>0&&(mode=="card"||mode=="leader"||mode=="ability"))GrayboxUI.Button(box,"Resolver selección ("+targets.Count+")",0,189,300,31,Confirm,Color.Lerp(GrayboxUI.Green,GrayboxUI.Panel,.6f));
+            if(targets.Count>0&&(mode=="card"||mode=="leader"||mode=="ability"))
+            {
+                var resolve=GrayboxUI.Button(box,"Resolver selección ("+targets.Count+")",0,184,300,31,()=>{if(!board.World.IsAnimating)Confirm();},Color.Lerp(GrayboxUI.Green,GrayboxUI.Panel,.6f));
+                selectionActionGroup=resolve.gameObject.AddComponent<CanvasGroup>();
+            }
             if(mode=="card"&&card?.id=="terraform")GrayboxUI.Button(box,Names.Biomes[(int)chosenBiome],199,153,101,28,()=>{var list=new[]{Biome.Forest,Biome.Swamp,Biome.Tundra,Biome.Volcanic,Biome.Desert,Biome.Wasteland,Biome.Void};chosenBiome=list[(System.Array.IndexOf(list,chosenBiome)+1)%list.Length];Render();});
             if(mode=="card"&&card!=null&&card.effects.Any(e=>e.biome=="ChooseForestSwamp"))GrayboxUI.Button(box,Names.Biomes[(int)chosenBiome],199,153,101,28,()=>{chosenBiome=chosenBiome==Biome.Forest?Biome.Swamp:Biome.Forest;Render();});
             GrayboxUI.Text(box,Game.LastMessage,0,232,300,45,12,GrayboxUI.Yellow);
+            RefreshSelectionActions();
+        }
+        void ShowPieceStates(Piece piece)
+        {
+            if(piece==null||!BoardManager.Pieces(Game.State).Contains(piece))return;
+            HideTooltip();var effects=PieceStatusPresentation.Collect(Game,piece);var card=Game.Data(piece);
+            var body=OpenModal("ESTADOS, EFECTOS Y MEJORAS");
+            GrayboxUI.Text(body,card.name+" · J"+(piece.owner+1)+" · HEX "+(piece.tileId+1),24,70,1078,35,24,GrayboxUI.PlayerColor(piece.owner),FontStyle.Bold);
+            GrayboxUI.Text(body,"Vida "+piece.health+" / "+Game.MaxHealth(piece)+"    Ataque "+CombatManager.AttackValue(Game,piece)+"    Movimiento disponible "+piece.remainingMovement+"    ·    "+effects.Count+" efectos activos",24,109,1078,30,16,GrayboxUI.Ink);
+            var viewport=GrayboxUI.Box(body,"Lista de estados",24,153,1064,616,GrayboxUI.Background);
+            viewport.gameObject.AddComponent<RectMask2D>();
+            var heights=effects.Select(e=>Mathf.Max(132,80+Mathf.CeilToInt(e.description.Length/100f)*22)).ToArray();
+            var content=GrayboxUI.Rect(viewport,"Contenido de estados",0,0,1064,Mathf.Max(616,heights.Sum()+effects.Count*8+12));
+            var scroll=viewport.gameObject.AddComponent<ScrollRect>();scroll.viewport=viewport;scroll.content=content;scroll.horizontal=false;scroll.vertical=true;scroll.movementType=ScrollRect.MovementType.Clamped;scroll.scrollSensitivity=42;
+            var track=GrayboxUI.Box(body,"Desplazamiento de estados",1094,153,10,616,GrayboxUI.Disabled);
+            var handle=GrayboxUI.Box(track,"Control",0,0,10,100,GrayboxUI.Muted);
+            var bar=track.gameObject.AddComponent<Scrollbar>();bar.handleRect=handle;bar.targetGraphic=handle.GetComponent<Image>();bar.direction=Scrollbar.Direction.BottomToTop;
+            scroll.verticalScrollbar=bar;scroll.verticalScrollbarVisibility=ScrollRect.ScrollbarVisibility.AutoHide;
+            if(effects.Count==0)GrayboxUI.Text(content,"Esta carta no tiene estados ni mejoras activos.\nLos valores mostrados corresponden a su situación actual en el tablero.",24,26,1016,90,20,GrayboxUI.Muted);
+            float rowY=8;
+            for(int i=0;i<effects.Count;i++)
+            {
+                var effect=effects[i];var row=GrayboxUI.Box(content,"Detalle · "+effect.id,10,rowY,1044,heights[i],GrayboxUI.Panel);
+                GrayboxUI.Box(row,"Color del efecto",0,0,5,heights[i],effect.color).GetComponent<Image>().raycastTarget=false;
+                GrayboxUI.Text(row,effect.label,20,9,1000,27,20,effect.color,FontStyle.Bold);
+                GrayboxUI.Text(row,effect.duration,20,40,1000,22,14,GrayboxUI.Muted);
+                GrayboxUI.Text(row,effect.description,20,68,1000,heights[i]-74,17,GrayboxUI.Ink);
+                rowY+=heights[i]+8;
+            }
         }
         void ShowVictory()
         {

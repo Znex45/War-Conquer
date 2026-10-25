@@ -48,5 +48,15 @@ namespace WarConquer
             }
             IsBuilding=unfinished;if(!unfinished)enabled=false;
         }
+        public void CompleteImmediately()
+        {
+            if(parts!=null)foreach(var part in parts)
+            {
+                if(part.node==null)continue;
+                part.node.localPosition=part.position;part.node.localRotation=part.rotation;
+                if(part.renderer!=null)part.renderer.enabled=part.visible;
+            }
+            IsBuilding=false;enabled=false;
+        }
     }
 }
