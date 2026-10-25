@@ -28,7 +28,49 @@ namespace WarConquer.Editor
                     Check(ImportedBiomeVisuals.TryBuild(slot,new HexTile{id=i,biome=biomes[i]},out var habitat),"Missing prefab "+biomes[i]);
                     foreach(var renderer in slot.GetComponentsInChildren<Renderer>())foreach(var material in renderer.sharedMaterials)Check(material!=null&&material.shader!=null&&material.shader.isSupported,"Invalid material "+biomes[i]);
                     var scenery=habitat.root.GetChild(1);var renderers=scenery.GetComponentsInChildren<Renderer>();var bounds=renderers[0].bounds;foreach(var renderer in renderers.Skip(1))bounds.Encapsulate(renderer.bounds);
-                    Check(bounds.size.x<=1.601f&&bounds.size.z<=1.387f&&bounds.size.y<=.46f,"Oversized scenery "+biomes[i]);
+                    // Compare independent source and generated bounds: all three ratios must match.
+                    string sourceFolder="Assets/WarConquer/EnvironmentSource/"+biomes[i];
+                    if(Directory.Exists(sourceFolder+"/AuthoredHex"))sourceFolder+="/AuthoredHex";
+                    string sourcePath=Directory.GetFiles(sourceFolder,"*.fbx",SearchOption.AllDirectories).FirstOrDefault()??Directory.GetFiles(sourceFolder,"*.obj",SearchOption.AllDirectories).First();
+                    var original=UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(sourcePath));
+                    var sourcePoints=original.GetComponentsInChildren<MeshFilter>().SelectMany(f=>f.sharedMesh.vertices.Select(v=>f.transform.TransformPoint(v))).ToArray();
+                    HexBiomeCrop.Alignment(sourcePoints,out var sourceRotation,out var originalBounds);
+                    var bodyRenderers=scenery.GetComponentsInChildren<Renderer>().Where(r=>r.name!="Full hex terrain").ToArray();var bodyBounds=bodyRenderers[0].bounds;foreach(var renderer in bodyRenderers.Skip(1))bodyBounds.Encapsulate(renderer.bounds);
+                    var fittedPoints=scenery.GetComponentsInChildren<MeshFilter>().Where(f=>f.name!="Full hex terrain").SelectMany(f=>f.sharedMesh.vertices).ToArray();
+                    Check(Mathf.Abs(fittedPoints.Min(v=>v.y)-(BoardMeshFactory.Surface-.012f))<.0001f,"Floating terrain bottom "+biomes[i]);
+                    Check(fittedPoints.Length>0,"Missing fitted geometry "+biomes[i]);
+                    for(int edge=0;edge<6;edge++)
+                    {
+                        float angle=(edge+.5f)*Mathf.PI/3;var normal=new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle));
+                        float outer=fittedPoints.Max(v=>Vector3.Dot(normal,v));
+                        Check(Mathf.Abs(outer-HexBiomeCrop.Radius*Mathf.Cos(Mathf.PI/6))<.002f,"Terrain side does not meet tile "+biomes[i]+" edge="+edge);
+                    }
+                    UnityEngine.Object.DestroyImmediate(original);
+                    Debug.Log("HEX_ALIGNMENT_VERIFIED "+biomes[i]+": six aligned edges, uniform source scale, preserved UVs");
+                    var closed=new bool[6];
+                    foreach(var filter in scenery.GetComponentsInChildren<MeshFilter>().Where(f=>f.name!="Full hex terrain"))
+                    {
+                        var materials=filter.GetComponent<MeshRenderer>().sharedMaterials;var points=filter.sharedMesh.vertices;
+                        for(int sub=0;sub<materials.Length;sub++)
+                        {
+                            if(!materials[sub].name.EndsWith("_Foundation",StringComparison.Ordinal))continue;
+                            var indices=filter.sharedMesh.GetTriangles(sub);
+                            for(int tri=0;tri<indices.Length;tri+=3)
+                            {
+                                var a=points[indices[tri]];var b=points[indices[tri+1]];var c=points[indices[tri+2]];
+                                for(int edge=0;edge<6;edge++)
+                                {
+                                    float angle=(edge+.5f)*Mathf.PI/3;var normal=new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle));float plane=HexBiomeCrop.Radius*Mathf.Cos(Mathf.PI/6);
+                                    if(Mathf.Abs(Vector3.Dot(normal,a)-plane)>.0001f||Mathf.Abs(Vector3.Dot(normal,b)-plane)>.0001f||Mathf.Abs(Vector3.Dot(normal,c)-plane)>.0001f)continue;
+                                    Check(Vector3.Dot(Vector3.Cross(b-a,c-a),normal)>=-0.000001f,"Inverted terrain side "+biomes[i]);
+                                    if(Mathf.Min(a.y,Mathf.Min(b.y,c.y))<=BoardMeshFactory.Surface-.011f&&Mathf.Max(a.y,Mathf.Max(b.y,c.y))>BoardMeshFactory.Surface)closed[edge]=true;
+                                }
+                            }
+                        }
+                    }
+                    Check(closed.All(v=>v),"Open or floating perimeter "+biomes[i]);
+                    Debug.Log("TERRAIN_CONTACT_VERIFIED "+biomes[i]+": seated bottom and six outward-facing closed sides");
+                    Check(bounds.size.x<=1.601f&&bounds.size.z<=1.387f,"Oversized scenery "+biomes[i]);
                     var foundation=scenery.Find("Full hex terrain");Check(foundation!=null,"Missing full hex foundation "+biomes[i]);
                     for(int corner=0;corner<6;corner++)
                     {
@@ -46,6 +88,10 @@ namespace WarConquer.Editor
                     }
 
                 }
+                var savedPosition=camera.transform.position;var savedRotation=camera.transform.rotation;
+                camera.transform.position=new Vector3(0,8,1);camera.transform.rotation=Quaternion.Euler(90,0,0);Capture(camera,output+"/alineacion-superior.png");
+                camera.transform.position=new Vector3(0,1.2f,-7);camera.transform.LookAt(new Vector3(0,.5f,.9f));Capture(camera,output+"/terrenos-laterales.png");
+                camera.transform.position=savedPosition;camera.transform.rotation=savedRotation;
                 var game=new GameManager(CardCatalog.Load());game.NewGame(new[]{"ZUKGROK","FAUNAR","SAHRIA","XIL'THAR"},2026,CardCatalog.LoadRules(),4);
                 var sky=root.AddComponent<LeaderSkybox>();
                 for(int i=0;i<4;i++)
@@ -71,9 +117,10 @@ namespace WarConquer.Editor
                 File.AppendAllText(output+"/verificacion-entornos.txt","; PASS real Board3DScene instantiation and skybox camera integration.");
                 Debug.Log("ENVIRONMENT_REVIEW_PASSED");mesh.Dispose();
             }
-            catch(Exception e){Debug.LogException(e);File.WriteAllText(output+"/verificacion-entornos.txt",e.ToString());}
+            catch(Exception e){Debug.LogException(e);File.WriteAllText(output+"/verificacion-entornos.txt",e.ToString());throw;}
             finally{if(root!=null)UnityEngine.Object.DestroyImmediate(root);EditorSceneManager.ClosePreviewScene(scene);}
         }
+        public static void Batch(){try{Run();EditorApplication.Exit(0);}catch(Exception e){Debug.LogException(e);EditorApplication.Exit(1);}}
         static void Capture(Camera camera,string path)
         {
             var target=new RenderTexture(1400,840,24);target.Create();camera.targetTexture=target;camera.aspect=1400f/840;camera.Render();var previous=RenderTexture.active;RenderTexture.active=target;

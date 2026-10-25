@@ -9,7 +9,7 @@ namespace WarConquer.Editor
 {
     public static class EnvironmentAssets
     {
-        [Serializable] class SurfaceInfo { public string name,texture;public float[] color,emission;public float strength; }
+        [Serializable] class SurfaceInfo { public string name,texture,normal;public float[] color,emission;public float strength; }
         [Serializable] class SurfaceManifest { public SurfaceInfo[] materials; }
         const string Source="Assets/WarConquer/EnvironmentSource";
         const string Output="Assets/WarConquer/Resources/Environment";
@@ -36,12 +36,14 @@ namespace WarConquer.Editor
         static string Key(string text)=>new string(text.ToLowerInvariant().Where(char.IsLetterOrDigit).ToArray());
         static void BuildBiome(string biome)
         {
-            var files=Directory.GetFiles(Source+"/"+biome,"*",SearchOption.AllDirectories);
+            string authored=Source+"/"+biome+"/AuthoredHex";
+            string sourceFolder=Directory.Exists(authored)?authored:Source+"/"+biome;
+            var files=Directory.GetFiles(sourceFolder,"*",SearchOption.AllDirectories);
             string modelPath=files.FirstOrDefault(f=>f.EndsWith(".fbx",StringComparison.OrdinalIgnoreCase))??files.FirstOrDefault(f=>f.EndsWith(".obj",StringComparison.OrdinalIgnoreCase));
             if(modelPath==null)throw new Exception("Missing converted model: "+biome);
             var importer=(ModelImporter)AssetImporter.GetAtPath(modelPath);importer.importCameras=false;importer.importLights=false;importer.addCollider=false;importer.importAnimation=true;importer.materialImportMode=ModelImporterMaterialImportMode.ImportStandard;importer.SaveAndReimport();
             var textures=files.Where(f=>new[]{".png",".jpg",".jpeg",".tga"}.Contains(Path.GetExtension(f).ToLowerInvariant())).ToArray();
-            var manifestPath=Source+"/"+biome+"/materials.json";
+            var manifestPath=sourceFolder+"/materials.json";
             var manifest=File.Exists(manifestPath)?JsonUtility.FromJson<SurfaceManifest>(File.ReadAllText(manifestPath)):null;
             foreach(var original in AssetDatabase.LoadAllAssetsAtPath(modelPath).OfType<Material>())
             {
@@ -55,10 +57,15 @@ namespace WarConquer.Editor
                     color=new Color(surface.color[0],surface.color[1],surface.color[2],surface.color[3]).gamma;
                     texture=string.IsNullOrEmpty(surface.texture)?null:textures.FirstOrDefault(f=>Path.GetFileName(f)==surface.texture);
                 }
-                mat.SetColor("_BaseColor",texture!=null?Color.white:color);mat.SetTexture("_BaseMap",texture!=null?AssetDatabase.LoadAssetAtPath<Texture2D>(texture):original.mainTexture);mat.SetFloat("_Smoothness",.12f);mat.DisableKeyword("_EMISSION");mat.SetFloat("_Cull",0);mat.enableInstancing=true;
+                mat.SetColor("_BaseColor",texture!=null?Color.white:color);mat.SetTexture("_BaseMap",texture!=null?AssetDatabase.LoadAssetAtPath<Texture2D>(texture):original.mainTexture);mat.SetFloat("_Smoothness",.12f);mat.DisableKeyword("_EMISSION");mat.SetFloat("_Cull",0);mat.enableInstancing=false;
                 if(original.HasProperty("_EmissionColor")){var emission=original.GetColor("_EmissionColor");if(emission.maxColorComponent>0){mat.EnableKeyword("_EMISSION");mat.SetColor("_EmissionColor",emission);}}
                 if(surface!=null&&surface.strength>0&&surface.emission.Take(3).Any(v=>v>0))
                 {mat.EnableKeyword("_EMISSION");mat.SetColor("_EmissionColor",new Color(surface.emission[0],surface.emission[1],surface.emission[2])*surface.strength);}
+                if(surface!=null&&!string.IsNullOrEmpty(surface.normal))
+                {
+                    string normalPath=textures.FirstOrDefault(f=>Path.GetFileName(f)==surface.normal);
+                    if(normalPath!=null){var normalImporter=(TextureImporter)AssetImporter.GetAtPath(normalPath);normalImporter.textureType=TextureImporterType.NormalMap;normalImporter.SaveAndReimport();mat.SetTexture("_BumpMap",AssetDatabase.LoadAssetAtPath<Texture2D>(normalPath));mat.SetFloat("_BumpScale",1);mat.EnableKeyword("_NORMALMAP");}
+                }
                 EditorUtility.SetDirty(mat);importer.AddRemap(new AssetImporter.SourceAssetIdentifier(typeof(Material),original.name),mat);
             }
             if(manifest!=null)foreach(var surface in manifest.materials)
@@ -79,6 +86,8 @@ namespace WarConquer.Editor
                 foreach(var light in body.GetComponentsInChildren<Light>(true))UnityEngine.Object.DestroyImmediate(light);
                 var renderers=body.GetComponentsInChildren<Renderer>().Where(r=>r is MeshRenderer||r is SkinnedMeshRenderer).ToArray();
                 if(renderers.Length==0)throw new Exception("Empty biome: "+biome);
+                // Separate textured terrain draws prevent cross-biome texture reuse in this renderer.
+                foreach(var renderer in renderers)foreach(var material in renderer.sharedMaterials)if(material!=null){material.enableInstancing=false;EditorUtility.SetDirty(material);}
                 var bounds=renderers[0].bounds;foreach(var renderer in renderers.Skip(1))bounds.Encapsulate(renderer.bounds);
                 HexBiomeCrop.Build(root,body,bounds,biome,Output);
                 PrefabUtility.SaveAsPrefabAsset(root,Output+"/Biomes/"+biome+".prefab");
@@ -93,6 +102,16 @@ namespace WarConquer.Editor
             foreach(string part in new[]{"land","rock","leaf","grass","tree","water","terrain","object","base","big","gora1","gora2","planeta","zemlya","trava","rashodniki","bark","sand","castle"})
                 if(mat.Contains(part)&&tex.Contains(part))return 50+part.Length;
             return biome=="Desert"&&tex=="albedo"?20:0;
+        }
+        public static void RepairTerrainMaterialsBatch()
+        {
+            try
+            {
+                foreach(string biome in new[]{"Forest","Swamp","Desert","Tundra","Volcanic","Wasteland","Void"})
+                    foreach(var renderer in AssetDatabase.LoadAssetAtPath<GameObject>(Output+"/Biomes/"+biome+".prefab").GetComponentsInChildren<Renderer>())
+                        foreach(var material in renderer.sharedMaterials)if(material!=null){material.enableInstancing=false;EditorUtility.SetDirty(material);}
+                AssetDatabase.SaveAssets();EnvironmentReview.Run();EditorApplication.Exit(0);
+            }catch(Exception e){Debug.LogException(e);EditorApplication.Exit(1);}
         }
         public static void BuildBatch()
         {

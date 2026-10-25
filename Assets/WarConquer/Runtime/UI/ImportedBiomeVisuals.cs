@@ -13,6 +13,22 @@ namespace WarConquer
             if(prefab==null)return false;
             var instance=Object.Instantiate(prefab,parent,false);instance.name="Paisaje importado - "+biome;
             foreach(var child in instance.GetComponentsInChildren<Transform>(true))child.gameObject.layer=BoardMeshFactory.Layer;
+            // Bind each source texture to its own draw, including multi-material scenery.
+            // This also prevents render batching from reusing a neighbouring biome's atlas.
+            var properties=new MaterialPropertyBlock();
+            foreach(var renderer in instance.GetComponentsInChildren<Renderer>())
+            {
+                var materials=renderer.sharedMaterials;
+                for(int slot=0;slot<materials.Length;slot++)
+                {
+                    var material=materials[slot];if(material==null)continue;
+                    properties.Clear();renderer.GetPropertyBlock(properties,slot);
+                    if(material.HasProperty("_BaseMap"))properties.SetTexture("_BaseMap",material.GetTexture("_BaseMap")??Texture2D.whiteTexture);
+                    if(material.HasProperty("_BaseColor"))properties.SetColor("_BaseColor",material.GetColor("_BaseColor"));
+                    if(material.HasProperty("_BumpMap")&&material.GetTexture("_BumpMap")!=null)properties.SetTexture("_BumpMap",material.GetTexture("_BumpMap"));
+                    renderer.SetPropertyBlock(properties,slot);
+                }
+            }
             // Animate only scenery whose names indicate motion. Keep the complete terrain rigid.
             instance.AddComponent<ImportedBiomeMotion>().Initialize(biome,tile.id);
             habitat=new BoardBiomeVisuals.Habitat{root=parent,biome=tile.biome};return true;

@@ -47,7 +47,7 @@ namespace WarConquer
             if(animate)
             {
                 h.dust=MakeParticles(root,"TerraformDustVFX",new Color(.72f,.67f,.54f,.45f),false,tile.id);
-                h.dust.Emit(22);h.root.localScale=new Vector3(1,.03f,1);h.root.localPosition=Vector3.up*BoardMeshFactory.Surface*.97f;
+                h.dust.Emit(22);h.root.localScale=Vector3.one;h.root.localPosition=Vector3.down*.6f;
             }
             if(tile.biome!=Biome.Neutral)
             {
@@ -83,7 +83,7 @@ namespace WarConquer
                 if(h.emerging)
                 {
                     float t=Mathf.Clamp01((now-h.started)/1.05f),ease=t*t*(3-2*t);
-                    float height=Mathf.Lerp(.03f,1,ease);h.root.localScale=new Vector3(1,height,1);h.root.localPosition=Vector3.up*BoardMeshFactory.Surface*(1-height);mesh.Paint(h.ground,Color.Lerp(h.from,h.to,ease));
+                    h.root.localScale=Vector3.one;h.root.localPosition=Vector3.down*(.6f*(1-ease));mesh.Paint(h.ground,Color.Lerp(h.from,h.to,ease));
                     if(t>=1){h.emerging=false;if(h.dust!=null){BoardMeshFactory.Release(h.dust.gameObject);h.dust=null;}}
                 }
                 float wave=Mathf.Sin(now*1.5f+h.offset);
