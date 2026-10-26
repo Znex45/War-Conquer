@@ -681,6 +681,8 @@ namespace WarConquer
 
             DrawPiles(player);
 
+            SkinMatchPanels();
+
             board.World.FocusedPiece=selectedPiece?.id??-1;
             board.Render(
                 Game,

@@ -25,7 +25,7 @@ namespace WarConquer
         }
         void ShowSetup()
         {
-            HideTooltip(); var body = OpenModal("PREPARAR PARTIDA", Game.State.phase != Phase.Setup);
+            HideTooltip(); var body = OpenModal("PREPARAR PARTIDA", false);
             setupVisible = true; SetMatchVisible(false);
 
             // Rediseño visual (solo interfaz): marco, banner y botones con imagen.

@@ -128,6 +128,140 @@ namespace WarConquer
             // La misma animación que usa el logo del menú principal
             logoRoot.gameObject.AddComponent<LogoPulse>();
         }
+
+        // Fondo y borde de los paneles de la partida (solo visual).
+        // Se puede llamar muchas veces sin duplicar nada.
+        // Estilo de la interfaz de partida (solo visual).
+        // Usa Setup_PanelFrame, Btn_Normal y Btn_Selected.
+        // Si falta alguna imagen, cae al estilo de colores y nada se rompe.
+        void SkinMatchPanels()
+        {
+            var frameSprite = SetupSprite("Setup_PanelFrame");
+
+            foreach (var panel in new[] { left, leaderPanel, inspector, hand, piles })
+            {
+                if (panel == null)
+                    continue;
+
+                var image = panel.GetComponent<Image>();
+
+                if (image != null)
+                    image.color = SkinPanel;
+
+                // Quita el marco anterior (Render redibuja los paneles).
+                for (int i = panel.childCount - 1; i >= 0; i--)
+                {
+                    var child = panel.GetChild(i);
+
+                    if (child.name == "Marco")
+                    {
+                        child.name = "Marco_old";
+                        Destroy(child.gameObject);
+                    }
+                }
+
+                if (frameSprite != null)
+                {
+                    var frameObject = new GameObject(
+                        "Marco",
+                        typeof(RectTransform),
+                        typeof(Image)
+                    );
+
+                    frameObject.transform.SetParent(panel, false);
+                    frameObject.transform.SetAsFirstSibling();
+
+                    var frameRect = frameObject.GetComponent<RectTransform>();
+
+                    frameRect.anchorMin = Vector2.zero;
+                    frameRect.anchorMax = Vector2.one;
+                    frameRect.offsetMin = new Vector2(-MatchFrameMargin, -MatchFrameMargin);
+                    frameRect.offsetMax = new Vector2(MatchFrameMargin, MatchFrameMargin);
+
+                    var frameImage = frameObject.GetComponent<Image>();
+
+                    SkinApplySprite(frameImage, frameSprite, MatchFrameBorder);
+
+                    frameImage.fillCenter = false;
+                    frameImage.raycastTarget = false;
+                }
+                else
+                {
+                    SkinOutline(panel, SkinBorder, 1.5f);
+                }
+            }
+
+            // Botones de los paneles y del encabezado
+            foreach (var panel in new[] { header, left, leaderPanel, inspector, hand, piles, board != null ? board.Overlay : null })
+            {
+                if (panel != null)
+                    SkinMatchButtons(panel);
+            }
+        }
+
+        // Ajustes del marco de los paneles de la partida
+        const float MatchFrameMargin = 3f;
+        const float MatchFrameBorder = 16f;
+
+        bool SkinIsGreen(Color c)
+        {
+            return c.g > c.r + .08f && c.g > c.b + .02f;
+        }
+
+        void SkinMatchButtons(RectTransform panel)
+        {
+            var normalSprite = SetupSprite("Btn_Normal");
+            var selectedSprite = SetupSprite("Btn_Selected");
+
+            if (normalSprite == null)
+                return;
+
+            foreach (var button in panel.GetComponentsInChildren<Button>(true))
+            {
+                var image = button.GetComponent<Image>();
+                var rect = button.GetComponent<RectTransform>();
+
+                if (image == null || rect == null)
+                    continue;
+
+                // Solo botones normales: no tarjetas, pilas ni filas de puntuación.
+                if (rect.rect.height > 70f || rect.rect.height < 20f)
+                    continue;
+
+                if (button.name.StartsWith("Puntuación"))
+                    continue;
+
+                Color original = image.color;
+                bool green = selectedSprite != null && SkinIsGreen(original);
+
+                float border = Mathf.Min(
+                     SetupButtonBorder,
+                     rect.rect.height * (rect.rect.height < 34f ? .2f : SetupButtonBorderMaxRatio)
+                );
+             
+
+                SkinApplySprite(image, green ? selectedSprite : normalSprite, border);
+
+                // Conserva una pista del color original (estado), sin teñir de más.
+                Color tint = Color.Lerp(Color.white, original, .45f);
+
+                if (!button.interactable)
+                    tint = new Color(.55f, .55f, .55f, .8f);
+
+                tint.a = Mathf.Min(1f, Mathf.Max(.8f, original.a));
+                image.color = tint;
+
+                foreach (var text in button.GetComponentsInChildren<Text>(true))
+                {
+                    text.color = button.interactable
+                        ? (Color)new Color32(238, 236, 228, 255)
+                        : new Color(.7f, .7f, .7f, .8f);
+
+                    if (text.fontSize > 12 && text.GetComponent<Shadow>() == null)
+                        SkinTextShadow(text, .6f);
+                }
+            }
+        }
         // Recuadro para el retrato de un personaje (líder).
         // Si existe la imagen Portrait_<LIDER> en Resources/UI/Setup/
         // se muestra; si no, queda un recuadro con la inicial del líder como guía.

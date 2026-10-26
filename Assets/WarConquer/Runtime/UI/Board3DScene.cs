@@ -205,7 +205,7 @@ namespace WarConquer
                 turnNeon.Register(t,v.root);
                 if(t.baseOwner>=0)
                 {
-                    var player=state.players[t.baseOwner];v.baseLabel.text="J"+(player.id+1)+(player.isAI?" · IA":"")+(ShowLabels?"\n"+player.conquestPoints+" / 10 PC":"");
+                    var player=state.players[t.baseOwner]; v.baseLabel.text = "J" + (player.id + 1) + " · " + player.leader + (player.isAI ? " · IA" : "") + (ShowLabels ? "\n" + player.conquestPoints + " / 10 PC" : "");
                 }
             }
             var alive=new HashSet<int>();
