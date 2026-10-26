@@ -48,18 +48,20 @@ namespace WarConquer
             tooltip.name="Vista ampliada (solo lectura)";tooltip.gameObject.AddComponent<CanvasGroup>().blocksRaycasts=false;tooltip.SetAsLastSibling();
         }
         void HideTooltip(){if(tooltip!=null){tooltip.gameObject.SetActive(false);Destroy(tooltip.gameObject);tooltip=null;}}
-        void ShowCardModal(CardData card,Player player)
+        void ShowCardModal(CardData card, Player player)
         {
-            HideTooltip();var body=OpenModal("Carta · "+card.name);
-            CardPresentation.Draw(body,Game,card,player,28,83,392,627,useResources,true,piece:selectedPiece!=null&&selectedPiece.cardId==card.id?selectedPiece:null);
-            GrayboxUI.Text(body,TimingRules.Description(card),451,126,639,133,24,GrayboxUI.Muted);
-            GrayboxUI.Text(body,EnergyManager.Quote(player,card,useResources).Detail,451,285,639,78,25,GrayboxUI.PlayerColor(player.id),FontStyle.Bold);
-            var instance=player.hand.FirstOrDefault(c=>c.instanceId==selectedCard&&c.cardId==card.id)??player.hand.FirstOrDefault(c=>c.cardId==card.id);
-            if(instance!=null&&player.id==Game.ActingPlayerId&&!player.isAI)
+            HideTooltip(); var body = OpenModal("Carta · " + card.name);
+            SkinModalFrame(body);
+            CardPresentation.Draw(body, Game, card, player, 28, 83, 392, 627, useResources, true, piece: selectedPiece != null && selectedPiece.cardId == card.id ? selectedPiece : null);
+            var desc = GrayboxUI.Text(body, TimingRules.Description(card), 451, 150, 639, 120, 24, SkinCream); SkinTextShadow(desc);
+            var cost = GrayboxUI.Text(body, EnergyManager.Quote(player, card, useResources).Detail, 451, 285, 639, 78, 25, GrayboxUI.PlayerColor(player.id), FontStyle.Bold); SkinTextShadow(cost);
+            var instance = player.hand.FirstOrDefault(c => c.instanceId == selectedCard && c.cardId == card.id) ?? player.hand.FirstOrDefault(c => c.cardId == card.id);
+            if (instance != null && player.id == Game.ActingPlayerId && !player.isAI)
             {
-                string why=Game.CardBlockReason(instance,useResources);GrayboxUI.Text(body,why,451,394,623,87,18,GrayboxUI.Yellow);
-                GrayboxUI.Button(body,GenericCardRules.NoBoardTarget(card)?"Jugar carta":"Seleccionar objetivos",451,530,623,61,()=>{CloseModal();SelectCard(instance,player);},null,why=="");
+                string why = Game.CardBlockReason(instance, useResources); GrayboxUI.Text(body, why, 451, 394, 623, 87, 18, GrayboxUI.Yellow);
+                GrayboxUI.Button(body, GenericCardRules.NoBoardTarget(card) ? "Jugar carta" : "Seleccionar objetivos", 451, 530, 623, 61, () => { CloseModal(); SelectCard(instance, player); }, null, why == "");
             }
+            SkinMatchButtons(body);
         }
         void DrawPiles(Player player)
         {

@@ -683,7 +683,8 @@ namespace WarConquer
 
             SkinMatchPanels();
 
-            board.World.FocusedPiece=selectedPiece?.id??-1;
+
+            board.World.FocusedPiece = selectedPiece?.id ?? -1;
             board.Render(
                 Game,
                 new HashSet<int>(ValidTargets()),
@@ -693,7 +694,7 @@ namespace WarConquer
 
             var chrome =
                 board.Overlay;
-            DrawEffectDisplayControl(chrome,386,11,178,30);
+            DrawEffectDisplayControl(chrome, 505, 11, 190, 30);
 
             GrayboxUI.Text(
                 chrome,
@@ -711,9 +712,9 @@ namespace WarConquer
                 board.World.ShowLabels
                     ? "Ocultar datos"
                     : "Ver datos",
-                573,
+                703,
                 11,
-                107,
+                120,
                 30,
                 () => {
                     board.World.ShowLabels =
@@ -725,58 +726,10 @@ namespace WarConquer
 
             GrayboxUI.Button(
                 chrome,
-                "Girar -",
-                690,
+                "Restaurar vista",
+                831,
                 11,
-                72,
-                30,
-                () => board.Rotate(-30)
-            );
-
-            GrayboxUI.Button(
-                chrome,
-                "Girar +",
-                771,
-                11,
-                72,
-                30,
-                () => board.Rotate(30)
-            );
-
-            GrayboxUI.Button(
-                chrome,
-                "−",
-                854,
-                11,
-                33,
-                30,
-                () => {
-                    board.World.ZoomAt(-2f, Vector2.one * .5f);
-
-                    Render();
-                }
-            );
-
-            GrayboxUI.Button(
-                chrome,
-                "+",
-                892,
-                11,
-                33,
-                30,
-                () => {
-                    board.World.ZoomAt(2f, Vector2.one * .5f);
-
-                    Render();
-                }
-            );
-
-            GrayboxUI.Button(
-                chrome,
-                "Inicio",
-                930,
-                11,
-                42,
+                140,
                 30,
                 () => {
                     board.Reset();
@@ -784,75 +737,28 @@ namespace WarConquer
                 }
             );
 
-            // Navigation stays available at every zoom level.
-            {
-                GrayboxUI.Button(
-                    chrome,
-                    "←",
-                    840,
-                    48,
-                    30,
-                    28,
-                    () => {
-                        board.Nudge(Vector2.left);
+            // Franja informativa de controles (no bloquea el ratón sobre el tablero)
+            var hintBar = GrayboxUI.Box(chrome, "Controles", 0, 618, 982, 30, new Color(0, 0, 0, .55f));
+            hintBar.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
 
-                        Render();
-                    }
-                );
-
-                GrayboxUI.Button(
-                    chrome,
-                    "→",
-                    875,
-                    48,
-                    30,
-                    28,
-                    () => {
-                        board.Nudge(Vector2.right);
-
-                        Render();
-                    }
-                );
-
-                GrayboxUI.Button(
-                    chrome,
-                    "↑",
-                    910,
-                    48,
-                    30,
-                    28,
-                    () => {
-                        board.Nudge(Vector2.up);
-
-                        Render();
-                    }
-                );
-
-                GrayboxUI.Button(
-                    chrome,
-                    "↓",
-                    945,
-                    48,
-                    30,
-                    28,
-                    () => {
-                        board.Nudge(Vector2.down);
-
-                        Render();
-                    }
-                );
-            }
-
-            GrayboxUI.Text(
-                chrome,
-                "Arrastrar: desplazar · Derecho: girar/inclinar · Rueda: zoom al cursor · 1:1: restablecer",
-                16,
-                620,
-                950,
-                20,
-                12,
-                GrayboxUI.Muted
+            var hintText = GrayboxUI.Text(
+                hintBar,
+                "Rueda del ratón: ampliar   ·   Clic y arrastrar: mover   ·   Clic derecho y arrastrar: rotar",
+                0,
+                0,
+                982,
+                30,
+                15,
+                new Color32(238, 236, 228, 255),
+                FontStyle.Bold
             );
+
+            hintText.alignment = TextAnchor.MiddleCenter;
+            hintText.raycastTarget = false;
+
+            // Estilo para los botones del tablero (se dibujan en cada Render)
+            SkinMatchButtons(chrome);
+
 
             if (s.battle != null)
             {
@@ -916,17 +822,19 @@ namespace WarConquer
             var s = Game.State;
             var actor = Game.ActingPlayer;
 
-            GrayboxUI.Text(
-                header,
-                "WAR & CONQUER",
-                20,
-                12,
-                300,
-                34,
-                26,
-                GrayboxUI.Ink,
-                FontStyle.Bold
-            );
+            var gameTitle = GrayboxUI.Text(
+     header,
+     "WAR & CONQUER",
+     20,
+     10,
+     300,
+     40,
+     30,
+     SkinGold,
+     FontStyle.Bold
+ );
+
+            SkinTextShadow(gameTitle, .85f);
 
             GrayboxUI.Text(
                 header,

@@ -172,8 +172,9 @@ foreach (string deck in CardCatalog.Leaders)
 
 bool fungus = player.leader == "ZUKGROK";
 var body = OpenModal(player.leader + " · HABILIDAD DEL LÍDER");
+            SkinModalFrame(body);
 
-if (player.leader == "XIL'THAR")
+            if (player.leader == "XIL'THAR")
 {
     DrawXiltharDetails(body, player);
     return;

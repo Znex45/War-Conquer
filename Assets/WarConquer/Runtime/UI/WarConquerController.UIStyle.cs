@@ -192,11 +192,15 @@ namespace WarConquer
             }
 
             // Botones de los paneles y del encabezado
-            foreach (var panel in new[] { header, left, leaderPanel, inspector, hand, piles, board != null ? board.Overlay : null })
+            foreach (var panel in new[] { header, left, leaderPanel, inspector, hand, piles, board != null ? board.Overlay : null, rewindButton != null ? rewindButton.transform as RectTransform : null })
             {
                 if (panel != null)
                     SkinMatchButtons(panel);
             }
+
+            SkinRewindButton();
+
+
         }
 
         // Ajustes del marco de los paneles de la partida
@@ -228,7 +232,7 @@ namespace WarConquer
                 if (rect.rect.height > 70f || rect.rect.height < 20f)
                     continue;
 
-                if (button.name.StartsWith("Puntuación"))
+                if (button.name.StartsWith("Puntuación") || button.name.StartsWith("Boton_"))
                     continue;
 
                 Color original = image.color;
@@ -261,6 +265,74 @@ namespace WarConquer
                         SkinTextShadow(text, .6f);
                 }
             }
+        }
+
+        // Marco + banner + CERRAR dentro del cuadro, para cualquier ventana (solo visual).
+        void SkinModalFrame(RectTransform body)
+        {
+            SkinSetupFrame(body);
+
+            if (modal != null)
+            {
+                var overlay = modal.GetComponent<Image>();
+
+                if (overlay != null)
+                    overlay.color = new Color(0, 0, 0, .6f);
+            }
+
+            // Quita el botón "Cerrar" viejo que crea OpenModal
+            for (int i = body.childCount - 1; i >= 0; i--)
+            {
+                var child = body.GetChild(i);
+
+                if (child.GetComponent<Button>() == null)
+                    continue;
+
+                var label = child.GetComponentInChildren<Text>();
+
+                if (label != null && label.text == "Cerrar")
+                {
+                    child.gameObject.SetActive(false);
+                    Destroy(child.gameObject);
+                }
+            }
+
+            SkinImageButton(body, "CERRAR", 925, 76, 180, 57, CloseModal, 20, "Btn_Back", false, 70f);
+        }
+
+        // Deshacer: se le pone el estilo y se mantiene aunque el juego le cambie el color.
+        void SkinRewindButton()
+        {
+            if (rewindButton == null)
+                return;
+
+            var button = rewindButton.GetComponent<Button>();
+            var sprite = SetupSprite("Btn_Normal");
+
+            if (button == null || sprite == null)
+                return;
+
+            if (button.GetComponent<SkinButtonKeeper>() != null)
+                return;
+
+            var image = button.GetComponent<Image>();
+            var rect = button.GetComponent<RectTransform>();
+
+            if (image == null || rect == null)
+                return;
+
+            float border = Mathf.Min(SetupButtonBorder, rect.rect.height * .2f);
+            float mult = Mathf.Max(
+                .01f,
+                sprite.border.x * 100f / (sprite.pixelsPerUnit * border)
+            );
+
+            var keeper = button.gameObject.AddComponent<SkinButtonKeeper>();
+
+            keeper.button = button;
+            keeper.image = image;
+            keeper.sprite = sprite;
+            keeper.multiplier = mult;
         }
         // Recuadro para el retrato de un personaje (líder).
         // Si existe la imagen Portrait_<LIDER> en Resources/UI/Setup/
@@ -841,6 +913,34 @@ namespace WarConquer
                     new Color32(245, 203, 76, 150)
                 );
             }
+        }
+    }
+
+    // Mantiene el estilo de un botón aunque otro código le cambie el color.
+    public class SkinButtonKeeper : MonoBehaviour
+    {
+        public Button button;
+        public Image image;
+        public Sprite sprite;
+        public float multiplier = 1f;
+
+        void LateUpdate()
+        {
+            if (button == null || image == null)
+                return;
+
+            image.sprite = sprite;
+            image.type = Image.Type.Sliced;
+            image.pixelsPerUnitMultiplier = multiplier;
+
+            bool on = button.interactable;
+
+            image.color = on ? Color.white : new Color(.65f, .65f, .65f, .9f);
+
+            foreach (var text in button.GetComponentsInChildren<Text>(true))
+                text.color = on
+                    ? (Color)new Color32(238, 236, 228, 255)
+                    : new Color(.75f, .75f, .75f, .9f);
         }
     }
 }
