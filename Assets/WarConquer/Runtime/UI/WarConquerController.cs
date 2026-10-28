@@ -683,6 +683,10 @@ namespace WarConquer
 
             SkinMatchPanels();
 
+            SkinTurnArrow();
+
+            SkinShiftPanel(leaderPanel, 3f);
+
 
             board.World.FocusedPiece = selectedPiece?.id ?? -1;
             board.Render(

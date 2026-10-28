@@ -10,7 +10,7 @@ namespace WarConquer
     {
         sealed class TileVisual
         {
-            public Transform root,surface,decor,baseModel,leaderPlatform;
+            public Transform root, surface, decor, baseModel, leaderPlatform, turnArrow;
             public MeshRenderer ground,ring;
             public TextMesh number,baseLabel;
             public string decorationKey;
@@ -200,12 +200,19 @@ namespace WarConquer
                         var platformPick=v.leaderPlatform.gameObject.AddComponent<BoxCollider>();platformPick.center=new Vector3(0,2.2f,0);platformPick.size=new Vector3(5.2f,6.4f,5.2f);v.leaderPlatform.gameObject.AddComponent<Hex3DTarget>().tileId=t.id;
                         v.leaderPlatform.gameObject.AddComponent<LeaderPlatformFloat>().Initialize(t.baseOwner);
                         v.baseLabel=mesh.Label(v.leaderPlatform,"Líder y Conquista",new Vector3(0,6.5f,0),.09f,faction);labels.Add(v.baseLabel);
+                        var arrowObject = mesh.Part(v.leaderPlatform, "Flecha de turno", mesh.Cone, new Vector3(0, 8.4f, 0), new Vector3(1.6f, 2.2f, 1.6f), new Color(1f, .85f, .2f));
+                        arrowObject.transform.localRotation = Quaternion.Euler(180, 0, 0);
+                        var arrowRing = mesh.Part(arrowObject.transform, "Aro de turno", mesh.Ring, new Vector3(0, -.6f, 0), Vector3.one * 1.3f, new Color(1f, .95f, .6f));
+                        v.turnArrow = arrowObject.transform; arrowObject.AddComponent<SkinBob3D>();
                     }
                 }
                 turnNeon.Register(t,v.root);
                 if(t.baseOwner>=0)
                 {
                     var player=state.players[t.baseOwner]; v.baseLabel.text = "J" + (player.id + 1) + " · " + player.leader + (player.isAI ? " · IA" : "") + (ShowLabels ? "\n" + player.conquestPoints + " / 10 PC" : "");
+                    v.baseLabel.color = (state.activePlayer == t.baseOwner && state.phase != Phase.Setup) ? new Color(1f, .9f, .3f) : GrayboxUI.PlayerColor(t.baseOwner);
+                    v.baseLabel.characterSize = (state.activePlayer == t.baseOwner && state.phase != Phase.Setup) ? .12f : .09f;
+                    if (v.turnArrow != null) v.turnArrow.gameObject.SetActive(state.activePlayer == t.baseOwner && state.phase != Phase.Setup && !player.eliminated);
                 }
             }
             var alive=new HashSet<int>();

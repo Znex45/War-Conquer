@@ -71,25 +71,35 @@ namespace WarConquer
         }
         void DrawLeader(Player player)
         {
-            bool fungus=player.leader=="ZUKGROK";var color=GrayboxUI.PlayerColor(player.id);
-            var portrait=GrayboxUI.Rect(leaderPanel,"Retrato "+player.leader,14,14,62,62);var hex=portrait.gameObject.AddComponent<HexGraphic>();hex.color=Color.Lerp(color,GrayboxUI.Panel,.5f);hex.border=color;hex.raycastTarget=false;
-            var glyph=GrayboxUI.Text(portrait,fungus?"Z":player.leader=="FAUNAR"?"F":player.leader=="XIL'THAR"?"X":"S",0,10,62,45,32,color,FontStyle.Bold);glyph.alignment=TextAnchor.MiddleCenter;
-            GrayboxUI.Text(leaderPanel,player.leader,88,16,142,27,20,color,FontStyle.Bold);
-            GrayboxUI.Text(leaderPanel,player.factionTag+" · J"+(player.id+1),88,45,140,24,12,GrayboxUI.Muted);
-            GrayboxUI.Text(leaderPanel,"VIDA "+player.leaderHealth+" / "+Game.State.rules.leaderHealth+(player.eliminated?" · FUERA":""),14,83,214,26,18,color,FontStyle.Bold);
-            if(player.leader=="XIL'THAR"){DrawXiltharLeader(player);return;}
-            if(player.leader=="FAUNAR")
+            bool fungus = player.leader == "ZUKGROK"; var color = GrayboxUI.PlayerColor(player.id);
+            var art = Resources.Load<Sprite>("UI/Setup/Portrait_" + player.leader.Replace("'", ""));
+            if (art != null)
             {
-                GrayboxUI.Text(leaderPanel,"PRIMERA STRUCTURE −1 E",14,119,214,27,13,GrayboxUI.Ink,FontStyle.Bold);
-                GrayboxUI.Text(leaderPanel,"PASIVA · SIN COSTE",14,158,214,22,13,color,FontStyle.Bold);
-                GrayboxUI.Text(leaderPanel,player.firstStructureUsed?"USED":"AVAILABLE",14,188,212,24,18,player.firstStructureUsed?GrayboxUI.Muted:color,FontStyle.Bold);
-                GrayboxUI.Button(leaderPanel,"Ver habilidad",12,230,214,30,()=>ShowLeaderDetails(player));return;
+                var photo = GrayboxUI.Box(leaderPanel, "Retrato " + player.leader, 14, 12, 68, 68, new Color32(8, 14, 18, 255));
+                var photoImage = photo.GetComponent<UnityEngine.UI.Image>(); photoImage.sprite = art; photoImage.color = Color.white; photoImage.preserveAspect = true; photoImage.raycastTarget = false;
+                SkinOutline(photo, color, 2.5f);
             }
-            GrayboxUI.Text(leaderPanel,fungus?"MUERTE DE TOKEN → TERRAFORMAR":"DESPLIEGUE EN TERRITORIO PROPIO",14,119,214,36,12,GrayboxUI.Ink,FontStyle.Bold);
-            GrayboxUI.Text(leaderPanel,fungus?"AUTOMÁTICA · 0 ENERGÍA":"OPCIONAL · UNIDAD +1 ENERGÍA",14,162,214,28,12,color,FontStyle.Bold);
-            GrayboxUI.Text(leaderPanel,fungus?"Al morir un Token propio, elige el bioma de su casilla.":"Usa una casilla que hayas establecido. El coste se muestra en la carta.",14,191,212,38,12,GrayboxUI.Muted);
-            GrayboxUI.Button(leaderPanel,"Ver habilidad",12,230,214,30,()=>ShowLeaderDetails(player));
-            if(!fungus)GrayboxUI.Button(leaderPanel,player.sahriaDeployment?"SAHRIA +1 E · ACTIVADO":"Usar SAHRIA +1 E",12,275,214,27,()=>{ClearAction();Game.SetSahriaDeployment(!player.sahriaDeployment);},player.sahriaDeployment?color:edge,player.id==Game.ActingPlayerId&&!player.isAI&&Game.CanTakeTurnAction(TurnStage.Deployment));
+            else
+            {
+                var portrait = GrayboxUI.Rect(leaderPanel, "Retrato " + player.leader, 14, 14, 62, 62); var hex = portrait.gameObject.AddComponent<HexGraphic>(); hex.color = Color.Lerp(color, GrayboxUI.Panel, .5f); hex.border = color; hex.raycastTarget = false;
+                var glyph = GrayboxUI.Text(portrait, fungus ? "Z" : player.leader == "FAUNAR" ? "F" : player.leader == "XIL'THAR" ? "X" : "S", 0, 10, 62, 45, 32, color, FontStyle.Bold); glyph.alignment = TextAnchor.MiddleCenter;
+            }
+            GrayboxUI.Text(leaderPanel, player.leader, 88, 16, 142, 27, 20, color, FontStyle.Bold);
+            GrayboxUI.Text(leaderPanel, player.factionTag + " · J" + (player.id + 1), 88, 45, 140, 24, 12, GrayboxUI.Muted);
+            GrayboxUI.Text(leaderPanel, "VIDA " + player.leaderHealth + " / " + Game.State.rules.leaderHealth + (player.eliminated ? " · FUERA" : ""), 14, 83, 214, 26, 18, color, FontStyle.Bold);
+            if (player.leader == "XIL'THAR") { DrawXiltharLeader(player); return; }
+            if (player.leader == "FAUNAR")
+            {
+                GrayboxUI.Text(leaderPanel, "PRIMERA STRUCTURE −1 E", 14, 119, 214, 27, 13, GrayboxUI.Ink, FontStyle.Bold);
+                GrayboxUI.Text(leaderPanel, "PASIVA · SIN COSTE", 14, 158, 214, 22, 13, color, FontStyle.Bold);
+                GrayboxUI.Text(leaderPanel, player.firstStructureUsed ? "USED" : "AVAILABLE", 14, 188, 212, 24, 18, player.firstStructureUsed ? GrayboxUI.Muted : color, FontStyle.Bold);
+                GrayboxUI.Button(leaderPanel, "Ver habilidad", 12, 230, 214, 30, () => ShowLeaderDetails(player)); return;
+            }
+            GrayboxUI.Text(leaderPanel, fungus ? "MUERTE DE TOKEN → TERRAFORMAR" : "DESPLIEGUE EN TERRITORIO PROPIO", 14, 119, 214, 36, 12, GrayboxUI.Ink, FontStyle.Bold);
+            GrayboxUI.Text(leaderPanel, fungus ? "AUTOMÁTICA · 0 ENERGÍA" : "OPCIONAL · UNIDAD +1 ENERGÍA", 14, 162, 214, 28, 12, color, FontStyle.Bold);
+            GrayboxUI.Text(leaderPanel, fungus ? "Al morir un Token propio, elige el bioma de su casilla." : "Usa una casilla que hayas establecido. El coste se muestra en la carta.", 14, 191, 212, 38, 12, GrayboxUI.Muted);
+            GrayboxUI.Button(leaderPanel, "Ver habilidad", 12, 230, 214, 30, () => ShowLeaderDetails(player));
+            if (!fungus) GrayboxUI.Button(leaderPanel, player.sahriaDeployment ? "SAHRIA +1 E · ACTIVADO" : "Usar SAHRIA +1 E", 12, 275, 214, 27, () => { ClearAction(); Game.SetSahriaDeployment(!player.sahriaDeployment); }, player.sahriaDeployment ? color : edge, player.id == Game.ActingPlayerId && !player.isAI && Game.CanTakeTurnAction(TurnStage.Deployment));
         }
     }
 }

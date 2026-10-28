@@ -1,18 +1,18 @@
-using System;
+Ôªøusing System;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace WarConquer
 {
-    // Estilo visual (SOLO interfaz) basado en el men˙ principal.
-    // Se reutiliza en las pantallas rediseÒadas.
+    // Estilo visual (SOLO interfaz) basado en el men√∫ principal.
+    // Se reutiliza en las pantallas redise√±adas.
     //
-    // Si las im·genes existen en Assets/Resources/UI/Setup/ se usan;
+    // Si las im√°genes existen en Assets/Resources/UI/Setup/ se usan;
     // si falta alguna, se usa el estilo de colores (nada se rompe).
     public partial class WarConquerController
     {
         // =========================================================
-        // PALETA (la misma del men˙ principal)
+        // PALETA (la misma del men√∫ principal)
         // =========================================================
 
         static readonly Color32 SkinGold = new Color32(245, 203, 76, 255);
@@ -22,31 +22,31 @@ namespace WarConquer
         static readonly Color32 SkinBorder = new Color32(150, 125, 75, 180);
 
         // =========================================================
-        // IM¡GENES Y AJUSTES (aquÌ se afina el diseÒo)
+        // IM√ÅGENES Y AJUSTES (aqu√≠ se afina el dise√±o)
         // =========================================================
 
-        // Carpeta de las im·genes dentro de Assets/Resources
+        // Carpeta de las im√°genes dentro de Assets/Resources
         const string SetupArt = "UI/Setup/";
 
-        // Cu·nto sobresale el marco por fuera del panel (en pÌxeles)
+        // Cu√°nto sobresale el marco por fuera del panel (en p√≠xeles)
         const float SetupFrameMargin = 50f;
 
-        // Cu·nto se extiende el relleno azul por debajo del marco dorado.
-        // Sube el n˙mero si a˙n se ve fondo entre el panel y el marco;
-        // b·jalo si el azul se asoma por fuera del marco.
+        // Cu√°nto se extiende el relleno azul por debajo del marco dorado.
+        // Sube el n√∫mero si a√∫n se ve fondo entre el panel y el marco;
+        // b√°jalo si el azul se asoma por fuera del marco.
         const float SetupFillExtend = 22f;
 
         // Grosor con el que se dibuja el borde del marco y de los botones.
-        // Si ves los bordes muy gruesos o muy finos, cambia estos n˙meros.
+        // Si ves los bordes muy gruesos o muy finos, cambia estos n√∫meros.
         const float SetupFrameBorder = 45f;
         const float SetupButtonBorder = 16f;
 
-        // Los botones nunca usan un borde mayor a esta fracciÛn de su alto.
-        // (Evita que los botones bajos se vean como una lÌnea fina.)
+        // Los botones nunca usan un borde mayor a esta fracci√≥n de su alto.
+        // (Evita que los botones bajos se vean como una l√≠nea fina.)
         const float SetupButtonBorderMaxRatio = .30f;
 
-        // Banner del tÌtulo: ancho, distancia al borde superior
-        // y posiciÛn del texto dentro del banner (0 = arriba, 1 = abajo)
+        // Banner del t√≠tulo: ancho, distancia al borde superior
+        // y posici√≥n del texto dentro del banner (0 = arriba, 1 = abajo)
         const float SetupBannerWidth = 720f;
         const float SetupBannerTop = 6f;
         const float SetupBannerTextTop = .43f;
@@ -67,7 +67,7 @@ namespace WarConquer
             {
                 image.type = Image.Type.Sliced;
 
-                // Ajuste autom·tico para que el borde se vea del grosor deseado
+                // Ajuste autom√°tico para que el borde se vea del grosor deseado
                 float m =
                     sprite.border.x * 100f /
                     (sprite.pixelsPerUnit * targetBorder);
@@ -103,8 +103,8 @@ namespace WarConquer
             shadow.effectColor = new Color(0f, 0f, 0f, alpha);
             shadow.effectDistance = new Vector2(1.2f, -1.2f);
         }
-        // Logo del juego con la misma animaciÛn del men˙ principal.
-        // x, y = posiciÛn; width = ancho (la altura se calcula sola).
+        // Logo del juego con la misma animaci√≥n del men√∫ principal.
+        // x, y = posici√≥n; width = ancho (la altura se calcula sola).
         // Si no existe la imagen, no se muestra y nada se rompe.
         void SkinLogo(Transform parent, float x, float y, float width)
         {
@@ -125,7 +125,7 @@ namespace WarConquer
             image.type = Image.Type.Simple;
             image.raycastTarget = false;
 
-            // La misma animaciÛn que usa el logo del men˙ principal
+            // La misma animaci√≥n que usa el logo del men√∫ principal
             logoRoot.gameObject.AddComponent<LogoPulse>();
         }
 
@@ -228,11 +228,11 @@ namespace WarConquer
                 if (image == null || rect == null)
                     continue;
 
-                // Solo botones normales: no tarjetas, pilas ni filas de puntuaciÛn.
+                // Solo botones normales: no tarjetas, pilas ni filas de puntuaci√≥n.
                 if (rect.rect.height > 70f || rect.rect.height < 20f)
                     continue;
 
-                if (button.name.StartsWith("PuntuaciÛn") || button.name.StartsWith("Boton_"))
+                if (button.name.StartsWith("Puntuaci√≥n") || button.name.StartsWith("Boton_"))
                     continue;
 
                 Color original = image.color;
@@ -246,7 +246,7 @@ namespace WarConquer
 
                 SkinApplySprite(image, green ? selectedSprite : normalSprite, border);
 
-                // Conserva una pista del color original (estado), sin teÒir de m·s.
+                // Conserva una pista del color original (estado), sin te√±ir de m√°s.
                 Color tint = Color.Lerp(Color.white, original, .45f);
 
                 if (!button.interactable)
@@ -280,7 +280,7 @@ namespace WarConquer
                     overlay.color = new Color(0, 0, 0, .6f);
             }
 
-            // Quita el botÛn "Cerrar" viejo que crea OpenModal
+            // Quita el bot√≥n "Cerrar" viejo que crea OpenModal
             for (int i = body.childCount - 1; i >= 0; i--)
             {
                 var child = body.GetChild(i);
@@ -334,9 +334,89 @@ namespace WarConquer
             keeper.sprite = sprite;
             keeper.multiplier = mult;
         }
-        // Recuadro para el retrato de un personaje (lÌder).
+
+        // Baja (o sube) todo el contenido de un panel unos p√≠xeles (solo visual).
+        void SkinShiftPanel(RectTransform panel, float down)
+        {
+            if (panel == null)
+                return;
+
+            for (int i = 0; i < panel.childCount; i++)
+            {
+                var rect = panel.GetChild(i) as RectTransform;
+
+                if (rect == null)
+                    continue;
+
+                // Si est√° anclado arriba, bajar es restar; si est√° anclado abajo, sumar.
+                float sign = rect.anchorMin.y > .5f ? -1f : 1f;
+
+                rect.anchoredPosition += new Vector2(0f, sign * down);
+            }
+        }
+
+        // Flecha que se√±ala al jugador en turno, en el marcador de la derecha (solo visual).
+        // Usa Resources/UI/Setup/Turn_Arrow si existe; si no, dibuja una flecha dorada.
+        void SkinTurnArrow()
+        {
+            if (inspector == null || Game?.State == null)
+                return;
+
+            int active = Game.State.activePlayer;
+
+            // Toma la fila m√°s reciente y activa (las viejas a√∫n no se han destruido)
+            RectTransform row = null;
+
+            for (int i = inspector.childCount - 1; i >= 0; i--)
+            {
+                var child = inspector.GetChild(i);
+
+                if (child.name == "Puntuaci√≥n J" + (active + 1) && child.gameObject.activeInHierarchy)
+                {
+                    row = child as RectTransform;
+                    break;
+                }
+            }
+
+            if (row == null)
+                return;
+
+            // Borde dorado en la fila del jugador en turno
+            SkinOutline(row, SkinGold, 2f);
+
+            float rowH = row.sizeDelta.y;
+            float w = 34f, h = 34f;
+
+            var arrow = GrayboxUI.Rect(row, "Flecha de turno", -w - 2f, (rowH - h) / 2f, w, h);
+
+            var sprite = SetupSprite("Turn_Arrow");
+
+            if (sprite != null)
+            {
+                var image = arrow.gameObject.AddComponent<Image>();
+
+                image.sprite = sprite;
+                image.color = Color.white;
+                image.preserveAspect = true;
+                image.raycastTarget = false;
+            }
+            else
+            {
+                var symbol = GrayboxUI.Text(arrow, "‚Üí", 0, 0, w, h, 34, SkinGold, FontStyle.Bold);
+
+                symbol.alignment = TextAnchor.MiddleCenter;
+                symbol.horizontalOverflow = HorizontalWrapMode.Overflow;
+                symbol.raycastTarget = false;
+
+                SkinTextShadow(symbol, .9f);
+            }
+
+            arrow.gameObject.AddComponent<SkinArrowBob>();
+        }
+
+        // Recuadro para el retrato de un personaje (l√≠der).
         // Si existe la imagen Portrait_<LIDER> en Resources/UI/Setup/
-        // se muestra; si no, queda un recuadro con la inicial del lÌder como guÌa.
+        // se muestra; si no, queda un recuadro con la inicial del l√≠der como gu√≠a.
         // selected = false -> el retrato se ve apagado.
         void SkinPortrait(
             Transform parent,
@@ -363,7 +443,7 @@ namespace WarConquer
                 selected ? 2.5f : 1.5f
             );
 
-            var sprite = SetupSprite("Portrait_" + leader);
+            var sprite = SetupSprite("Portrait_" + leader.Replace("'", ""));
 
             if (sprite != null)
             {
@@ -385,7 +465,7 @@ namespace WarConquer
             }
             else if (!string.IsNullOrEmpty(leader))
             {
-                // GuÌa visual mientras no hay imagen: inicial del lÌder.
+                // Gu√≠a visual mientras no hay imagen: inicial del l√≠der.
                 Color accent =
                     leader == "ZUKGROK" ? GrayboxUI.Purple :
                     leader == "FAUNAR" ? GrayboxUI.Green :
@@ -408,7 +488,7 @@ namespace WarConquer
             }
         }
 
-        // Estados del botÛn (igual que el men˙ principal)
+        // Estados del bot√≥n (igual que el men√∫ principal)
         void SkinWireButton(RectTransform buttonRoot, Image image, Action action)
         {
             var button = buttonRoot.gameObject.AddComponent<Button>();
@@ -426,10 +506,10 @@ namespace WarConquer
             button.colors = colors;
         }
 
-        // BotÛn con el estilo del men˙ principal.
+        // Bot√≥n con el estilo del men√∫ principal.
         // selected = true  -> resaltado (Btn_Selected, o color si no hay imagen).
         // selected = false -> apagado (Btn_Normal, o color si no hay imagen).
-        // La acciÛn que recibe es la misma que tenÌa el botÛn original.
+        // La acci√≥n que recibe es la misma que ten√≠a el bot√≥n original.
         void SkinChoiceButton(
             Transform parent,
             string label,
@@ -464,8 +544,8 @@ namespace WarConquer
 
             if (useArt)
             {
-                // El borde se adapta al alto del botÛn para que
-                // nunca se vea aplastado como una lÌnea.
+                // El borde se adapta al alto del bot√≥n para que
+                // nunca se vea aplastado como una l√≠nea.
                 float border9 = Mathf.Min(
                     SetupButtonBorder,
                     h * SetupButtonBorderMaxRatio
@@ -510,8 +590,8 @@ namespace WarConquer
             SkinTextShadow(text, .6f);
         }
 
-        // Tarjeta de mazo: retrato + nombre + descripciÛn.
-        // Al pulsarla se ejecuta la misma acciÛn que tenÌa el botÛn original.
+        // Tarjeta de mazo: retrato + nombre + descripci√≥n.
+        // Al pulsarla se ejecuta la misma acci√≥n que ten√≠a el bot√≥n original.
         // selected = true -> tarjeta iluminada, retrato resaltado y cinta "ELEGIDO".
         void SkinDeckCard(
             Transform parent,
@@ -563,15 +643,15 @@ namespace WarConquer
             // Retrato a la izquierda, con margen para no pisar el borde de la tarjeta
             float padX = 16f;
             float padY = 12f;
-            float size = Mathf.Min(h - padY * 2f, Mathf.Min(104f, w * .29f));
+            float size = Mathf.Min(h - padY * 2f, Mathf.Min(124f, w * .34f));
             titleSize = Mathf.Min(titleSize, Mathf.RoundToInt(w * .105f));
             detailSize = Mathf.Min(detailSize, 14);
-            if (h < 90f) { size = Mathf.Min(size, 48f); titleSize = 18; detailSize = 12; }
+            if (h < 90f) { size = Mathf.Min(size, 64f); titleSize = 18; detailSize = 12; }
             float portraitY = (h - size) / 2f;
 
             SkinPortrait(root, leader, padX, portraitY, size, selected);
 
-            // Cinta "ELEGIDO" sobre la base del retrato (sin sÌmbolos raros)
+            // Cinta "ELEGIDO" sobre la base del retrato (sin s√≠mbolos raros)
             if (selected)
             {
                 float ribbonH = Mathf.Clamp(size * .24f, 16f, 24f);
@@ -612,7 +692,7 @@ namespace WarConquer
             float tx = padX + size + 14f;
             float tw = w - tx - 14f;
 
-            // Si la descripciÛn cabe en una lÌnea, usa una; si no, dos.
+            // Si la descripci√≥n cabe en una l√≠nea, usa una; si no, dos.
             int lines = Mathf.Clamp(Mathf.CeilToInt(detail.Length * detailSize * .52f / Mathf.Max(1f, tw)), 1, 4);
 
             float nameH = titleSize + 4f;
@@ -635,7 +715,7 @@ namespace WarConquer
 
             name.alignment = TextAnchor.MiddleLeft;
 
-            // El nombre nunca baja de lÌnea
+            // El nombre nunca baja de l√≠nea
             name.horizontalOverflow = HorizontalWrapMode.Overflow;
 
             SkinTextShadow(name, .75f);
@@ -655,13 +735,13 @@ namespace WarConquer
             SkinTextShadow(desc, .8f);
         }
 
-        // BotÛn con una imagen propia (Comenzar, Volver).
+        // Bot√≥n con una imagen propia (Comenzar, Volver).
         // Si la imagen no existe, usa el estilo de colores.
         //
-        // x, y, w, h describen la CAJA donde debe caber el botÛn.
+        // x, y, w, h describen la CAJA donde debe caber el bot√≥n.
         // La imagen se dibuja entera (sin deformarse) y centrada dentro de esa caja.
         // textLeft: espacio a la izquierda del texto (para dejar sitio a una flecha).
-        // textDown: baja el texto esta cantidad de pÌxeles.
+        // textDown: baja el texto esta cantidad de p√≠xeles.
         void SkinImageButton(
             Transform parent,
             string label,
@@ -696,7 +776,7 @@ namespace WarConquer
                 return;
             }
 
-            // TamaÒo real de la imagen dentro de la caja, sin deformarla
+            // Tama√±o real de la imagen dentro de la caja, sin deformarla
             float aspect = sprite.rect.width / sprite.rect.height;
 
             float drawW = Mathf.Min(w, h * aspect);
@@ -739,7 +819,7 @@ namespace WarConquer
             text.alignment = TextAnchor.MiddleCenter;
 
             // Contorno oscuro + sombra: el texto se lee aunque
-            // el botÛn sea naranja o claro.
+            // el bot√≥n sea naranja o claro.
             var outline = text.gameObject.AddComponent<Outline>();
 
             outline.effectColor = new Color(.25f, .10f, 0f, .85f);
@@ -752,7 +832,7 @@ namespace WarConquer
         }
 
         // Estilo del marco de la pantalla "Preparar partida".
-        // Se llama justo despuÈs de OpenModal(...).
+        // Se llama justo despu√©s de OpenModal(...).
         void SkinSetupFrame(RectTransform body)
         {
             // Capa transparente: deja ver el fondo de la partida.
@@ -764,8 +844,8 @@ namespace WarConquer
                     overlay.color = new Color(0f, 0f, 0f, 0f);
             }
 
-            // El color del panel lo pone el "Relleno" (m·s abajo),
-            // asÌ panel y marco se ven como una sola pieza.
+            // El color del panel lo pone el "Relleno" (m√°s abajo),
+            // as√≠ panel y marco se ven como una sola pieza.
             var panelImage = body.GetComponent<Image>();
 
             if (panelImage != null)
@@ -837,17 +917,17 @@ namespace WarConquer
             fillImage.color = SkinPanel;
             fillImage.raycastTarget = false;
 
-            // El relleno va al fondo de todo (detr·s del marco)
+            // El relleno va al fondo de todo (detr√°s del marco)
             fillObject.transform.SetAsFirstSibling();
 
-            // TÌtulo: el primer texto del panel (lo crea OpenModal).
+            // T√≠tulo: el primer texto del panel (lo crea OpenModal).
             var title = body.GetComponentInChildren<Text>();
 
             var bannerSprite = SetupSprite("Setup_TitleBanner");
 
             if (title != null && bannerSprite != null)
             {
-                // El tÌtulo pasa a escribirse sobre el banner.
+                // El t√≠tulo pasa a escribirse sobre el banner.
                 string titleText = title.text;
 
                 title.enabled = false;
@@ -902,7 +982,7 @@ namespace WarConquer
                     title.fontSize = 28; title.resizeTextMaxSize = 28;
                 }
 
-                // LÌnea dorada debajo del tÌtulo.
+                // L√≠nea dorada debajo del t√≠tulo.
                 GrayboxUI.Box(
                     body,
                     "Separador",
@@ -916,7 +996,7 @@ namespace WarConquer
         }
     }
 
-    // Mantiene el estilo de un botÛn aunque otro cÛdigo le cambie el color.
+    // Mantiene el estilo de un bot√≥n aunque otro c√≥digo le cambie el color.
     public class SkinButtonKeeper : MonoBehaviour
     {
         public Button button;
@@ -941,6 +1021,42 @@ namespace WarConquer
                 text.color = on
                     ? (Color)new Color32(238, 236, 228, 255)
                     : new Color(.75f, .75f, .75f, .9f);
+        }
+
+ 
+    }
+
+    // Movimiento suave de la flecha de turno (izquierda y derecha).
+    public class SkinArrowBob : MonoBehaviour
+    {
+        RectTransform rect;
+        Vector2 start;
+
+        void Awake()
+        {
+            rect = GetComponent<RectTransform>();
+            start = rect.anchoredPosition;
+        }
+
+        void Update()
+        {
+            rect.anchoredPosition = start + new Vector2(Mathf.Sin(Time.unscaledTime * 4f) * 4f, 0f);
+        }
+    }
+
+    // Flotaci√≥n suave de la flecha 3D sobre el l√≠der en turno.
+    public class SkinBob3D : MonoBehaviour
+    {
+        Vector3 start;
+
+        void Awake()
+        {
+            start = transform.localPosition;
+        }
+
+        void Update()
+        {
+            transform.localPosition = start + new Vector3(0f, Mathf.Sin(Time.unscaledTime * 3f) * .18f, 0f);
         }
     }
 }

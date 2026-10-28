@@ -142,10 +142,36 @@ foreach (string deck in CardCatalog.Leaders)
             SkinChoiceButton(body, "Cargar", 586, 260, 474, 72, () => { CloseModal(); Load(); }, 26, false, SkinGold);
             SkinChoiceButton(body, "Registro", 70, 352, 474, 72, ShowLog, 26, false, SkinGold);
             SkinChoiceButton(body, "Ayuda", 586, 352, 474, 72, ShowHelp, 26, false, SkinGold);
-            SkinChoiceButton(body, "Nueva partida", 70, 590, 990, 72, ShowSetup, 26, false, SkinGold);
+            SkinChoiceButton(body, "Nueva partida", 70, 520, 990, 72, ShowSetup, 26, false, SkinGold);
+            SkinChoiceButton(body, "Salir al menú principal", 70, 620, 990, 72, ShowExitConfirm, 26, false, SkinGold);
 
-            // CERRAR dentro del cuadro, esquina superior derecha
             SkinImageButton(body, "CERRAR", 925, 76, 180, 57, CloseModal, 20, "Btn_Back", false, 70f);
+        }
+        void ShowExitConfirm()
+        {
+            var body = OpenModal("¿SALIR DE LA PARTIDA?", false);
+            SkinSetupFrame(body);
+            var overlay = modal.GetComponent<UnityEngine.UI.Image>();
+            if (overlay != null) overlay.color = new Color(0, 0, 0, .7f);
+
+            var warning = GrayboxUI.Text(body, "Se perderá el progreso de esta partida", 70, 150, 990, 60, 32, SkinGold, FontStyle.Bold);
+            warning.alignment = TextAnchor.MiddleCenter; SkinTextShadow(warning);
+
+            var detail = GrayboxUI.Text(body, "Si vuelves al menú principal, la partida en curso se cerrará y no podrá recuperarse. Si quieres conservar tu avance, guárdala antes de salir.", 120, 230, 890, 130, 24, SkinCream);
+            detail.alignment = TextAnchor.MiddleCenter; SkinTextShadow(detail);
+
+            SkinChoiceButton(body, "Seguir jugando", 70, 400, 990, 84, ShowMatchMenu, 30, true, SkinGold);
+            SkinChoiceButton(body, "Guardar y salir", 70, 510, 474, 72, () => ExitToMainMenu(true), 26, false, SkinGold);
+            SkinChoiceButton(body, "Salir sin guardar", 586, 510, 474, 72, () => ExitToMainMenu(false), 26, false, SkinGold);
+        }
+        void ExitToMainMenu(bool saveFirst)
+        {
+            if (saveFirst) Save();
+            CloseModal(); ClearAction(); lastActor = -1; viewedPlayer = 0; focus = -1; page = 0;
+            ShowMainMenu();
+            // Vuelve al estado inicial, igual que al abrir el juego.
+            Game.NewGame(leaders, seed, CardCatalog.LoadRules(), 4, false);
+            SetMatchVisible(false);
         }
         void ShowHelp()
         {
