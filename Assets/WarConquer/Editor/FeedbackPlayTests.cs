@@ -16,8 +16,8 @@ namespace WarConquer.Editor
         public static void Run(WarConquerController ui)
         {
             Invoke(ui,"StartMatch",false);Invoke(ui,"ShowSetup");
-            Check(!ui.GetComponentsInChildren<Button>().Any(b=>b.name=="Cambiar semilla"),"Persiste Cambiar semilla.");
-            Check(ui.GetComponentsInChildren<Button>().Any(b=>b.name=="Escenario de pruebas"),"Se perdió escenario de pruebas.");Invoke(ui,"StartMatch",false);
+            Check(!ui.GetComponentsInChildren<Button>().Any(b=>b.name.EndsWith("Cambiar semilla")||b.GetComponentsInChildren<Text>().Any(t=>t.text=="Cambiar semilla")),"Persiste Cambiar semilla.");
+            Check(ui.GetComponentsInChildren<Button>().Any(b=>b.name.EndsWith("Escenario de pruebas")||b.GetComponentsInChildren<Text>().Any(t=>t.text=="Escenario de pruebas")),"Se perdió escenario de pruebas.");Invoke(ui,"StartMatch",false);
             var g=ui.Game;var p=Put(g,"larva-micelial",0,0,0);var t=g.State.tiles[p.tileId];t.biome=Biome.Swamp;
             Put(g,"lushroom",1,1,0);g.State.tiles[g.State.tiles.First(x=>x.q==1&&x.r==0).id].biome=Biome.Swamp;
             p.poison=1;p.poisonApplications=1;p.sleepUntilTurn=g.State.turn+4;p.slow=2;p.slowUntilTurn=g.State.turn+4;
@@ -25,12 +25,15 @@ namespace WarConquer.Editor
             t.specialEffect=new TerrainEffect{threshold=5,damage=1};
             string before=GamePersistence.Serialize(g.State);g.Notify("Estados de prueba");
             var world=ui.GetComponentInChildren<Board3DScene>();var visual=world.GetComponentsInChildren<BoardStatusVisual>().First(v=>v.GetComponent<Hex3DTarget>().tileId==p.tileId);
-            foreach(string id in new[]{"slow","attack","health","movement","evolved","no-heal","unstable"})Check(visual.transform.Find("Estado · "+id)?.gameObject.activeSelf==true,"Falta estado: "+id);
-            Check(visual.transform.Find("Veneno · calavera y huesos").gameObject.activeSelf&&visual.transform.Find("Sueño · burbujas y Zzz").gameObject.activeSelf,"Faltan veneno/sueño.");
+            var effects=PieceStatusPresentation.Collect(g,p);
+            foreach(string id in new[]{"slow","attack","health","movement","evolved","no-heal","unstable","poison","sleep"})Check(effects.Any(e=>e.id==id),"Falta estado: "+id);
+            Check(visual.StatusCount==effects.Count&&visual.VisibleBadgeCount==3,"Los estados compactos no conservan todos los efectos o se superponen.");
+            visual.SetDisplay(BoardEffectDisplay.SelectedOnly,true);
+            Check(visual.transform.Find("Veneno · calavera y huesos").gameObject.activeSelf&&visual.transform.Find("Sueño · burbujas y Zzz").gameObject.activeSelf,"Faltan veneno/sueño seleccionados.");
             Check(world.GetComponentsInChildren<BoardTerrainStatusVisual>().Length==1,"Terreno inestable invisible.");
             Check(GamePersistence.Serialize(g.State)==before,"Los efectos visuales mutan la partida.");
             p.poison=0;p.sleepUntilTurn=0;p.slow=0;p.bonusAttack=0;p.temporaryMovement=0;p.statBonuses.Clear();p.forestSinceTurn=-1;t.specialEffect=null;
-            g.Notify("Retirar estados");Check(!visual.transform.Find("Estado · slow").gameObject.activeSelf&&!visual.transform.Find("Estado · no-heal").gameObject.activeSelf&&!visual.transform.Find("Veneno · calavera y huesos").gameObject.activeSelf,"Estados no desaparecen.");
+            g.Notify("Retirar estados");Check(!PieceStatusPresentation.Collect(g,p).Any(e=>e.id=="slow"||e.id=="no-heal"||e.id=="poison")&&!visual.transform.Find("Veneno · calavera y huesos").gameObject.activeSelf,"Estados no desaparecen.");
             Check(world.GetComponentsInChildren<BoardTerrainStatusVisual>().Length==0,"Aviso de terreno no expira.");
             p.health=1;g.Notify("Daño");Check(visual.transform.Find("Cambio de vida · partículas").gameObject.activeSelf,"Daño sin efecto.");GenericCardRules.Heal(g,p,1);g.Notify("Curación");Check(visual.GetComponentsInChildren<TextMesh>().Any(l=>l.text=="+1 HP"),"Curación sin efecto.");
             // Shield readiness follows the combat rules rather than a permanent cosmetic tag.

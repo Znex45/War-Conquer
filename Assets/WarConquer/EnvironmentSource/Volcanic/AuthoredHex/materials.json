@@ -1,0 +1,22 @@
+{
+  "materials": [
+    {
+      "name": "Material_0",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "emission": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "strength": 0.0,
+      "texture": "Volcanic_texture.png",
+      "normal": "Volcanic_normal.png"
+    }
+  ]
+}

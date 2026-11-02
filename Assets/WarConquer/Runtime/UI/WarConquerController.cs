@@ -17,6 +17,8 @@ namespace WarConquer
 
         // Fondo independiente (cambia según la pantalla: menú o partida).
         Image bgImage;
+        CanvasScaler cachedScaler;CanvasGroup cachedMatchGroup;
+        CanvasGroup stageActionsGroup,leaderActionsGroup,handActionsGroup;
 
         bool mainMenuVisible;
         bool setupVisible, scoreDetails;
@@ -112,7 +114,7 @@ namespace WarConquer
             canvasObject.GetComponent<Canvas>().renderMode =
                 RenderMode.ScreenSpaceOverlay;
 
-            var scaler = canvasObject.GetComponent<CanvasScaler>();
+            var scaler = canvasObject.GetComponent<CanvasScaler>();cachedScaler=scaler;
 
             scaler.uiScaleMode =
                 CanvasScaler.ScaleMode.ConstantPixelSize;
@@ -176,7 +178,7 @@ namespace WarConquer
                 1000
             );
 
-            matchRoot.gameObject.AddComponent<CanvasGroup>();
+            cachedMatchGroup=matchRoot.gameObject.AddComponent<CanvasGroup>();
 
             header = GrayboxUI.Rect(
                 matchRoot,
@@ -269,6 +271,13 @@ namespace WarConquer
         {
             if (bgImage == null)
                 return;
+
+            if (resourcePath == "UI/Game_Background")
+            {
+                bgImage.sprite = null;
+                bgImage.color = GrayboxUI.Background;
+                return;
+            }
 
             var sprite = Resources.Load<Sprite>(resourcePath);
 
@@ -543,7 +552,7 @@ namespace WarConquer
                 return;
 
             var canvas =
-                root.GetComponentInParent<CanvasScaler>();
+                cachedScaler;
 
             float scale =
                 Mathf.Min(
@@ -564,10 +573,13 @@ namespace WarConquer
 
             board?.Tick();
 
-            matchRoot
-                .GetComponent<CanvasGroup>()
-                .interactable =
-                    !board.World.IsAnimating;
+            // Presentation pauses decisions, while camera, inspection and effect
+            // controls stay accessible throughout an animation or AI turn.
+            cachedMatchGroup.interactable = true;
+            SetActionPanelInput(left,ref stageActionsGroup);
+            SetActionPanelInput(leaderPanel,ref leaderActionsGroup);
+            SetActionPanelInput(hand,ref handActionsGroup);
+            RefreshSelectionActions();
 
             RefreshRewind();
 
@@ -669,6 +681,14 @@ namespace WarConquer
 
             DrawPiles(player);
 
+            SkinMatchPanels();
+
+            SkinTurnArrow();
+
+            SkinShiftPanel(leaderPanel, 3f);
+
+
+            board.World.FocusedPiece = selectedPiece?.id ?? -1;
             board.Render(
                 Game,
                 new HashSet<int>(ValidTargets()),
@@ -678,6 +698,7 @@ namespace WarConquer
 
             var chrome =
                 board.Overlay;
+            DrawEffectDisplayControl(chrome, 505, 11, 190, 30);
 
             GrayboxUI.Text(
                 chrome,
@@ -695,9 +716,9 @@ namespace WarConquer
                 board.World.ShowLabels
                     ? "Ocultar datos"
                     : "Ver datos",
-                573,
+                703,
                 11,
-                107,
+                120,
                 30,
                 () => {
                     board.World.ShowLabels =
@@ -709,66 +730,10 @@ namespace WarConquer
 
             GrayboxUI.Button(
                 chrome,
-                "Girar -",
-                690,
+                "Restaurar vista",
+                831,
                 11,
-                72,
-                30,
-                () => board.Rotate(-30)
-            );
-
-            GrayboxUI.Button(
-                chrome,
-                "Girar +",
-                771,
-                11,
-                72,
-                30,
-                () => board.Rotate(30)
-            );
-
-            GrayboxUI.Button(
-                chrome,
-                "−",
-                854,
-                11,
-                33,
-                30,
-                () => {
-                    board.Zoom =
-                        Mathf.Max(
-                            1,
-                            board.Zoom - .25f
-                        );
-
-                    Render();
-                }
-            );
-
-            GrayboxUI.Button(
-                chrome,
-                "+",
-                892,
-                11,
-                33,
-                30,
-                () => {
-                    board.Zoom =
-                        Mathf.Min(
-                            5f,
-                            board.Zoom + .25f
-                        );
-
-                    Render();
-                }
-            );
-
-            GrayboxUI.Button(
-                chrome,
-                "1:1",
-                930,
-                11,
-                42,
+                140,
                 30,
                 () => {
                     board.Reset();
@@ -776,79 +741,28 @@ namespace WarConquer
                 }
             );
 
-            if (board.Zoom > 1)
-            {
-                GrayboxUI.Button(
-                    chrome,
-                    "←",
-                    840,
-                    48,
-                    30,
-                    28,
-                    () => {
-                        board.Pan +=
-                            new Vector2(80, 0);
+            // Franja informativa de controles (no bloquea el ratón sobre el tablero)
+            var hintBar = GrayboxUI.Box(chrome, "Controles", 0, 618, 982, 30, new Color(0, 0, 0, .55f));
+            hintBar.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
 
-                        Render();
-                    }
-                );
-
-                GrayboxUI.Button(
-                    chrome,
-                    "→",
-                    875,
-                    48,
-                    30,
-                    28,
-                    () => {
-                        board.Pan -=
-                            new Vector2(80, 0);
-
-                        Render();
-                    }
-                );
-
-                GrayboxUI.Button(
-                    chrome,
-                    "↑",
-                    910,
-                    48,
-                    30,
-                    28,
-                    () => {
-                        board.Pan +=
-                            new Vector2(0, 80);
-
-                        Render();
-                    }
-                );
-
-                GrayboxUI.Button(
-                    chrome,
-                    "↓",
-                    945,
-                    48,
-                    30,
-                    28,
-                    () => {
-                        board.Pan -=
-                            new Vector2(0, 80);
-
-                        Render();
-                    }
-                );
-            }
-
-            GrayboxUI.Text(
-                chrome,
-                "Arrastrar: desplazar · Botón derecho: girar · Rueda: acercar · Borde verde: objetivo válido",
-                16,
-                620,
-                950,
-                20,
-                12,
-                GrayboxUI.Muted
+            var hintText = GrayboxUI.Text(
+                hintBar,
+                "Rueda del ratón: ampliar   ·   Clic y arrastrar: mover   ·   Clic derecho y arrastrar: rotar",
+                0,
+                0,
+                982,
+                30,
+                15,
+                new Color32(238, 236, 228, 255),
+                FontStyle.Bold
             );
+
+            hintText.alignment = TextAnchor.MiddleCenter;
+            hintText.raycastTarget = false;
+
+            // Estilo para los botones del tablero (se dibujan en cada Render)
+            SkinMatchButtons(chrome);
+
 
             if (s.battle != null)
             {
@@ -912,17 +826,19 @@ namespace WarConquer
             var s = Game.State;
             var actor = Game.ActingPlayer;
 
-            GrayboxUI.Text(
-                header,
-                "WAR & CONQUER",
-                20,
-                12,
-                300,
-                34,
-                26,
-                GrayboxUI.Ink,
-                FontStyle.Bold
-            );
+            var gameTitle = GrayboxUI.Text(
+     header,
+     "WAR & CONQUER",
+     20,
+     10,
+     300,
+     40,
+     30,
+     SkinGold,
+     FontStyle.Bold
+ );
+
+            SkinTextShadow(gameTitle, .85f);
 
             GrayboxUI.Text(
                 header,
@@ -1175,6 +1091,7 @@ namespace WarConquer
 
         void Begin(string action)
         {
+            if(board.World.IsAnimating)return;
             mode = action;
 
             selectedCard = -1;
@@ -1210,12 +1127,13 @@ namespace WarConquer
 
         public void TileClick(int id)
         {
+            if(Game?.State==null||id<0||id>=Game.State.tiles.Count)return;
             if (
                 !Game.CanAct ||
                 Game.ActingPlayer.isAI ||
                 board.World.IsAnimating
             )
-                return;
+            {InspectTile(id,false);return;}
 
             if (Game.State.pendingChoices.Count > 0)
             {
@@ -1340,6 +1258,15 @@ namespace WarConquer
                 return;
             }
 
+            // The chosen action may be reassigned directly to another friendly
+            // piece. Do not discard card targets or mandatory board choices.
+            var clickedPiece=Game.State.tiles[id].unit??Game.State.tiles[id].structure;
+            if((mode=="move"||mode=="attack"||mode=="ability")&&clickedPiece!=null
+                &&clickedPiece.owner==Game.ActingPlayerId&&viewedPlayer==Game.ActingPlayerId
+                &&(mode=="ability"||!Game.Data(clickedPiece).IsStructure))
+            {
+                selectedPiece=clickedPiece;focus=id;selectedCard=-1;targets.Clear();Render();return;
+            }
             if (
                 mode != "inspect" &&
                 mode != "move"
@@ -1352,6 +1279,17 @@ namespace WarConquer
                 return;
             }
 
+            InspectTile(id,true);
+        }
+
+        void SetActionPanelInput(RectTransform panel,ref CanvasGroup group)
+        {
+            if(group==null)group=panel.gameObject.AddComponent<CanvasGroup>();
+            group.interactable=!board.World.IsAnimating;
+        }
+
+        void InspectTile(int id,bool selectAction)
+        {
             ClearAction();
 
             focus = id;
@@ -1361,7 +1299,7 @@ namespace WarConquer
                 Game.State.tiles[id].structure;
 
             if (
-                selectedPiece != null &&
+                selectAction && selectedPiece != null &&
                 selectedPiece.owner ==
                     Game.ActingPlayerId &&
                 viewedPlayer ==
@@ -1400,6 +1338,7 @@ namespace WarConquer
 
         void Confirm()
         {
+            if(board.World.IsAnimating)return;
             if (
                 !Game.CanAct ||
                 Game.ActingPlayer.isAI

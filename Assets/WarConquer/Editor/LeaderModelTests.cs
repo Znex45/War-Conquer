@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +11,9 @@ namespace WarConquer.Editor
 {
     public static class LeaderModelTests
     {
+        [Serializable] class Surface {public string name;public bool useAtlas;public float[] baseColor;}
+        [Serializable] class ModelSurface {public string name;public Surface[] materials;}
+        [Serializable] class Surfaces {public ModelSurface[] leaders;}
         static readonly string[] Leaders={"XIL'THAR","ZUKGROK","FAUNAR","SAHRIA"};
         static void Check(bool ok,string message){if(!ok)throw new Exception(message);}
         public static void BuildAndTestBatch()
@@ -25,6 +28,17 @@ namespace WarConquer.Editor
         }
         public static void Validate()
         {
+            var manifest=JsonUtility.FromJson<Surfaces>(File.ReadAllText(LeaderModelAssets.Folder+"/import-manifest.json"));
+            foreach(var model in manifest.leaders)for(int i=0;i<model.materials.Length;i++)
+            {
+                var specification=model.materials[i];
+                var material=AssetDatabase.LoadAssetAtPath<Material>(LeaderModelAssets.Folder+"/"+model.name+"_Material_"+i+".mat");
+                var atlas=AssetDatabase.LoadAssetAtPath<Texture2D>(LeaderModelAssets.Folder+"/"+model.name+"_BaseColor.png");
+                Check(material.GetTexture("_BaseMap")== (specification.useAtlas?atlas:null),"Wrong surface assignment: "+model.name+" / "+specification.name);
+                var c=specification.baseColor;var expectedColor=specification.useAtlas?Color.white:new Color(c[0],c[1],c[2],c[3]).gamma;
+                Check(Vector4.Distance(material.GetColor("_BaseColor"),expectedColor)<.001f,"Wrong source color: "+specification.name);
+            }
+            Debug.Log("LEADER_SURFACES_PASSED: per-material source colors and texture assignments.");
             foreach(string leader in Leaders)
             {
                 var root=new GameObject("Leader model check");
@@ -42,7 +56,7 @@ namespace WarConquer.Editor
                     clip.SampleAnimation(animator.gameObject,clip.length);Check(transforms.Where((t,i)=>Quaternion.Angle(t.localRotation,rest[i])>.05f||Vector3.Distance(t.localPosition,restPositions[i])>.0001f).Count()==0,"Salto al cerrar loop: "+leader);
                     var renderers=root.GetComponentsInChildren<Renderer>();Check(renderers.Length>0,"Sin mallas: "+leader);
                     var expected=Resources.Load<Texture2D>("LeaderModels/"+LeaderModels.AssetName(leader)+"_BaseColor");
-                    foreach(var r in renderers)foreach(var m in r.sharedMaterials)Check(m!=null&&m.shader!=null&&m.shader.name=="Universal Render Pipeline/Lit"&&m.GetTexture("_BaseMap")==expected,"Material incorrecto: "+leader+" / "+r.name+" / "+m?.name);
+                    foreach(var r in renderers)foreach(var m in r.sharedMaterials)Check(m!=null&&m.shader!=null&&m.shader.name=="Universal Render Pipeline/Lit"&&(m.GetTexture("_BaseMap")==expected||m.GetTexture("_BaseMap")==null),"Material incorrecto: "+leader+" / "+r.name+" / "+m?.name);
                     Check(root.GetComponentsInChildren<SkinnedMeshRenderer>().All(r=>r.sharedMesh!=null&&r.bones.All(b=>b!=null)),"Rig roto: "+leader);
                     for(int sample=0;sample<12;sample++)
                     {
@@ -65,13 +79,21 @@ namespace WarConquer.Editor
                 foreach(var tile in g.State.tiles.Where(t=>t.baseOwner>=0))
                 {
                     var root=world.transform.Find("HEX "+(tile.id+1)+"/BASE J"+(tile.baseOwner+1));
-                    Check(root!=null&&root.Find("Líder 3D · "+Leaders[tile.baseOwner])!=null,"Líder intercambiado.");
+                    Check(root!=null&&root.Find("Plataforma flotante/Observador/Líder 3D · "+Leaders[tile.baseOwner])!=null,"Líder intercambiado.");
+                    var platform=world.LeaderVisual(tile.baseOwner);
+                    Check(platform!=null,"Falta plataforma exterior.");
+                    Check(g.State.tiles.All(t=>Vector2.Distance(new Vector2(platform.position.x,platform.position.z),new Vector2(t.x,t.y))>=3.2f),"Plataforma invade el tablero.");
+                    Check(platform.Find("Observador").localScale.x>2f,"Líder demasiado pequeño.");
+                    var observer=platform.Find("Observador");
+                    var inward=-new Vector3(platform.position.x,0,platform.position.z).normalized;
+                    Check(Vector3.Dot(-observer.forward,inward)>.99f,"Líder mira fuera del tablero.");
+                    Check(platform.GetComponent<Hex3DTarget>().tileId==tile.id,"Plataforma no selecciona la base.");
                     Check(root.GetComponent<BoxCollider>()!=null&&root.GetComponent<Hex3DTarget>().tileId==tile.id,"Selección perdida.");
                     Check(root.localPosition==Vector3.up*BoardMeshFactory.Surface,"Punto de aparición cambiado.");
                 }
                 Check(before==GamePersistence.Serialize(g.State),"La sustitución visual modifica gameplay.");
                 g.State.players[0].leader="SAHRIA";world.Sync(g,new HashSet<int>(),new HashSet<int>(),-1);
-                var home=g.State.tiles.First(t=>t.baseOwner==0);Check(world.transform.Find("HEX "+(home.id+1)+"/BASE J1/Líder 3D · SAHRIA")!=null,"Cambio de líder no actualiza modelo.");
+                var home=g.State.tiles.First(t=>t.baseOwner==0);Check(world.transform.Find("HEX "+(home.id+1)+"/BASE J1/Plataforma flotante/Observador/Líder 3D · SAHRIA")!=null,"Cambio de líder no actualiza modelo.");
                 Debug.Log("LEADER_BOARD_PASSED: cuatro identidades, bases, colliders, cambio de líder y estado intacto.");
             }
             finally{UnityEngine.Object.DestroyImmediate(fixture);}
@@ -91,6 +113,12 @@ namespace WarConquer.Editor
                 texture=new RenderTexture(1800,700,24);texture.Create();camera.targetTexture=texture;camera.aspect=1800f/700;camera.Render();
                 var previous=RenderTexture.active;RenderTexture.active=texture;pixels=new Texture2D(1800,700,TextureFormat.RGB24,false);pixels.ReadPixels(new Rect(0,0,1800,700),0,0);pixels.Apply();RenderTexture.active=previous;
                 Directory.CreateDirectory("Library/LeaderModelQA");File.WriteAllBytes("Library/LeaderModelQA/leaders-gallery.png",pixels.EncodeToPNG());
+                foreach(float angle in new[]{90f,180f,270f})
+                {
+                    for(int i=0;i<Leaders.Length;i++)root.transform.Find(Leaders[i]).localRotation=Quaternion.Euler(0,angle,0);
+                    camera.Render();RenderTexture.active=texture;pixels.ReadPixels(new Rect(0,0,1800,700),0,0);pixels.Apply();RenderTexture.active=previous;
+                    File.WriteAllBytes("Library/LeaderModelQA/leaders-"+angle+".png",pixels.EncodeToPNG());
+                }
                 Debug.Log("LEADER_GALLERY_RENDERED: Xil'thar, Zukgrok, Faunar, Sahria (izquierda a derecha).");
             }
             finally{UnityEngine.Object.DestroyImmediate(root);if(texture!=null){texture.Release();UnityEngine.Object.DestroyImmediate(texture);}if(pixels!=null)UnityEngine.Object.DestroyImmediate(pixels);}

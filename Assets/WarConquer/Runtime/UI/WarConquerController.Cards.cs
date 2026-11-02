@@ -48,35 +48,63 @@ namespace WarConquer
             tooltip.name="Vista ampliada (solo lectura)";tooltip.gameObject.AddComponent<CanvasGroup>().blocksRaycasts=false;tooltip.SetAsLastSibling();
         }
         void HideTooltip(){if(tooltip!=null){tooltip.gameObject.SetActive(false);Destroy(tooltip.gameObject);tooltip=null;}}
-        void ShowCardModal(CardData card,Player player)
+        void ShowCardModal(CardData card, Player player)
         {
-            HideTooltip();var body=OpenModal("Carta · "+card.name);
-            CardPresentation.Draw(body,Game,card,player,28,83,392,627,useResources,true,piece:selectedPiece!=null&&selectedPiece.cardId==card.id?selectedPiece:null);
-            GrayboxUI.Text(body,TimingRules.Description(card),451,126,639,133,24,GrayboxUI.Muted);
-            GrayboxUI.Text(body,EnergyManager.Quote(player,card,useResources).Detail,451,285,639,78,25,GrayboxUI.PlayerColor(player.id),FontStyle.Bold);
-            var instance=player.hand.FirstOrDefault(c=>c.instanceId==selectedCard&&c.cardId==card.id)??player.hand.FirstOrDefault(c=>c.cardId==card.id);
-            if(instance!=null&&player.id==Game.ActingPlayerId&&!player.isAI)
+            HideTooltip(); var body = OpenModal("Carta · " + card.name);
+            SkinModalFrame(body);
+            CardPresentation.Draw(body, Game, card, player, 28, 83, 392, 627, useResources, true, piece: selectedPiece != null && selectedPiece.cardId == card.id ? selectedPiece : null);
+            var desc = GrayboxUI.Text(body, TimingRules.Description(card), 451, 150, 639, 120, 24, SkinCream); SkinTextShadow(desc);
+            var cost = GrayboxUI.Text(body, EnergyManager.Quote(player, card, useResources).Detail, 451, 285, 639, 78, 25, GrayboxUI.PlayerColor(player.id), FontStyle.Bold); SkinTextShadow(cost);
+            var instance = player.hand.FirstOrDefault(c => c.instanceId == selectedCard && c.cardId == card.id) ?? player.hand.FirstOrDefault(c => c.cardId == card.id);
+            if (instance != null && player.id == Game.ActingPlayerId && !player.isAI)
             {
-                string why=Game.CardBlockReason(instance,useResources);GrayboxUI.Text(body,why,451,394,623,87,18,GrayboxUI.Yellow);
-                GrayboxUI.Button(body,GenericCardRules.NoBoardTarget(card)?"Jugar carta":"Seleccionar objetivos",451,530,623,61,()=>{CloseModal();SelectCard(instance,player);},null,why=="");
+                string why = Game.CardBlockReason(instance, useResources); GrayboxUI.Text(body, why, 451, 394, 623, 87, 18, GrayboxUI.Yellow);
+                GrayboxUI.Button(body, GenericCardRules.NoBoardTarget(card) ? "Jugar carta" : "Seleccionar objetivos", 451, 530, 623, 61, () => { CloseModal(); SelectCard(instance, player); }, null, why == "");
             }
+            SkinMatchButtons(body);
         }
         void DrawPiles(Player player)
         {
-            GrayboxUI.Text(piles,"MAZO / DESCARTE · J"+(player.id+1),12,10,270,25,14,GrayboxUI.PlayerColor(player.id),FontStyle.Bold);
-            DrawPile(player,false,14);DrawPile(player,true,155);
-            GrayboxUI.Text(piles,player.pendingDraw>0?"Robo pendiente: "+player.pendingDraw:"Robo automático al comenzar tu turno",12,216,266,26,11,GrayboxUI.Muted);
+            GrayboxUI.Text(piles, "MAZO / DESCARTE · J" + (player.id + 1), 12, 10, 270, 25, 14, GrayboxUI.PlayerColor(player.id), FontStyle.Bold);
+            DrawPile(player, false, 14); DrawPile(player, true, 155);
+            GrayboxUI.Text(piles, player.pendingDraw > 0 ? "Robo pendiente: " + player.pendingDraw : "Robo automático al comenzar tu turno", 12, 216, 266, 26, 11, GrayboxUI.Muted);
         }
-        void DrawPile(Player player,bool discard,float x)
+        void DrawPile(Player player, bool discard, float x)
         {
-            var list=discard?player.discardPile:player.deck;var color=GrayboxUI.PlayerColor(player.id);
-            for(int layer=2;layer>0;layer--)GrayboxUI.Box(piles,"Pila",x+layer*3,44+layer*3,116,160,Color.Lerp(color,GrayboxUI.Panel,.7f));
-            var top=GrayboxUI.Box(piles,discard?"Descarte":"Mazo",x,44,116,160,Color.Lerp(color,GrayboxUI.Panel,.6f));
-            var button=top.gameObject.AddComponent<UnityEngine.UI.Button>();button.onClick.AddListener(()=>{if(!discard&&player.id==Game.ActingPlayerId&&!player.isAI&&player.pendingDraw>0)Game.DrawPending();else ShowPile(player,discard,0);});
-            var title=GrayboxUI.Text(top,discard?"DESCARTE":"MAZO",5,11,106,22,13,GrayboxUI.Ink,FontStyle.Bold);title.alignment=TextAnchor.MiddleCenter;
-            var name=GrayboxUI.Text(top,discard?(list.Count>0?Game.Catalog[list.Last().cardId].name:"Vacío"):"WAR\n&\nCONQUER",8,44,100,70,discard?14:17,GrayboxUI.Ink,FontStyle.Bold);name.alignment=TextAnchor.MiddleCenter;
-            var count=GrayboxUI.Text(top,"× "+list.Count,5,121,106,32,24,color,FontStyle.Bold);count.alignment=TextAnchor.MiddleCenter;
-            if(discard&&list.Count>0){var card=Game.Catalog[list.Last().cardId];var hover=top.gameObject.AddComponent<CardHover>();hover.enter=()=>ShowTooltip(card,player);hover.exit=HideTooltip;}
+            var list = discard ? player.discardPile : player.deck; var color = GrayboxUI.PlayerColor(player.id);
+            // Reverso de carta (solo para el mazo). Si no existe la imagen, se ve como antes.
+            var back = discard ? null : Resources.Load<Sprite>("UI/Cards/Card_Back");
+            for (int layer = 2; layer > 0; layer--)
+            {
+                var layerBox = GrayboxUI.Box(piles, "Pila", x + layer * 3, 44 + layer * 3, 116, 160, Color.Lerp(color, GrayboxUI.Panel, .7f));
+                if (back != null)
+                {
+                    var layerImage = layerBox.GetComponent<UnityEngine.UI.Image>();
+                    layerImage.sprite = back; layerImage.color = new Color(.55f, .55f, .55f, 1); layerImage.raycastTarget = false;
+                }
+            }
+            var top = GrayboxUI.Box(piles, discard ? "Descarte" : "Mazo", x, 44, 116, 160, Color.Lerp(color, GrayboxUI.Panel, .6f));
+            if (back != null)
+            {
+                var topImage = top.GetComponent<UnityEngine.UI.Image>();
+                topImage.sprite = back; topImage.color = Color.white; topImage.type = UnityEngine.UI.Image.Type.Simple; topImage.preserveAspect = true;
+            }
+            var button = top.gameObject.AddComponent<UnityEngine.UI.Button>(); button.onClick.AddListener(() => { if (!discard && player.id == Game.ActingPlayerId && !player.isAI && player.pendingDraw > 0) Game.DrawPending(); else ShowPile(player, discard, 0); });
+            if (back == null)
+            {
+                var title = GrayboxUI.Text(top, discard ? "DESCARTE" : "MAZO", 5, 11, 106, 22, 13, GrayboxUI.Ink, FontStyle.Bold); title.alignment = TextAnchor.MiddleCenter;
+                var name = GrayboxUI.Text(top, discard ? (list.Count > 0 ? Game.Catalog[list.Last().cardId].name : "Vacío") : "WAR\n&\nCONQUER", 8, 44, 100, 70, discard ? 14 : 17, GrayboxUI.Ink, FontStyle.Bold); name.alignment = TextAnchor.MiddleCenter;
+                var count = GrayboxUI.Text(top, "× " + list.Count, 5, 121, 106, 32, 24, color, FontStyle.Bold); count.alignment = TextAnchor.MiddleCenter;
+            }
+            else
+            {
+                // Etiqueta oscura con la cantidad, para que se lea sobre el dibujo.
+                var pill = GrayboxUI.Box(top, "Cantidad", 18, 116, 80, 34, new Color(0, 0, 0, .72f));
+                pill.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+                var pillText = GrayboxUI.Text(pill, "× " + list.Count, 0, 0, 80, 34, 22, Color.white, FontStyle.Bold);
+                pillText.alignment = TextAnchor.MiddleCenter; pillText.raycastTarget = false;
+            }
+            if (discard && list.Count > 0) { var card = Game.Catalog[list.Last().cardId]; var hover = top.gameObject.AddComponent<CardHover>(); hover.enter = () => ShowTooltip(card, player); hover.exit = HideTooltip; }
         }
         void ShowPile(Player player,bool discard,int pilePage)
         {

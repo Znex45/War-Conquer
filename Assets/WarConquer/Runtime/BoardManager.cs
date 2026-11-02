@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -45,22 +46,33 @@ namespace WarConquer
         public static int Distance(GameState s, int a, int b, int limit = 100)
         {
             if (a == b) return 0;
-            var seen = new HashSet<int> { a }; var queue = new Queue<(int,int)>(); queue.Enqueue((a,0));
-            while (queue.Count > 0)
+            if(limit<=0)return 999;
+            int count=s.tiles.Count;var distances=ArrayPool<int>.Shared.Rent(count);var queue=ArrayPool<int>.Shared.Rent(count);
+            try
             {
-                var item = queue.Dequeue(); if (item.Item2 >= limit) continue;
-                foreach (var n in s.tiles[item.Item1].neighbors)
-                { if (n == b) return item.Item2+1; if (seen.Add(n)) queue.Enqueue((n,item.Item2+1)); }
+                Array.Clear(distances,0,count);int head=0,tail=0;distances[a]=1;queue[tail++]=a;
+                while(head<tail)
+                {
+                    int current=queue[head++],distance=distances[current]-1;if(distance>=limit)continue;
+                    foreach(int neighbor in s.tiles[current].neighbors)
+                    {
+                        if(neighbor==b)return distance+1;
+                        if(distances[neighbor]!=0)continue;
+                        distances[neighbor]=distance+2;queue[tail++]=neighbor;
+                    }
+                }
+                return 999;
             }
-            return 999;
+            finally{ArrayPool<int>.Shared.Return(distances);ArrayPool<int>.Shared.Return(queue);}
         }
         public static List<int> ConnectedBiome(GameState s, int start, int owner, params Biome[] biomes)
         {
-            var result = new List<int>(); var queue = new Queue<int>(); queue.Enqueue(start);
+            var result = new List<int>(); var visited=new HashSet<int>();var queue = new Queue<int>(); queue.Enqueue(start);
             while(queue.Count>0)
             {
                 int id=queue.Dequeue(); var t=s.tiles[id];
-                if(result.Contains(id) || t.owner!=owner || !biomes.Contains(t.biome)) continue;
+                if(visited.Contains(id) || t.owner!=owner || !biomes.Contains(t.biome)) continue;
+                visited.Add(id);
                 result.Add(id); foreach(int n in t.neighbors) queue.Enqueue(n);
                 foreach(var route in s.fastRoutes.Where(f=>f.owner==owner && (f.a==id || f.b==id))) queue.Enqueue(route.a==id?route.b:route.a);
             }
@@ -70,7 +82,13 @@ namespace WarConquer
         {if(center<0||center>=s.tiles.Count||radius<0)return Enumerable.Empty<HexTile>();return s.tiles.Where(t=>AxialDistance(s.tiles[center],t)<=radius);}
         public static IEnumerable<Piece> UnitsWithinRadius(GameState s,int center,int radius)=>SlabsWithinRadius(s,center,radius).Where(t=>t.unit!=null).Select(t=>t.unit);
         public static IEnumerable<Piece> StructuresWithinRadius(GameState s,int center,int radius)=>SlabsWithinRadius(s,center,radius).Where(t=>t.structure!=null).Select(t=>t.structure);
-        public static IEnumerable<Piece> Pieces(GameState s) => s.tiles.SelectMany(t => new[] { t.unit, t.structure }).Where(p => p != null);
-        public static IEnumerable<Piece> Nearby(GameState s, int tile) => s.tiles[tile].neighbors.SelectMany(n => new[]{s.tiles[n].unit,s.tiles[n].structure}).Where(p=>p!=null);
+        public static IEnumerable<Piece> Pieces(GameState s)
+        {
+            foreach(var tile in s.tiles){var unit=tile.unit;var structure=tile.structure;if(unit!=null)yield return unit;if(structure!=null)yield return structure;}
+        }
+        public static IEnumerable<Piece> Nearby(GameState s,int tile)
+        {
+            foreach(int id in s.tiles[tile].neighbors){var unit=s.tiles[id].unit;var structure=s.tiles[id].structure;if(unit!=null)yield return unit;if(structure!=null)yield return structure;}
+        }
     }
 }

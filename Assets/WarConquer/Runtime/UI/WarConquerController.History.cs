@@ -5,7 +5,7 @@ namespace WarConquer
 {
     public partial class WarConquerController
     {
-        Button rewindButton;
+        Button rewindButton;Image rewindImage;Text rewindText;
         void RefreshRewind()
         {
             if(rewindButton==null)
@@ -13,12 +13,13 @@ namespace WarConquer
                 // Keep reachable over choice dialogs and while dice are animating.
                 // It is deliberately outside the match CanvasGroup input lock.
                 rewindButton=GrayboxUI.Button(root,"Rewind / Deshacer",1210,10,182,28,UndoDecision,edge);
+                rewindImage=rewindButton.GetComponent<Image>();rewindText=rewindButton.GetComponentInChildren<Text>();
             }
             rewindButton.gameObject.SetActive(!setupVisible&&Game.State.phase!=Phase.Setup);
             rewindButton.interactable=Game.CanUndo;
-            rewindButton.GetComponent<Image>().color=Game.CanUndo?Color.Lerp(edge,Color.white,.56f):GrayboxUI.Disabled;
-            rewindButton.GetComponentInChildren<Text>().color=Game.CanUndo?GrayboxUI.ActionInk:GrayboxUI.Muted;
-            rewindButton.transform.SetAsLastSibling();
+            rewindImage.color=Game.CanUndo?Color.Lerp(edge,Color.white,.56f):GrayboxUI.Disabled;
+            rewindText.color=Game.CanUndo?GrayboxUI.ActionInk:GrayboxUI.Muted;
+            if(rewindButton.transform.GetSiblingIndex()!=rewindButton.transform.parent.childCount-1)rewindButton.transform.SetAsLastSibling();
         }
         void UndoDecision()
         {

@@ -25,7 +25,7 @@ namespace WarConquer
         }
         void ShowSetup()
         {
-            HideTooltip(); var body = OpenModal("PREPARAR PARTIDA", Game.State.phase != Phase.Setup);
+            HideTooltip(); var body = OpenModal("PREPARAR PARTIDA", false);
             setupVisible = true; SetMatchVisible(false);
 
             // Rediseño visual (solo interfaz): marco, banner y botones con imagen.
@@ -129,31 +129,78 @@ foreach (string deck in CardCatalog.Leaders)
         }
         void ShowMatchMenu()
         {
-            HideTooltip(); var body = OpenModal("PARTIDA EN PAUSA");
-            GrayboxUI.Text(body, "Opciones de partida", 70, 100, 990, 40, 24, GrayboxUI.Ink, FontStyle.Bold);
-            GrayboxUI.Button(body, "Continuar partida", 70, 173, 990, 66, CloseModal, GrayboxUI.Green);
-            GrayboxUI.Button(body, "Guardar", 70, 274, 474, 66, () => { CloseModal(); Save(); });
-            GrayboxUI.Button(body, "Cargar", 586, 274, 474, 66, () => { CloseModal(); Load(); });
-            GrayboxUI.Button(body, "Registro", 70, 370, 474, 66, ShowLog);
-            GrayboxUI.Button(body, "Ayuda", 586, 370, 474, 66, ShowHelp);
-            GrayboxUI.Button(body, "Nueva partida", 70, 534, 990, 66, ShowSetup);
+            HideTooltip(); var body = OpenModal("PARTIDA EN PAUSA", false);
+            SkinSetupFrame(body);
+            var overlay = modal.GetComponent<UnityEngine.UI.Image>();
+            if (overlay != null) overlay.color = new Color(0, 0, 0, .6f);
+
+            var subtitle = GrayboxUI.Text(body, "Opciones de partida", 70, 90, 600, 40, 28, SkinGold, FontStyle.Bold);
+            SkinTextShadow(subtitle);
+
+            SkinChoiceButton(body, "Continuar partida", 70, 150, 990, 84, CloseModal, 30, true, SkinGold);
+            SkinChoiceButton(body, "Guardar", 70, 260, 474, 72, () => { CloseModal(); Save(); }, 26, false, SkinGold);
+            SkinChoiceButton(body, "Cargar", 586, 260, 474, 72, () => { CloseModal(); Load(); }, 26, false, SkinGold);
+            SkinChoiceButton(body, "Registro", 70, 352, 474, 72, ShowLog, 26, false, SkinGold);
+            SkinChoiceButton(body, "Ayuda", 586, 352, 474, 72, ShowHelp, 26, false, SkinGold);
+            SkinChoiceButton(body, "Nueva partida", 70, 520, 990, 72, ShowSetup, 26, false, SkinGold);
+            SkinChoiceButton(body, "Salir al menú principal", 70, 620, 990, 72, ShowExitConfirm, 26, false, SkinGold);
+
+            SkinImageButton(body, "CERRAR", 925, 76, 180, 57, CloseModal, 20, "Btn_Back", false, 70f);
+        }
+        void ShowExitConfirm()
+        {
+            var body = OpenModal("¿SALIR DE LA PARTIDA?", false);
+            SkinSetupFrame(body);
+            var overlay = modal.GetComponent<UnityEngine.UI.Image>();
+            if (overlay != null) overlay.color = new Color(0, 0, 0, .7f);
+
+            var warning = GrayboxUI.Text(body, "Se perderá el progreso de esta partida", 70, 150, 990, 60, 32, SkinGold, FontStyle.Bold);
+            warning.alignment = TextAnchor.MiddleCenter; SkinTextShadow(warning);
+
+            var detail = GrayboxUI.Text(body, "Si vuelves al menú principal, la partida en curso se cerrará y no podrá recuperarse. Si quieres conservar tu avance, guárdala antes de salir.", 120, 230, 890, 130, 24, SkinCream);
+            detail.alignment = TextAnchor.MiddleCenter; SkinTextShadow(detail);
+
+            SkinChoiceButton(body, "Seguir jugando", 70, 400, 990, 84, ShowMatchMenu, 30, true, SkinGold);
+            SkinChoiceButton(body, "Guardar y salir", 70, 510, 474, 72, () => ExitToMainMenu(true), 26, false, SkinGold);
+            SkinChoiceButton(body, "Salir sin guardar", 586, 510, 474, 72, () => ExitToMainMenu(false), 26, false, SkinGold);
+        }
+        void ExitToMainMenu(bool saveFirst)
+        {
+            if (saveFirst) Save();
+            CloseModal(); ClearAction(); lastActor = -1; viewedPlayer = 0; focus = -1; page = 0;
+            ShowMainMenu();
+            // Vuelve al estado inicial, igual que al abrir el juego.
+            Game.NewGame(leaders, seed, CardCatalog.LoadRules(), 4, false);
+            SetMatchVisible(false);
         }
         void ShowHelp()
         {
-            var body = OpenModal("AYUDA DE PARTIDA");
-            GrayboxUI.Text(body, "TURNO Y CARTAS", 35, 95, 500, 36, 23, GrayboxUI.Ink, FontStyle.Bold);
-            GrayboxUI.Text(body, "Despliegue → Asalto → Terraformación. El botón de etapa permite avanzar. Rewind / Deshacer revierte la última decisión del turno, incluidos los cambios de etapa.\n\nLas cartas oscuras no se pueden usar ahora. Su banda inferior indica la etapa de uso. Pasa el cursor para ampliarlas o selecciónalas y pulsa Ver carta completa.\n\nSelecciona una carta y un hexágono verde. El pago mixto permite elegir recursos compatibles. Resolver selección confirma los objetivos múltiples; Cancelar no consume recursos.", 35, 153, 505, 460, 20, GrayboxUI.Muted);
-            GrayboxUI.Text(body, "TABLERO Y VICTORIA", 590, 95, 500, 36, 23, GrayboxUI.Ink, FontStyle.Bold);
-            GrayboxUI.Text(body, "Arrastra para desplazar, usa el botón derecho para girar y la rueda para acercar. 1:1 restablece la cámara. Ver datos muestra números de casilla y puntos de las bases.\n\nSelecciona una pieza para mover, atacar o usar su habilidad. Pulsa un marcador de jugador para consultar su mano y su Líder. Detalles muestra el control por territorio.\n\nHay 3 objetivos centrales separados. Cada uno y cada base enemiga vencida dan +1 PC al volver tu turno si mantuviste una unidad propia y el terreno terraformado. Salir, perder el bioma o recapturar reinicia la espera. Gana con 10 PC o con el último Líder en pie. Las pilas abren el mazo y descarte.", 590, 153, 505, 510, 20, GrayboxUI.Muted);
-            GrayboxUI.Button(body, "Volver al menú", 35, 714, 1060, 48, ShowMatchMenu);
+            var body = OpenModal("AYUDA DE PARTIDA", false);
+            SkinSetupFrame(body);
+            var overlay = modal.GetComponent<UnityEngine.UI.Image>();
+            if (overlay != null) overlay.color = new Color(0, 0, 0, .6f);
+
+            var h1 = GrayboxUI.Text(body, "TURNO Y CARTAS", 40, 150, 500, 36, 24, SkinGold, FontStyle.Bold);
+            SkinTextShadow(h1);
+            var t1 = GrayboxUI.Text(body, "Despliegue → Asalto → Terraformación. El botón de etapa permite avanzar. Rewind / Deshacer revierte la última decisión del turno, incluidos los cambios de etapa.\n\nLas cartas oscuras no se pueden usar ahora. Su banda inferior indica la etapa de uso. Pasa el cursor para ampliarlas o selecciónalas y pulsa Ver carta completa.\n\nSelecciona una carta y un hexágono verde. El pago mixto permite elegir recursos compatibles. Resolver selección confirma los objetivos múltiples; Cancelar no consume recursos.", 40, 198, 505, 480, 19, SkinCream);
+            SkinTextShadow(t1);
+
+            var h2 = GrayboxUI.Text(body, "TABLERO Y VICTORIA", 590, 150, 500, 36, 24, SkinGold, FontStyle.Bold);
+            SkinTextShadow(h2);
+            var t2 = GrayboxUI.Text(body, "Arrastra para desplazar, usa el botón derecho para girar y la rueda para acercar. 1:1 restablece la cámara. Ver datos muestra números de casilla y puntos de las bases.\n\nSelecciona una pieza para mover, atacar o usar su habilidad. Pulsa un marcador de jugador para consultar su mano y su Líder. Detalles muestra el control por territorio.\n\nHay 3 objetivos centrales separados. Cada uno y cada base enemiga vencida dan +1 PC al volver tu turno si mantuviste una unidad propia y el terreno terraformado. Salir, perder el bioma o recapturar reinicia la espera. Gana con 10 PC o con el último Líder en pie. Las pilas abren el mazo y descarte.", 590, 198, 505, 480, 19, SkinCream);
+            SkinTextShadow(t2);
+
+            SkinChoiceButton(body, "Volver al menú", 40, 700, 1050, 60, ShowMatchMenu, 24, false, SkinGold);
+            SkinImageButton(body, "CERRAR", 925, 76, 180, 57, CloseModal, 20, "Btn_Back", false, 70f);
         }
         void ShowLeaderDetails(Player player)
         {
 
 bool fungus = player.leader == "ZUKGROK";
 var body = OpenModal(player.leader + " · HABILIDAD DEL LÍDER");
+            SkinModalFrame(body);
 
-if (player.leader == "XIL'THAR")
+            if (player.leader == "XIL'THAR")
 {
     DrawXiltharDetails(body, player);
     return;
@@ -171,7 +218,19 @@ if (player.leader == "FAUNAR")
             GrayboxUI.Text(body, fungus ? "AUTOMÁTICA · 0 ENERGÍA" : "DESPLIEGUE · COSTE DE UNIT +1 ENERGÍA", 40, 460, 1030, 50, 25, GrayboxUI.PlayerColor(player.id), FontStyle.Bold);
             GrayboxUI.Text(body, "La carta del Líder permanece fuera de la mano y no cuenta entre las 50 cartas.", 40, 566, 1030, 85, 23, GrayboxUI.Muted);
         }
-        void ShowLog() { var body = OpenModal("Registro de la partida"); GrayboxUI.Text(body, string.Join("\n", Game.State.log.Skip(Math.Max(0, Game.State.log.Count - 29))), 26, 80, 1070, 684, 19, GrayboxUI.Muted); }
+        void ShowLog()
+        {
+            var body = OpenModal("REGISTRO DE LA PARTIDA", false);
+            SkinSetupFrame(body);
+            var overlay = modal.GetComponent<UnityEngine.UI.Image>();
+            if (overlay != null) overlay.color = new Color(0, 0, 0, .6f);
+
+            var log = GrayboxUI.Text(body, string.Join("\n", Game.State.log.Skip(Math.Max(0, Game.State.log.Count - 29))), 40, 150, 1050, 520, 19, SkinCream);
+            SkinTextShadow(log);
+
+            SkinChoiceButton(body, "Volver al menú", 40, 700, 1050, 60, ShowMatchMenu, 24, false, SkinGold);
+            SkinImageButton(body, "CERRAR", 925, 76, 180, 57, CloseModal, 20, "Btn_Back", false, 70f);
+        }
         void Save() { try { File.WriteAllText(SavePath, GamePersistence.Serialize(Game.State)); Game.Notify("Partida guardada localmente."); } catch (Exception e) { Game.Notify("No se pudo guardar: " + e.Message); } }
         void Load()
         {

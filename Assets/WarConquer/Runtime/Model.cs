@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -47,6 +47,7 @@ namespace WarConquer
         public int poisonApplications;
         public int playedTurn; public bool playedInWasteland;
         public List<StatBonus> statBonuses=new List<StatBonus>();
+        public int terrainMovementBonus;
         public int terrainHealthBonus, movementAura, movementAuraDebt, temporaryMovement, movementExpiresTurn=-1;
     }
     [Serializable] public class ResourcePool

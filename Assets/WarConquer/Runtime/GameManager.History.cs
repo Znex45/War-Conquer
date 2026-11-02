@@ -29,7 +29,7 @@ namespace WarConquer
             if(decisionDepth>0||State==null)return action();
             if(!SameHistoryTurn){ResetHistory();historyTurn=State.turn;historyPlayer=State.activePlayer;}
             var originalState=State;
-            string before=GamePersistence.Serialize(State);
+            string before=GamePersistence.Serialize(State,false);
             bool continuing=resolvingDecision;
             int turn=State.turn,player=State.activePlayer;
             decisionDepth++;
@@ -38,7 +38,7 @@ namespace WarConquer
                 bool success=action();
                 if(State.turn!=turn||State.activePlayer!=player||State!=originalState)ResetHistory();
                 else if(State.endingTurn)ResetHistory();
-                else if(success&&before!=GamePersistence.Serialize(State))
+                else if(success&&before!=GamePersistence.Serialize(State,false))
                 {
                     if(!continuing)turnHistory.Push(before);
                     resolvingDecision=State.pendingChoices.Count>0||State.battle!=null||State.responsePlayer>=0;

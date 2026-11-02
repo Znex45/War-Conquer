@@ -1,9 +1,29 @@
-using System.Linq;
+﻿using System.Linq;
 
 namespace WarConquer
 {
     public static class TerrainManager
     {
+        // The unit's current owner determines its leader; card/deck tags do not.
+        // One non-stacking modifier is shared by HP, MOV and ATK.
+        public static int GetTerrainStatModifier(GameManager g,Piece unit,HexTile slab=null)
+        {
+            if(unit==null||unit.owner<0||unit.owner>=g.State.players.Count||g.Data(unit).IsStructure)return 0;
+            slab=slab??g.State.tiles[unit.tileId];
+            if(slab.unit!=unit||slab.id!=unit.tileId)return 0;
+            return Compatible(g.State.players[unit.owner].leader,slab.biome)?1:0;
+        }
+        public static bool Compatible(string leader,Biome biome)
+        {
+            switch(leader)
+            {
+                case "XIL'THAR":return biome==Biome.Wasteland||biome==Biome.Void;
+                case "ZUKGROK":return biome==Biome.Swamp||biome==Biome.Forest;
+                case "SAHRIA":return biome==Biome.Volcanic||biome==Biome.Desert;
+                case "FAUNAR":return biome==Biome.Tundra||biome==Biome.Forest;
+                default:return false;
+            }
+        }
         public static bool Normal(HexTile t) => t.biome!=Biome.Neutral&&t.biome!=Biome.AshLand&&!t.permanentAsh;
         public static void Terraform(GameManager g,int tile,Biome biome,int owner)
         {
