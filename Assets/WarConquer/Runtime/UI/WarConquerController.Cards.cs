@@ -106,20 +106,27 @@ namespace WarConquer
             }
             if (discard && list.Count > 0) { var card = Game.Catalog[list.Last().cardId]; var hover = top.gameObject.AddComponent<CardHover>(); hover.enter = () => ShowTooltip(card, player); hover.exit = HideTooltip; }
         }
-        void ShowPile(Player player,bool discard,int pilePage)
+        void ShowPile(Player player, bool discard, int pilePage)
         {
-            HideTooltip();var body=OpenModal("J"+(player.id+1)+" · "+(discard?"Descarte":"Mazo restante"));
+            HideTooltip(); var body = OpenModal("J" + (player.id + 1) + " · " + (discard ? "DESCARTE" : "MAZO RESTANTE"), false);
+            SkinModalFrame(body);
             // The draw order stays hidden. Discard cards retain their actual most-recent-first order.
-            var cards=(discard?player.discardPile.AsEnumerable().Reverse():player.deck.OrderBy(c=>c.cardId)).ToList();
-            int pages=Math.Max(1,(cards.Count+9)/10);pilePage=Math.Clamp(pilePage,0,pages-1);int index=0;
-            foreach(var instance in cards.Skip(pilePage*10).Take(10))
+            var cards = (discard ? player.discardPile.AsEnumerable().Reverse() : player.deck.OrderBy(c => c.cardId)).ToList();
+            int pages = Math.Max(1, (cards.Count + 9) / 10); pilePage = Math.Clamp(pilePage, 0, pages - 1); int index = 0;
+            foreach (var instance in cards.Skip(pilePage * 10).Take(10))
             {
-                var card=Game.Catalog[instance.cardId];CardPresentation.Draw(body,Game,card,player,24+(index%5)*217,82+(index/5)*311,205,297,false,false,()=>ShowCardModal(card,player),()=>ShowTooltip(card,player),HideTooltip);index++;
+                var card = Game.Catalog[instance.cardId];
+                CardPresentation.Draw(body, Game, card, player, 50 + (index % 5) * 200, 150 + (index / 5) * 270, 186, 255, false, false, () => ShowCardModal(card, player), () => ShowTooltip(card, player), HideTooltip); index++;
             }
-            if(cards.Count==0)GrayboxUI.Text(body,"No hay cartas en esta pila.",30,140,1040,60,27,GrayboxUI.Muted);
-            GrayboxUI.Button(body,"Anterior",24,727,210,43,()=>ShowPile(player,discard,pilePage-1),null,pilePage>0);
-            GrayboxUI.Text(body,(pilePage+1)+" / "+pages+" · "+cards.Count+" cartas",280,736,460,32,20,GrayboxUI.Muted);
-            GrayboxUI.Button(body,"Siguiente",868,727,210,43,()=>ShowPile(player,discard,pilePage+1),null,pilePage<pages-1);
+            if (cards.Count == 0)
+            {
+                var empty = GrayboxUI.Text(body, "No hay cartas en esta pila.", 40, 300, 1050, 60, 30, SkinCream);
+                empty.alignment = TextAnchor.MiddleCenter; SkinTextShadow(empty);
+            }
+            SkinChoiceButton(body, "Anterior", 60, 712, 220, 56, () => ShowPile(player, discard, pilePage - 1), 22, false, SkinGold);
+            var counter = GrayboxUI.Text(body, (pilePage + 1) + " / " + pages + " · " + cards.Count + " cartas", 340, 720, 450, 40, 24, SkinGold, FontStyle.Bold);
+            counter.alignment = TextAnchor.MiddleCenter; SkinTextShadow(counter);
+            SkinChoiceButton(body, "Siguiente", 850, 712, 220, 56, () => ShowPile(player, discard, pilePage + 1), 22, false, SkinGold);
         }
     }
 }

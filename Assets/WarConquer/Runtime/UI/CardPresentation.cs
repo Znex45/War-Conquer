@@ -12,6 +12,12 @@ namespace WarConquer
         {
             var color=GrayboxUI.PlayerColor(player.id);var quote=EnergyManager.Quote(player,card,resources);
             var root=GrayboxUI.Box(parent,card.name,x,y,w,h,Color.Lerp(color,GrayboxUI.Panel,.83f));
+            if (CardUnitFrame.TryDraw(root, game, card, player, w, h, resources, large, piece, recastEnergy))
+            {
+                if (click != null) { var unitButton = root.gameObject.AddComponent<Button>(); unitButton.targetGraphic = root.GetComponent<Image>(); unitButton.onClick.AddListener(() => click()); }
+                if (enter != null || exit != null) { var unitHover = root.gameObject.AddComponent<CardHover>(); unitHover.enter = enter; unitHover.exit = exit; }
+                return root;
+            }
             GrayboxUI.Box(root,"Faction stripe",0,0,w,3,color);
             int valueSize=large?24:18;float statY=large?215:75;
             Stat(root,recastEnergy.HasValue?"ENERGÍA · RECAST":"ENERGÍA",recastEnergy?.ToString()??quote.EnergyLabel,9,8,w*.56f,valueSize,color);
