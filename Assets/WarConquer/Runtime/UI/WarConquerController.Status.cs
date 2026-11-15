@@ -102,41 +102,54 @@ namespace WarConquer
         }
         void ShowPieceStates(Piece piece)
         {
-            if(piece==null||!BoardManager.Pieces(Game.State).Contains(piece))return;
-            HideTooltip();var effects=PieceStatusPresentation.Collect(Game,piece);var card=Game.Data(piece);
-            var body=OpenModal("ESTADOS, EFECTOS Y MEJORAS");
-            GrayboxUI.Text(body,card.name+" · J"+(piece.owner+1)+" · HEX "+(piece.tileId+1),24,70,1078,35,24,GrayboxUI.PlayerColor(piece.owner),FontStyle.Bold);
-            GrayboxUI.Text(body,"Vida "+piece.health+" / "+Game.MaxHealth(piece)+"    Ataque "+CombatManager.AttackValue(Game,piece)+"    Movimiento disponible "+piece.remainingMovement+"    ·    "+effects.Count+" efectos activos",24,109,1078,30,16,GrayboxUI.Ink);
-            var viewport=GrayboxUI.Box(body,"Lista de estados",24,153,1064,616,GrayboxUI.Background);
+            if (piece == null || !BoardManager.Pieces(Game.State).Contains(piece)) return;
+            HideTooltip(); var effects = PieceStatusPresentation.Collect(Game, piece); var card = Game.Data(piece);
+            var body = OpenModal("ESTADOS Y EFECTOS", false);
+            SkinModalFrame(body);
+            var who = GrayboxUI.Text(body, card.name + " · J" + (piece.owner + 1) + " · HEX " + (piece.tileId + 1), 40, 110, 860, 36, 26, GrayboxUI.PlayerColor(piece.owner), FontStyle.Bold); SkinTextShadow(who);
+            var stats = GrayboxUI.Text(body, "Vida " + piece.health + " / " + Game.MaxHealth(piece) + "   ·   Ataque " + CombatManager.AttackValue(Game, piece) + "   ·   Movimiento " + piece.remainingMovement + "   ·   " + effects.Count + " efectos activos", 40, 148, 1050, 30, 18, SkinCream); SkinTextShadow(stats);
+            var viewport = GrayboxUI.Box(body, "Lista de estados", 40, 190, 1040, 540, new Color32(8, 14, 18, 215));
             viewport.gameObject.AddComponent<RectMask2D>();
-            var heights=effects.Select(e=>Mathf.Max(132,80+Mathf.CeilToInt(e.description.Length/100f)*22)).ToArray();
-            var content=GrayboxUI.Rect(viewport,"Contenido de estados",0,0,1064,Mathf.Max(616,heights.Sum()+effects.Count*8+12));
-            var scroll=viewport.gameObject.AddComponent<ScrollRect>();scroll.viewport=viewport;scroll.content=content;scroll.horizontal=false;scroll.vertical=true;scroll.movementType=ScrollRect.MovementType.Clamped;scroll.scrollSensitivity=42;
-            var track=GrayboxUI.Box(body,"Desplazamiento de estados",1094,153,10,616,GrayboxUI.Disabled);
-            var handle=GrayboxUI.Box(track,"Control",0,0,10,100,GrayboxUI.Muted);
-            var bar=track.gameObject.AddComponent<Scrollbar>();bar.handleRect=handle;bar.targetGraphic=handle.GetComponent<Image>();bar.direction=Scrollbar.Direction.BottomToTop;
-            scroll.verticalScrollbar=bar;scroll.verticalScrollbarVisibility=ScrollRect.ScrollbarVisibility.AutoHide;
-            if(effects.Count==0)GrayboxUI.Text(content,"Esta carta no tiene estados ni mejoras activos.\nLos valores mostrados corresponden a su situación actual en el tablero.",24,26,1016,90,20,GrayboxUI.Muted);
-            float rowY=8;
-            for(int i=0;i<effects.Count;i++)
+            var heights = effects.Select(e => Mathf.Max(132, 80 + Mathf.CeilToInt(e.description.Length / 100f) * 22)).ToArray();
+            var content = GrayboxUI.Rect(viewport, "Contenido de estados", 0, 0, 1040, Mathf.Max(540, heights.Sum() + effects.Count * 8 + 12));
+            var scroll = viewport.gameObject.AddComponent<ScrollRect>(); scroll.viewport = viewport; scroll.content = content; scroll.horizontal = false; scroll.vertical = true; scroll.movementType = ScrollRect.MovementType.Clamped; scroll.scrollSensitivity = 42;
+            var track = GrayboxUI.Box(body, "Desplazamiento de estados", 1088, 190, 10, 540, new Color32(30, 40, 48, 255));
+            var handle = GrayboxUI.Box(track, "Control", 0, 0, 10, 100, SkinGold);
+            var bar = track.gameObject.AddComponent<Scrollbar>(); bar.handleRect = handle; bar.targetGraphic = handle.GetComponent<Image>(); bar.direction = Scrollbar.Direction.BottomToTop;
+            scroll.verticalScrollbar = bar; scroll.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
+            if (effects.Count == 0)
             {
-                var effect=effects[i];var row=GrayboxUI.Box(content,"Detalle · "+effect.id,10,rowY,1044,heights[i],GrayboxUI.Panel);
-                GrayboxUI.Box(row,"Color del efecto",0,0,5,heights[i],effect.color).GetComponent<Image>().raycastTarget=false;
-                GrayboxUI.Text(row,effect.label,20,9,1000,27,20,effect.color,FontStyle.Bold);
-                GrayboxUI.Text(row,effect.duration,20,40,1000,22,14,GrayboxUI.Muted);
-                GrayboxUI.Text(row,effect.description,20,68,1000,heights[i]-74,17,GrayboxUI.Ink);
-                rowY+=heights[i]+8;
+                var none = GrayboxUI.Text(content, "Esta carta no tiene estados ni mejoras activos.\nLos valores mostrados corresponden a su situación actual en el tablero.", 24, 26, 990, 90, 22, SkinCream); SkinTextShadow(none);
+            }
+            float rowY = 8;
+            for (int i = 0; i < effects.Count; i++)
+            {
+                var effect = effects[i]; var row = GrayboxUI.Box(content, "Detalle · " + effect.id, 10, rowY, 1020, heights[i], new Color32(16, 28, 36, 240));
+                GrayboxUI.Box(row, "Color del efecto", 0, 0, 5, heights[i], effect.color).GetComponent<Image>().raycastTarget = false;
+                var label = GrayboxUI.Text(row, effect.label, 20, 9, 980, 27, 20, effect.color, FontStyle.Bold); SkinTextShadow(label);
+                GrayboxUI.Text(row, effect.duration, 20, 40, 980, 22, 14, GrayboxUI.Muted);
+                GrayboxUI.Text(row, effect.description, 20, 68, 980, heights[i] - 74, 17, SkinCream);
+                rowY += heights[i] + 8;
             }
         }
         void ShowVictory()
         {
-            if(modal!=null&&modal.name=="Victoria")return;CloseModal();
-            var s=Game.State;modal=GrayboxUI.Box(root,"Victoria",0,0,1600,1000,new Color(0,0,0,.9f));
-            var box=GrayboxUI.Box(modal,"Ganador",325,255,950,490,GrayboxUI.Panel);
-            GrayboxUI.Text(box,"JUGADOR "+(s.winner+1)+" HA GANADO",45,50,860,75,40,GrayboxUI.PlayerColor(s.winner),FontStyle.Bold);
-            GrayboxUI.Text(box,ConquestManager.Reason(s.victoryReason),45,155,860,65,29,GrayboxUI.Ink,FontStyle.Bold);
-            GrayboxUI.Text(box,s.players[s.winner].leader+" · "+s.players[s.winner].conquestPoints+" Puntos de Conquista",45,245,860,52,23,GrayboxUI.Muted);
-            GrayboxUI.Button(box,"Nueva partida",45,361,860,64,ShowSetup,Color.Lerp(GrayboxUI.PlayerColor(s.winner),GrayboxUI.Panel,.5f));
+            if (modal != null && modal.name == "Victoria") return;
+            var s = Game.State; var winner = s.players[s.winner]; var color = GrayboxUI.PlayerColor(s.winner);
+            var body = OpenModal("¡VICTORIA!", false);
+            modal.name = "Victoria";
+            SkinSetupFrame(body);
+            var overlay = modal.GetComponent<Image>(); if (overlay != null) overlay.color = new Color(0, 0, 0, .8f);
+
+            SkinPortrait(body, winner.leader, 90, 170, 170, true);
+
+            var title = GrayboxUI.Text(body, "JUGADOR " + (s.winner + 1) + " HA GANADO", 300, 170, 780, 60, 42, color, FontStyle.Bold); SkinTextShadow(title, .9f);
+            var reason = GrayboxUI.Text(body, ConquestManager.Reason(s.victoryReason), 300, 240, 780, 50, 28, SkinCream, FontStyle.Bold); SkinTextShadow(reason);
+            var points = GrayboxUI.Text(body, winner.leader + " · " + winner.conquestPoints + " Puntos de Conquista", 300, 296, 780, 40, 24, SkinGold, FontStyle.Bold); SkinTextShadow(points);
+
+            SkinChoiceButton(body, "Nueva partida", 70, 420, 990, 84, ShowSetup, 30, true, SkinGold);
+            SkinChoiceButton(body, "Salir al menú principal", 70, 530, 990, 72, () => ExitToMainMenu(false), 26, false, SkinGold);
         }
+        
     }
 }
