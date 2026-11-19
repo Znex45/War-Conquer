@@ -23,7 +23,15 @@ namespace WarConquer
             if(c.kind=="Summon")return g.State.tiles.Where(t=>!t.IsOccupied&&!t.blocked&&t.baseOwner<0&&(c.adjacentOnly?g.State.tiles[c.tileId].neighbors.Contains(t.id):t.owner==c.owner)).Select(t=>t.id).ToList();
             if(c.kind=="Cammel")return BoardManager.UnitsWithinRadius(g.State,c.tileId,1).Where(p=>p.id!=c.sourceId&&XiltharRules.CanTarget(g,p)&&!g.IsSleeping(p)&&CarryDestination(g,p,c)>=0).Select(p=>p.tileId).ToList();
             if(c.kind=="Discard")return g.State.players[c.owner].hand.Select(x=>x.instanceId).ToList();
-            if(c.kind=="Panther")return BoardManager.UnitsWithinRadius(g.State,c.tileId,2).Where(p=>XiltharRules.CanTarget(g,p)).Select(p=>p.tileId).ToList();
+            if (c.kind == "Panther")
+            {
+                var source = c.tileId >= 0 && c.tileId < g.State.tiles.Count ? g.State.tiles[c.tileId].unit : null;
+                if (source == null || source.id != c.sourceId || source.health <= 0 || source.owner != c.owner)
+                    return new List<int>();
+                return BoardManager.UnitsWithinRadius(g.State, c.tileId, 2)
+                    .Where(p => p.owner != c.owner && p.health > 0 && XiltharRules.CanTarget(g, p))
+                    .Select(p => p.tileId).ToList();
+            }
             if(c.kind=="Emergency")return g.Allies(c.owner).Where(p=>!g.Data(p).IsStructure&&XiltharRules.CanTarget(g,p)&&!g.IsSleeping(p)&&GenericCardRules.CanLand(g,p,g.State.tiles[c.tileId])).Select(p=>p.tileId).ToList();
             return new List<int>();
         }
@@ -38,7 +46,7 @@ namespace WarConquer
         {
             if(g.State.players[choice.owner].eliminated)return;
             choice.count=Math.Min(choice.count,Targets(g,choice).Count);
-            if(choice.count==0){if(choice.kind=="DeathTerraform")FactionCardRules.CompleteDeathChoice(g,choice);if(choice.drawAfter>0)DeckManager.Draw(g.State,g.State.players[choice.owner],choice.drawAfter);return;}
+            if(choice.count==0){if(choice.kind=="Panther")g.State.LogAction(choice.owner,"Panther sin objetivos válidos");if(choice.kind=="DeathTerraform")FactionCardRules.CompleteDeathChoice(g,choice);if(choice.drawAfter>0)DeckManager.Draw(g.State,g.State.players[choice.owner],choice.drawAfter);return;}
             g.State.pendingChoices.Add(choice);
         }
         public static bool Resolve(GameManager g,IList<int> targets,bool skip=false) => g.Decide(() => ResolveCore(g,targets,skip));
@@ -74,7 +82,12 @@ namespace WarConquer
                 {
                     var discarded = targets.Select(id => player.hand.Find(card => card.instanceId == id)).ToArray();
                     g.State.LogAction(c.owner, "Descarta " + string.Join(", ", discarded.Select(card => g.Catalog[card.cardId].name)));
-                    foreach (var card in discarded) { player.hand.Remove(card); player.discardPile.Add(card); }
+                    foreach (var card in discarded)
+                    {
+                        player.hand.Remove(card);
+                        player.discardPile.Add(card);
+                        g.State.RecordCardFlow(new CardFlow(CardFlowKind.Discard, c.owner, card));
+                    }
                     DeckManager.Draw(g.State,player,c.drawAfter);
                 }
                 if(c.kind=="Panther"&&targets.Count>0)

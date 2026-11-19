@@ -159,6 +159,14 @@ namespace WarConquer
             if (card.effects.Any(e => e.operation == "SporeDamage"))
                 payment += " + " + targets.Count + (targets.Count == 1 ? " espora" : " esporas");
             State.LogAction(payer.id, action + card.name, location + " · Pago: " + payment);
+            string displayTargets = targets.Count == 0 ? location : string.Join(", ", targets.Select(id =>
+            {
+                var tile = State.tiles[id];
+                var piece = tile.unit ?? tile.structure;
+                return piece == null ? "HEX " + (id + 1) : Data(piece).name + " · HEX " + (id + 1);
+            }));
+            State.RecordCardFlow(new CardFlow(CardFlowKind.Play, payer.id, instance,
+                payment: payment, targets: displayTargets, battle: State.battle));
             if(card.category==Category.Spell)
             { EffectManager.ResolveSpell(this,card,targets,choice); payer.discardPile.Add(instance); }
             else { State.tiles[targets[0]].owner=payer.id;var piece=Place(instance.cardId,payer.id,targets[0],instance.instanceId,false); EffectManager.OnEnter(this,piece); if(payer.leader=="SAHRIA"&&payer.sahriaDeployment&&card.category==Category.Unit)SignalLeaderAbility("SAHRIA",payer.id,piece.tileId,piece.id); }

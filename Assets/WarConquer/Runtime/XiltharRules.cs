@@ -140,6 +140,8 @@ namespace WarConquer
             var card=DiscardCard(g,c);if(card==null)return;
             g.State.LogAction(c.owner, "Vuelve a jugar " + g.Catalog[card.cardId].name + " desde el descarte", "HEX " + (tile + 1) + " · Pago: " + paid + " Energía" + (debt ? " · Pago diferido pendiente" : ""));
             g.State.players[c.owner].discardPile.Remove(card);g.State.tiles[tile].owner=c.owner;
+            g.State.RecordCardFlow(new CardFlow(CardFlowKind.Play, c.owner, card,
+                payment: paid + " Energía", targets: "HEX " + (tile + 1), battle: g.State.battle, fromDiscard: true));
             var unit=g.Place(card.cardId,c.owner,tile,card.instanceId,false);unit.underDarkness=darkness;unit.beaconDebt=debt;g.ForPlayer(c.owner,()=>{EffectManager.OnEnter(g,unit);return true;});
             if(debt&&g.State.endingTurn&&c.owner==g.State.activePlayer)
                 ChoiceManager.Enqueue(g,new PendingChoice{kind="BeaconDebt",owner=c.owner,sourceId=unit.id,tileId=tile,prompt="Void Beacon · pagar coste +2 o dejar morir"});

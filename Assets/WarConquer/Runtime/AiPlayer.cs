@@ -19,13 +19,15 @@ namespace WarConquer
             if(s.pendingChoices.Count>0)
             {
                 var c=s.pendingChoices[0];var available=ChoiceManager.Targets(g,c);
+                int required = Math.Min(c.count, available.Count);
                 if(XiltharRules.KnownChoice(c.kind))return XiltharRules.AiChoice(g,c);
                 if(c.kind=="Discard")available=available.OrderBy(id=>g.Catalog[g.ActingPlayer.hand.First(x=>x.instanceId==id).cardId].energyCost).ToList();
                 else if(c.kind=="DeathTerraform")available=available.OrderBy(id=>id==(int)PreferredBiome(g)?0:1).ToList();
                 else if(c.kind=="Summon")available=available.OrderBy(id=>Distance(g,id,Goal(g))).ToList();
                 else if(c.kind=="Cammel")available=available.Where(id=>s.tiles[id].unit?.owner==c.owner).ToList();
                 else available=available.OrderBy(id=>(s.tiles[id].unit??s.tiles[id].structure)?.owner==c.owner?1:0).ToList();
-                return ChoiceManager.Resolve(g,available.Take(c.count).ToArray(),c.optional&&available.Count==0);
+                if (c.optional && available.Count < required) return ChoiceManager.Resolve(g, Array.Empty<int>(), true);
+                return ChoiceManager.Resolve(g,available.Take(required).ToArray(),c.optional&&available.Count==0);
             }
             if(previousState!=s||turn!=s.turn||actor!=g.ActingPlayerId||stage!=(int)s.stage)
             {previousState=s;turn=s.turn;actor=g.ActingPlayerId;stage=(int)s.stage;decisions=0;terraformActions=0;attemptedAbilities.Clear();}

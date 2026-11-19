@@ -92,7 +92,12 @@ namespace WarConquer
         {
             if(p==null)return;var t=g.State.tiles[p.tileId];if(t.unit!=p&&t.structure!=p)return;g.ReportDeath(p);p.health=0;if(t.unit==p)t.unit=null;if(t.structure==p)t.structure=null;
             if(t.specialEffect!=null&&t.specialEffect.sourceId==p.id)t.specialEffect=null;
-            if(!p.token&&!g.Data(p).Has("BabyPhoenix"))g.State.players[p.owner].discardPile.Add(new CardInstance {instanceId=p.id,cardId=p.cardId});
+            if (!p.token && !g.Data(p).Has("BabyPhoenix"))
+            {
+                var discarded = new CardInstance { instanceId = p.id, cardId = p.cardId };
+                g.State.players[p.owner].discardPile.Add(discarded);
+                g.State.RecordCardFlow(new CardFlow(CardFlowKind.Discard, p.owner, discarded, p.tileId));
+            }
             XiltharRules.OnDeath(g,p);FactionCardRules.OnDestroyed(g,p,poisonAfterId);GenericCardRules.OnDestroyed(g,p);GenericCardRules.SyncAuras(g);TerrainManager.MaintainRoutes(g);ConquestManager.Refresh(g.State);g.State.Log(g.Data(p).name+" destruida"+(p.token?".":g.Data(p).Has("BabyPhoenix")?" → retorno a mano pendiente.":" → descarte."));
         }
         static void Eliminate(GameManager g,Player player)

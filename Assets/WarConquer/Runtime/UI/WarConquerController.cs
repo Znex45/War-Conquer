@@ -215,7 +215,7 @@ namespace WarConquer
                 "Board",
                 266,
                 76,
-                982,
+                BoardView.Width,
                 648,
                 new Color32(17, 29, 38, 255)
             );
@@ -227,17 +227,12 @@ namespace WarConquer
                 this
             );
 
-            var liveLogPanel = GrayboxUI.Box(boardPanel, "Historial en vivo", 0, BoardView.ViewportHeight,
-                BoardView.Width, 126, SkinPanel);
-            GrayboxUI.Text(liveLogPanel, "HISTORIAL EN VIVO", 14, 5, 250, 20, 13, SkinGold, FontStyle.Bold);
-            GrayboxUI.Button(liveLogPanel, "Historial", 846, 2, 123, 23, ShowLog);
-            SkinMatchButtons(liveLogPanel);
-            liveMatchLog = new MatchLogList(liveLogPanel, 8, 27, 948, 94, true);
+            CreateActivityPanel();
 
             inspector = GrayboxUI.Box(
                 matchRoot,
                 "Puntuación y selección",
-                1260,
+                1024,
                 76,
                 324,
                 648,
@@ -527,6 +522,7 @@ namespace WarConquer
 
             RefreshRewind();
 
+            TickCardPresentation();
             UpdateAI();
         }
 
@@ -599,6 +595,7 @@ namespace WarConquer
             }
 
             var s = Game.State;
+            PrepareCardPresentation(s);
 
             GrayboxUI.PlayerLeaders =
                 s.players
@@ -637,10 +634,11 @@ namespace WarConquer
                 focus
             );
 
-            liveMatchLog.Sync(s);
+            UpdateCardPresentation(s, player);
+            if (historyOpen) liveMatchLog.Sync(s);
             var chrome =
                 board.Overlay;
-            DrawEffectDisplayControl(chrome, 505, 11, 190, 30);
+            DrawEffectDisplayControl(chrome, 295, 11, 180, 30);
 
             GrayboxUI.Text(
                 chrome,
@@ -658,9 +656,9 @@ namespace WarConquer
                 board.World.ShowLabels
                     ? "Ocultar datos"
                     : "Ver datos",
-                703,
+                488,
                 11,
-                120,
+                112,
                 30,
                 () => {
                     board.World.ShowLabels =
@@ -673,9 +671,9 @@ namespace WarConquer
             GrayboxUI.Button(
                 chrome,
                 "Restaurar vista",
-                831,
+                610,
                 11,
-                140,
+                125,
                 30,
                 () => {
                     board.Reset();
@@ -692,7 +690,7 @@ namespace WarConquer
                 "Rueda del ratón: ampliar   ·   Clic y arrastrar: mover   ·   Clic derecho y arrastrar: rotar",
                 0,
                 0,
-                982,
+                BoardView.Width,
                 30,
                 15,
                 new Color32(238, 236, 228, 255),
@@ -706,43 +704,7 @@ namespace WarConquer
             SkinMatchButtons(chrome);
 
 
-            if (s.battle != null)
-            {
-                var b = s.battle;
-
-                var banner =
-                    GrayboxUI.Box(
-                        chrome,
-                        "Batalla",
-                        210,
-                        42,
-                        570,
-                        46,
-                        new Color32(
-                            85,
-                            49,
-                            65,
-                            255
-                        )
-                    );
-
-                GrayboxUI.Text(
-                    banner,
-                    "BATALLA  J" +
-                    (b.attackerOwner + 1) +
-                    " → J" +
-                    (b.defenderOwner + 1) +
-                    "   ·   RESPONDE J" +
-                    (b.priorityPlayer + 1),
-                    12,
-                    10,
-                    546,
-                    28,
-                    18,
-                    GrayboxUI.Ink,
-                    FontStyle.Bold
-                );
-            }
+            DrawActionContext(chrome);
 
             if (
                 s.pendingChoices.Count > 0 &&
@@ -875,15 +837,10 @@ namespace WarConquer
 
             if (Game.State.pendingChoices.Count > 0)
             {
-                return
-                    !ChoiceManager.BoardChoice(
-                        Game.State.pendingChoices[0]
-                    )
-                    ? new List<int>()
-                    : ChoiceManager.Targets(
-                        Game,
-                        Game.State.pendingChoices[0]
-                    );
+                var choice = Game.State.pendingChoices[0];
+                return ChoiceManager.BoardChoice(choice) && (!NeedsOptionalConsent(choice) || acceptedChoice == choice)
+                    ? ChoiceManager.Targets(Game, choice)
+                    : new List<int>();
             }
 
             if (viewedPlayer != Game.ActingPlayerId)

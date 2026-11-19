@@ -9,7 +9,7 @@ namespace WarConquer
     // A live 3D camera inside the existing card HUD.
     public sealed class BoardView : IDisposable
     {
-        public const float Width = 982, ViewportHeight = 522;
+        public const float Width = 746, ViewportHeight = 648;
         readonly RawImage viewport;
         readonly Canvas canvas;
         public readonly Board3DScene World;

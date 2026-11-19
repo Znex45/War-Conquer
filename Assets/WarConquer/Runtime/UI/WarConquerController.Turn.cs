@@ -31,7 +31,7 @@ namespace WarConquer
             if(responding)
             {
                 GrayboxUI.Text(left,"Solo respuestas autorizadas por el texto de la carta o habilidad.",14,y,212,50,14,GrayboxUI.Muted);y+=57;
-                if(Game.ActingPlayer.hand.Any(c=>CardPlayBlockReason(c)==""))ActionButton("Elegir respuesta",ref y,()=>FilterHand("Permitidas"));
+                if(Game.ActingPlayer.hand.Any(c=>CardPlayBlockReason(c)==""))ActionButton("RESPONDER",ref y,()=>FilterHand("Permitidas"));
                 DrawAbilityAction(ref y);
                 GrayboxUI.Button(left,"PASAR / RESOLVER",12,280,214,34,()=>{ClearAction();BattleManager.Pass(Game,Game.ActingPlayerId);},edge);return;
             }

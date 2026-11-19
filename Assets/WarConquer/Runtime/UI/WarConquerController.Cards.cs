@@ -19,6 +19,7 @@ namespace WarConquer
                 var card=Game.Catalog[instance.cardId];int id=instance.instanceId;
                 var view=CardPresentation.Draw(hand,Game,card,player,12+index*208,38,198,201,UseResourcesFor(player, card),false,
                     ()=>SelectCard(instance,player));
+                currentPositions[id] = CenterInRoot(view);
                 if(player.id!=Game.ActingPlayerId||CardPlayBlockReason(instance)!="")view.gameObject.AddComponent<CanvasGroup>().alpha=.40f;
                 if(id==selectedCard)GrayboxUI.Box(view,"Selección",0,0,198,5,Color.white);
                 index++;
@@ -102,6 +103,8 @@ namespace WarConquer
                 }
             }
             var top = GrayboxUI.Box(piles, discard ? "Descarte" : "Mazo", x, 44, 116, 160, Color.Lerp(color, GrayboxUI.Panel, .6f));
+            if (discard) discardCenter = CenterInRoot(top);
+            else deckCenter = CenterInRoot(top);
             if (back != null)
             {
                 var topImage = top.GetComponent<UnityEngine.UI.Image>();

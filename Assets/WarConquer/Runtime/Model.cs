@@ -121,6 +121,18 @@ namespace WarConquer
         public List<Connection> connections = new List<Connection>();
         public List<FastRoute> fastRoutes = new List<FastRoute>();
         public List<string> log = new List<string>();
+        [NonSerialized] Queue<CardFlow> presentation;
+        internal void RecordCardFlow(CardFlow flow)
+        {
+            if (presentation == null) presentation = new Queue<CardFlow>();
+            if (presentation.Count == 64) presentation.Dequeue();
+            presentation.Enqueue(flow);
+        }
+        public bool TryReadCardFlow(out CardFlow flow)
+        {
+            flow = presentation != null && presentation.Count > 0 ? presentation.Dequeue() : null;
+            return flow != null;
+        }
         public Player Active => players[activePlayer];
         public int Random(int max)
         {
