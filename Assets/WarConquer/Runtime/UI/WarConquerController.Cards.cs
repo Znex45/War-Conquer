@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,34 +10,58 @@ namespace WarConquer
         void DrawHand(Player player)
         {
             GrayboxUI.Text(hand,"MANO J"+(player.id+1)+" · "+player.hand.Count+" CARTAS",12,9,300,23,14,GrayboxUI.PlayerColor(player.id),FontStyle.Bold);
-            GrayboxUI.Button(hand,handFilter=="Todas"?"Todas":"Filtro: "+handFilter,580,5,210,27,()=>FilterHand("Todas"));
-            GrayboxUI.Button(hand,useResources?"Pago mixto":"Solo energía",802,5,166,27,()=>{useResources=!useResources;Render();},null,!Game.ActingPlayer.isAI);
+            GrayboxUI.Button(hand,handFilter=="Todas"?"Todas":"Filtro: "+handFilter,802,5,166,27,()=>FilterHand("Todas"));
             var cards=player.hand.Where(c=>HandMatches(Game.Catalog[c.cardId],c)).ToList();int pages=Math.Max(1,(cards.Count+5)/6);page=Math.Clamp(page,0,pages-1);
             GrayboxUI.Button(hand,"<",1030,5,35,27,()=>{page=Math.Max(0,page-1);Render();});GrayboxUI.Text(hand,(page+1)+" / "+pages,1073,9,80,22,13);GrayboxUI.Button(hand,">",1157,5,35,27,()=>{page=Math.Min(pages-1,page+1);Render();});
             int index=0;
             foreach(var instance in cards.Skip(page*6).Take(6))
             {
                 var card=Game.Catalog[instance.cardId];int id=instance.instanceId;
-                var view=CardPresentation.Draw(hand,Game,card,player,12+index*208,38,198,201,useResources,false,
+                var view=CardPresentation.Draw(hand,Game,card,player,12+index*208,38,198,201,UseResourcesFor(player, card),false,
                     ()=>SelectCard(instance,player));
-                if(player.id!=Game.ActingPlayerId||Game.CardBlockReason(instance,useResources)!="")view.gameObject.AddComponent<CanvasGroup>().alpha=.40f;
+                if(player.id!=Game.ActingPlayerId||CardPlayBlockReason(instance)!="")view.gameObject.AddComponent<CanvasGroup>().alpha=.40f;
                 if(id==selectedCard)GrayboxUI.Box(view,"Selección",0,0,198,5,Color.white);
                 index++;
             }
             if(cards.Count==0)GrayboxUI.Text(hand,player.hand.Count==0?"Mano vacía. El robo se resuelve al comenzar tu turno.":"No hay cartas de este tipo disponibles en esta etapa.",16,97,1215,51,22,GrayboxUI.Muted);
         }
+        // Prefer energy. A compatible pool can cover a shortfall using the existing mixed quote.
+        static bool UseResourcesFor(Player player, CardData card)
+        {
+            if (player.isAI) return AiPlayer.UseResources;
+
+            int extraRecastTax = card.id == "under-the-darkness" ? player.opponentCardTax : 0;
+            int energyOnly = EnergyManager.Quote(player, card).energy + extraRecastTax;
+            if (player.currentEnergy >= energyOnly) return false;
+
+            var mixed = EnergyManager.Quote(player, card, true);
+            return mixed.resources > 0 && player.currentEnergy >= mixed.energy + extraRecastTax;
+        }
+
+        string CardPlayBlockReason(CardInstance instance)
+        {
+            bool useCompatibleResources = instance != null && UseResourcesFor(Game.ActingPlayer, Game.Catalog[instance.cardId]);
+            return Game.CardBlockReason(instance, useCompatibleResources);
+        }
+
+        bool UseResourcesForSelectedCard()
+        {
+            var instance = Game.ActingPlayer.hand.Find(card => card.instanceId == selectedCard);
+            return instance != null && UseResourcesFor(Game.ActingPlayer, Game.Catalog[instance.cardId]);
+        }
+
         bool HandMatches(CardData c,CardInstance instance)
         {
             if(handFilter=="Todas")return true;
-            if(viewedPlayer!=Game.ActingPlayerId||Game.CardBlockReason(instance,useResources)!="")return false;
+            if(viewedPlayer!=Game.ActingPlayerId||CardPlayBlockReason(instance)!="")return false;
             return handFilter=="Permitidas"||handFilter=="Unidades"&&c.category!=Category.Spell&&!c.IsStructure||handFilter=="Estructuras"&&c.IsStructure||handFilter=="Magias"&&c.category==Category.Spell;
         }
         void SelectCard(CardInstance instance,Player player)
         {
             if(Game.ActingPlayer.isAI){ShowCardModal(Game.Catalog[instance.cardId],player);return;}
             ClearAction();selectedCard=instance.instanceId;mode="card";chosenBiome=Biome.Forest;
-            string why=viewedPlayer==Game.ActingPlayerId?Game.CardBlockReason(instance,useResources):"Consulta de otra mano.";
-            if(why.Length==0&&GenericCardRules.NoBoardTarget(Game.Catalog[instance.cardId])){Game.Play(instance.instanceId,Array.Empty<int>(),useResources);ClearAction();Render();return;}
+            string why=viewedPlayer==Game.ActingPlayerId?CardPlayBlockReason(instance):"Consulta de otra mano.";
+            if(why.Length==0&&GenericCardRules.NoBoardTarget(Game.Catalog[instance.cardId])){Game.Play(instance.instanceId,Array.Empty<int>(),UseResourcesFor(player, Game.Catalog[instance.cardId]));ClearAction();Render();return;}
             Game.Notify(why.Length>0?why:"Selecciona las casillas verdes según el texto de la carta. Resolver selección permite confirmar menos objetivos.");
             if(Touchscreen.current!=null&&Touchscreen.current.primaryTouch.press.isPressed)ShowCardModal(Game.Catalog[instance.cardId],player);
         }
@@ -46,13 +70,13 @@ namespace WarConquer
         {
             HideTooltip(); var body = OpenModal("Carta · " + card.name);
             SkinModalFrame(body);
-            CardPresentation.Draw(body, Game, card, player, 28, 83, 410, 690, useResources, true, piece: selectedPiece != null && selectedPiece.cardId == card.id ? selectedPiece : null);
+            CardPresentation.Draw(body, Game, card, player, 28, 83, 410, 690, UseResourcesFor(player, card), true, piece: selectedPiece != null && selectedPiece.cardId == card.id ? selectedPiece : null);
             var desc = GrayboxUI.Text(body, TimingRules.Description(card), 451, 150, 639, 120, 24, SkinCream); SkinTextShadow(desc);
-            var cost = GrayboxUI.Text(body, EnergyManager.Quote(player, card, useResources).Detail, 451, 285, 639, 78, 25, GrayboxUI.PlayerColor(player.id), FontStyle.Bold); SkinTextShadow(cost);
+            var cost = GrayboxUI.Text(body, EnergyManager.Quote(player, card, UseResourcesFor(player, card)).Detail, 451, 285, 639, 78, 25, GrayboxUI.PlayerColor(player.id), FontStyle.Bold); SkinTextShadow(cost);
             var instance = player.hand.FirstOrDefault(c => c.instanceId == selectedCard && c.cardId == card.id) ?? player.hand.FirstOrDefault(c => c.cardId == card.id);
             if (instance != null && player.id == Game.ActingPlayerId && !player.isAI)
             {
-                string why = Game.CardBlockReason(instance, useResources); GrayboxUI.Text(body, why, 451, 394, 623, 87, 18, GrayboxUI.Yellow);
+                string why = CardPlayBlockReason(instance); GrayboxUI.Text(body, why, 451, 394, 623, 87, 18, GrayboxUI.Yellow);
                 GrayboxUI.Button(body, GenericCardRules.NoBoardTarget(card) ? "Jugar carta" : "Seleccionar objetivos", 451, 530, 623, 61, () => { CloseModal(); SelectCard(instance, player); }, null, why == "");
             }
             SkinMatchButtons(body);

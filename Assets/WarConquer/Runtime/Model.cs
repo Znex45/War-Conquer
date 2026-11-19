@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -126,6 +126,13 @@ namespace WarConquer
         {
             uint x = (uint)randomState; x ^= x << 13; x ^= x >> 17; x ^= x << 5;
             randomState = (int)x; return (int)(x % max);
+        }
+        public void LogAction(int player, string action, string details = null)
+        {
+            var actor = players[player];
+            string header = "Ronda " + round + " · Turno " + turn + " · J" + (player + 1)
+                + " " + actor.leader + (actor.isAI ? " (IA)" : "");
+            Log(header + "\n" + action + (string.IsNullOrEmpty(details) ? "" : "\n" + details));
         }
         public void Log(string message) { log.Add(message); if (log.Count > 100) log.RemoveAt(0); }
     }

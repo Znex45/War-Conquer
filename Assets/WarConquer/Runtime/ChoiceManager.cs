@@ -58,14 +58,25 @@ namespace WarConquer
                 {if(targets.Count>0){bool deathAllowed=FactionCardRules.CanDeathTerraform(g,c);TerrainManager.Terraform(g,c.tileId,(Biome)targets[0],c.owner);if(deathAllowed&&string.IsNullOrEmpty(c.returnCardId)&&player.leader=="ZUKGROK"&&g.State.tiles[c.tileId].biome==(Biome)targets[0])g.SignalLeaderAbility("ZUKGROK",c.owner,c.tileId);}FactionCardRules.CompleteDeathChoice(g,c);}
                 if(c.kind=="Ember"&&targets.Count>0)CombatManager.DirectDamage(g,g.State.tiles[targets[0]].structure,1,BoardManager.Pieces(g.State).FirstOrDefault(p=>p.id==c.sourceId));
                 if(c.kind=="Summon"&&targets.Count>0)
-                {int id=targets[0];g.State.tiles[id].owner=c.owner;g.Place(c.tokenId,c.owner,id);if(c.summonsLeft>1)FactionCardRules.Summon(g,c.owner,c.tileId,c.tokenId,c.summonsLeft-1,c.adjacentOnly,false);}
+                {
+                    int id = targets[0];
+                    g.State.tiles[id].owner = c.owner;
+                    g.Place(c.tokenId, c.owner, id);
+                    g.State.LogAction(c.owner, "Invoca " + g.Catalog[c.tokenId].name, "HEX " + (id + 1));
+                    if (c.summonsLeft > 1) FactionCardRules.Summon(g,c.owner,c.tileId,c.tokenId,c.summonsLeft-1,c.adjacentOnly,false);
+                }
                 if(c.kind=="Cammel"&&targets.Count>0)
                 {
                     var p=g.State.tiles[targets[0]].unit;int dest=CarryDestination(g,p,c);
                     if(dest>=0&&TerrainManager.CheckUnstable(g,p,g.State.tiles[p.tileId],true)&&TerrainManager.CheckUnstable(g,p,g.State.tiles[dest],false))MovementManager.Relocate(g,p,dest,true);
                 }
                 if(c.kind=="Discard")
-                {foreach(int id in targets){var card=player.hand.Find(x=>x.instanceId==id);player.hand.Remove(card);player.discardPile.Add(card);}DeckManager.Draw(g.State,player,c.drawAfter);}
+                {
+                    var discarded = targets.Select(id => player.hand.Find(card => card.instanceId == id)).ToArray();
+                    g.State.LogAction(c.owner, "Descarta " + string.Join(", ", discarded.Select(card => g.Catalog[card.cardId].name)));
+                    foreach (var card in discarded) { player.hand.Remove(card); player.discardPile.Add(card); }
+                    DeckManager.Draw(g.State,player,c.drawAfter);
+                }
                 if(c.kind=="Panther"&&targets.Count>0)
                 {var source=BoardManager.Pieces(g.State).FirstOrDefault(p=>p.id==c.sourceId);CombatManager.DirectDamage(g,g.State.tiles[targets[0]].unit,2,source);}
                 if(c.kind=="Emergency"&&targets.Count>0)GenericCardRules.SpecialMove(g,g.State.tiles[targets[0]].unit,c.tileId);

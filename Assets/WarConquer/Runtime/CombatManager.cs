@@ -30,6 +30,13 @@ namespace WarConquer
         static bool AttackCore(GameManager g,Piece attacker,int target)
         {
             if(!Targets(g,attacker).Contains(target))return g.Fail("No puedes atacar: objetivo, alcance, ataque usado o Dormido.");
+            var tile = g.State.tiles[target];
+            var defender = tile.unit != null && tile.unit.owner != attacker.owner ? tile.unit :
+                tile.structure != null && tile.structure.owner != attacker.owner ? tile.structure : null;
+            int defenderOwner = defender?.owner ?? tile.baseOwner;
+            string defenderName = defender == null ? "base" : g.Data(defender).name;
+            g.State.LogAction(attacker.owner, g.Data(attacker).name + " ataca a " + defenderName + " de J" + (defenderOwner + 1),
+                "HEX " + (attacker.tileId + 1) + " → HEX " + (target + 1));
             if(attacker.attacked&&XiltharRules.CanSecondAttack(g,attacker)){attacker.darkFlyExtraAttack=true;attacker.remainingMovement=0;}
             if(!TerrainManager.CheckAction(g,attacker,"atacar")){attacker.attacked=true;g.Notify("Ataque interrumpido por el terreno.");return true;}
             BattleManager.Open(g,attacker,target);
@@ -71,7 +78,7 @@ namespace WarConquer
             bool oasis=c.Has("OasisGuard")&&ownTile.structure!=null&&g.Data(ownTile.structure).Has("Oasis");
             if((guard||oasis)&&p.protectionRound!=g.State.round){defense++;p.protectionRound=g.State.round;}
             int actual=Math.Max(0,amount-defense);p.health-=actual;g.ReportDamage(p,actual,source);
-            g.State.Log(c.name+" recibe "+actual+" daño"+(defense>0?" (defensa "+defense+")":"")+".");
+            g.State.Log("J" + (p.owner + 1) + " · " + c.name+" recibe "+actual+" daño"+(defense>0?" (defensa "+defense+")":"")+".");
             if(p.health<=0)Remove(g,p);
         }
         public static void DirectDamage(GameManager g,Piece p,int amount,Piece source=null,bool bypass=false)

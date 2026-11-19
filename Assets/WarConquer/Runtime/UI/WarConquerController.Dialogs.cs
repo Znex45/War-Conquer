@@ -123,7 +123,7 @@ foreach (string deck in CardCatalog.Leaders)
         
         void StartMatch(bool scenario)
         {
-            CloseModal(); ClearAction(); lastActor = -1; viewedPlayer = 0; focus = -1; page = 0; handFilter = "Todas"; useResources = false; board.Reset();
+            CloseModal(); ClearAction(); lastActor = -1; viewedPlayer = 0; focus = -1; page = 0; handFilter = "Todas"; board.Reset();
             aiPlayer = new AiPlayer(); nextAiAction = Time.unscaledTime + 1;
             Game.NewGame(leaders, seed, CardCatalog.LoadRules(), humanPlayers);
             if (scenario) { PrototypeScenario.Load(Game); Game.Notify("Escenario de pruebas: biomas y unidades preparadas. No es el inicio normal de partida."); }
@@ -183,7 +183,7 @@ foreach (string deck in CardCatalog.Leaders)
 
             var h1 = GrayboxUI.Text(body, "TURNO Y CARTAS", 40, 150, 500, 36, 24, SkinGold, FontStyle.Bold);
             SkinTextShadow(h1);
-            var t1 = GrayboxUI.Text(body, "Despliegue → Asalto → Terraformación. El botón de etapa permite avanzar. Rewind / Deshacer revierte la última decisión del turno, incluidos los cambios de etapa.\n\nLas cartas oscuras no se pueden usar ahora. Su banda inferior indica la etapa de uso. Pasa el cursor para ampliarlas o selecciónalas y pulsa Ver carta completa.\n\nSelecciona una carta y un hexágono verde. El pago mixto permite elegir recursos compatibles. Resolver selección confirma los objetivos múltiples; Cancelar no consume recursos.", 40, 198, 505, 480, 19, SkinCream);
+            var t1 = GrayboxUI.Text(body, "Despliegue → Asalto → Terraformación. El botón de etapa permite avanzar. Rewind / Deshacer revierte la última decisión del turno, incluidos los cambios de etapa.\n\nLas cartas oscuras no se pueden usar ahora. Su banda inferior indica la etapa de uso. Pasa el cursor para ampliarlas o selecciónalas y pulsa Ver carta completa.\n\nSelecciona una carta y un hexágono verde. Las cartas se pagan con energía. Si no alcanza y el pago mixto es posible, el coste muestra los recursos compatibles que se usarán. Resolver selección confirma los objetivos múltiples; Cancelar no consume recursos.", 40, 198, 505, 480, 19, SkinCream);
             SkinTextShadow(t1);
 
             var h2 = GrayboxUI.Text(body, "TABLERO Y VICTORIA", 590, 150, 500, 36, 24, SkinGold, FontStyle.Bold);
@@ -221,15 +221,15 @@ if (player.leader == "FAUNAR")
         }
         void ShowLog()
         {
-            var body = OpenModal("REGISTRO DE LA PARTIDA", false);
+            var body = OpenModal("HISTORIAL DE LA PARTIDA", false);
             SkinSetupFrame(body);
             var overlay = modal.GetComponent<UnityEngine.UI.Image>();
             if (overlay != null) overlay.color = new Color(0, 0, 0, .6f);
 
-            var log = GrayboxUI.Text(body, string.Join("\n", Game.State.log.Skip(Math.Max(0, Game.State.log.Count - 29))), 40, 150, 1050, 520, 19, SkinCream);
-            SkinTextShadow(log);
+            var history = new MatchLogList(body, 40, 130, 1028, 576, false);
+            history.Sync(Game.State);
 
-            SkinChoiceButton(body, "Volver al menú", 40, 700, 1050, 60, ShowMatchMenu, 24, false, SkinGold);
+            SkinChoiceButton(body, "Volver a la partida", 40, 720, 1050, 51, CloseModal, 22, false, SkinGold);
             SkinImageButton(body, "CERRAR", 925, 76, 180, 57, CloseModal, 20, "Btn_Back", false, 70f);
         }
         void Save() { try { File.WriteAllText(SavePath, GamePersistence.Serialize(Game.State)); Game.Notify("Partida guardada localmente."); } catch (Exception e) { Game.Notify("No se pudo guardar: " + e.Message); } }

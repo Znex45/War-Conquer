@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -149,11 +149,19 @@ namespace WarConquer
             var previous=new List<int>();
             foreach(int target in targets) { if(!CardTargets(card,previous).Contains(target)) return Fail("Objetivo inválido, ocupado, incompatible o fuera de alcance."); previous.Add(target); }
             if(card.effects.Any(e=>e.operation=="GenericTerraform")?(choice==Biome.Neutral||choice==Biome.AshLand||!Enum.IsDefined(typeof(Biome),choice)):(card.effects.Any(e=>e.biome=="ChooseForestSwamp")&&choice!=Biome.Forest&&choice!=Biome.Swamp)) return Fail("Elige un bioma permitido por la carta.");
-            var payer=ActingPlayer;EnergyManager.Pay(payer,card,useResources); payer.hand.Remove(instance);
+            var payer = ActingPlayer;
+            var quote = EnergyManager.Quote(payer, card, useResources);
+            EnergyManager.Pay(payer, card, useResources);
+            payer.hand.Remove(instance);
+            string action = card.category == Category.Spell ? "Juega " : card.IsStructure ? "Construye " : "Despliega ";
+            string location = targets.Count == 0 ? "Sin objetivo en el tablero" : "HEX " + string.Join(", ", targets.Select(t => t + 1));
+            string payment = quote.Detail;
+            if (card.effects.Any(e => e.operation == "SporeDamage"))
+                payment += " + " + targets.Count + (targets.Count == 1 ? " espora" : " esporas");
+            State.LogAction(payer.id, action + card.name, location + " · Pago: " + payment);
             if(card.category==Category.Spell)
             { EffectManager.ResolveSpell(this,card,targets,choice); payer.discardPile.Add(instance); }
             else { State.tiles[targets[0]].owner=payer.id;var piece=Place(instance.cardId,payer.id,targets[0],instance.instanceId,false); EffectManager.OnEnter(this,piece); if(payer.leader=="SAHRIA"&&payer.sahriaDeployment&&card.category==Category.Unit)SignalLeaderAbility("SAHRIA",payer.id,piece.tileId,piece.id); }
-            State.Log("J"+(payer.id+1)+" juega "+card.name+" ["+string.Join(",",targets.Select(t=>t+1))+"]");
             BattleManager.AfterResponse(this);Notify(card.name+" resuelta."); return true;
         }
         public Piece Place(string cardId,int owner,int tile,int id=0,bool token=true)
@@ -182,6 +190,7 @@ namespace WarConquer
             int cost=TerraformCost(biome);bool discount=cost<State.rules.terraformCost;
             if(State.Active.currentEnergy<cost) return Fail("Energía insuficiente.");
             State.Active.currentEnergy-=cost; if(discount) State.Active.terraformDiscountUsed=true;
+            State.LogAction(State.activePlayer, "Terraforma HEX " + (tile + 1) + " en " + Names.Biomes[(int)biome], "Pago: " + cost + " Energía");
             TerrainManager.Terraform(this,tile,biome,State.activePlayer); Notify("Casilla "+(tile+1)+": "+Names.Biomes[(int)biome]+"."); return true;
         }
         public bool RevealAsh(int tile) => this.Decide(() => RevealAshCore(tile));
@@ -190,7 +199,9 @@ namespace WarConquer
             if(!CanTakeTurnAction(TurnStage.Terraforming)||tile<0||tile>=State.tiles.Count||!TerraformTarget(tile)||!TerrainManager.Normal(State.tiles[tile])||State.tiles[tile].owner!=State.activePlayer) return Fail("Requiere un bioma normal propio sin ocupantes enemigos.");
             int cost=AshCost();
             if(State.Active.currentEnergy<cost) return Fail("Energía insuficiente.");
-            State.Active.currentEnergy-=cost; TerrainManager.RevealAsh(this,State.tiles[tile]); Notify("Tierra Ceniza revelada."); return true;
+            State.Active.currentEnergy-=cost;
+            State.LogAction(State.activePlayer, "Revela Tierra Ceniza en HEX " + (tile + 1), "Pago: " + cost + " Energía");
+            TerrainManager.RevealAsh(this,State.tiles[tile]); Notify("Tierra Ceniza revelada."); return true;
         }
         public bool EndTurn()
         {

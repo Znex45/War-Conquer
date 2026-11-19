@@ -32,7 +32,7 @@ namespace WarConquer
                 GrayboxUI.Text(row,"J"+(i+1)+" "+p.leader+(p.isAI?" · IA":"")+(p.eliminated?" · FUERA":""),8,4,209,22,13,color,FontStyle.Bold);
                 GrayboxUI.Text(row,p.conquestPoints+" / 10",220,3,82,25,18,color,FontStyle.Bold);
                 string control=string.Join("  ",new[]{"B1","B2","B3","B4","C"}.Select((name,n)=>name+":"+s.tiles.Count(t=>t.territory==n&&t.owner==id)));
-                GrayboxUI.Text(row,"Vida "+p.leaderHealth+" · +"+ConquestManager.Income(s,id)+" PC/turno"+(scoreDetails?" · faltan "+Mathf.Max(0,10-p.conquestPoints):""),8,25,290,18,11,GrayboxUI.Muted);
+                GrayboxUI.Text(row,"+"+ConquestManager.Income(s,id)+" PC/turno"+(scoreDetails?" · faltan "+Mathf.Max(0,10-p.conquestPoints):""),8,25,290,18,11,GrayboxUI.Muted);
                 if(scoreDetails)GrayboxUI.Text(row,control,8,43,290,17,11,GrayboxUI.Muted);
                 GrayboxUI.Box(row,"Progreso",0,scoreDetails?62:44,304*Mathf.Clamp01(p.conquestPoints/10f),3,color);
             }
@@ -55,14 +55,14 @@ namespace WarConquer
             if(card!=null)
             {
                 GrayboxUI.Text(box,card.name,0,32,300,45,21,GrayboxUI.PlayerColor(selectedPiece?.owner??viewedPlayer),FontStyle.Bold);
-                var quote=EnergyManager.Quote(s.players[selectedPiece?.owner??viewedPlayer],card,useResources);
+                var quote=EnergyManager.Quote(s.players[selectedPiece?.owner??viewedPlayer],card,UseResourcesFor(s.players[selectedPiece?.owner??viewedPlayer],card));
                 string stats="E "+quote.EnergyLabel+" · HP "+(selectedPiece!=null?selectedPiece.health+"/"+Game.MaxHealth(selectedPiece):card.health.ToString())+" · ATK "+(selectedPiece!=null?CombatManager.AttackValue(Game,selectedPiece):card.attack)+" · MOV "+(selectedPiece?.remainingMovement??card.movement);
                 var effects=selectedPiece!=null?PieceStatusPresentation.Collect(Game,selectedPiece):null;
                 string summary=effects==null?"":effects.Count==0?"Sin estados activos":string.Join(" · ",effects.Take(2).Select(e=>e.label))+(effects.Count>2?" · +"+(effects.Count-2):"");
                 GrayboxUI.Text(box,stats,0,80,300,35,14);GrayboxUI.Text(box,instance!=null?quote.Detail:Names.Categories[(int)card.category]+" · ALC "+card.range+(selectedPiece!=null?"\n"+summary:""),0,116,300,31,12,GrayboxUI.Muted);
                 var cardOwner = s.players[selectedPiece?.owner ?? viewedPlayer];
                 var viewCard = GrayboxUI.Button(box,"Ver carta completa",0,153,190,28,()=>ShowCardModal(card,cardOwner));
-                CardHoverPreview.Attach((RectTransform)viewCard.transform, CardPreview, Game, card, cardOwner, useResources, selectedPiece);
+                CardHoverPreview.Attach((RectTransform)viewCard.transform, CardPreview, Game, card, cardOwner, UseResourcesFor(cardOwner, card), selectedPiece);
                 if(selectedPiece!=null)GrayboxUI.Button(box,"Estados ("+effects.Count+")",199,153,101,28,()=>ShowPieceStates(selectedPiece),GrayboxUI.Purple);
                 if(selectedPiece!=null&&!Game.ActingPlayer.isAI&&Game.CanTakeTurnAction(TurnStage.Assault)&&selectedPiece.owner==Game.ActingPlayerId&&!(targets.Count>0&&(mode=="card"||mode=="leader"||mode=="ability")))
                 {
@@ -71,7 +71,7 @@ namespace WarConquer
                     GrayboxUI.Button(actions,"Atacar",101,0,92,29,()=>{if(!board.World.IsAnimating)Begin("attack");},null,CombatManager.Targets(Game,selectedPiece).Count>0);
                     GrayboxUI.Button(actions,"+1 paso",202,0,98,29,()=>{if(!board.World.IsAnimating)Begin("step");},null,Game.ActingPlayer.freeSteps>0);
                 }
-                else if(instance!=null)GrayboxUI.Text(box,viewedPlayer!=Game.ActingPlayerId?"Consulta de otra mano.":Game.CardBlockReason(instance,useResources),0,188,300,38,12,GrayboxUI.Yellow);
+                else if(instance!=null)GrayboxUI.Text(box,viewedPlayer!=Game.ActingPlayerId?"Consulta de otra mano.":CardPlayBlockReason(instance),0,188,300,38,12,GrayboxUI.Yellow);
                 if(selectedPiece!=null)
                 {
                     string availability=Game.IsSleeping(selectedPiece)?"DORMIDO · No puede actuar":card.IsStructure?AbilityManager.HasActive(card)?selectedPiece.abilityUsed?"HABILIDAD YA USADA":AbilityManager.CanActivate(Game,selectedPiece)?"HABILIDAD DISPONIBLE":"HABILIDAD NO DISPONIBLE":"ESTRUCTURA · EFECTOS PASIVOS":!FactionCardRules.CanAttack(Game,selectedPiece)?"NO ATACA EL TURNO EN QUE SE JUEGA":selectedPiece.attacked&&!XiltharRules.CanSecondAttack(Game,selectedPiece)?"ATAQUE YA USADO":CombatManager.Targets(Game,selectedPiece).Count>0?XiltharRules.CanSecondAttack(Game,selectedPiece)?"SEGUNDO ATAQUE · REEMPLAZA MOV":"PUEDE ATACAR": "SIN ATAQUE DISPONIBLE";
@@ -90,7 +90,14 @@ namespace WarConquer
                 var tile=focus>=0?s.tiles[focus]:null;
                 GrayboxUI.Text(box,tile==null?"Selecciona una carta\no una unidad.":"HEX "+(tile.id+1)+" · "+Names.Biomes[(int)tile.biome],0,34,300,57,21,GrayboxUI.Ink,FontStyle.Bold);
                 string info=tile==null?"Consulta los detalles aquí.\nLas reglas y controles están en Menú → Ayuda.":"Control: "+(tile.owner<0?"Nadie":"J"+(tile.owner+1))+"\nZona: "+(tile.territory==4?"Centro":"J"+(tile.territory+1))+" · Recurso +"+tile.resource+(tile.specialEffect!=null?"\nTerreno inestable: "+tile.specialEffect.threshold+"+":"");
-                GrayboxUI.Text(box,info,0,102,300,96,14,GrayboxUI.Muted);
+                if (tile != null && tile.baseOwner >= 0)
+                {
+                    var defender = s.players[tile.baseOwner];
+                    info += defender.eliminated
+                        ? "\nBase conquistada"
+                        : "\nVida de la base: " + defender.leaderHealth + " / " + s.rules.leaderHealth;
+                }
+                GrayboxUI.Text(box,info,0,102,300,108,14,GrayboxUI.Muted);
             }
             if(targets.Count>0&&(mode=="card"||mode=="leader"||mode=="ability"))
             {

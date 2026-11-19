@@ -37,6 +37,10 @@ namespace WarConquer
                 if(g.ActingPlayer.spores<1||bonus==0)return g.Fail("Requiere 1 Espora y otra unidad adyacente con una mejora temporal de ATQ.");
             }
             if(!TerrainManager.CheckAction(g,p,"habilidad")){p.abilityUsed=true;g.Notify("Habilidad interrumpida por el terreno.");return true;}
+            int energy = XiltharRules.Active(c) ? XiltharRules.AbilityCost(g, p) : 0;
+            string details = targets.Count == 0 ? "" : "Objetivos: HEX " + string.Join(", ", targets.Select(t => t + 1)) + " · ";
+            g.State.LogAction(p.owner, "Activa " + c.name + " (" + Label(c) + ")",
+                details + "Pago: " + energy + " Energía" + (c.Has("ExtendBuff") ? " + 1 espora" : ""));
             if(XiltharRules.Active(c))XiltharRules.Activate(g,p,targets);
             if(GenericCardRules.IsActive(c))GenericCardRules.Activate(g,p,targets);
             if(c.Has("ExtendBuff")){g.ActingPlayer.spores--;g.State.tiles[targets[0]].unit.bonusAttack+=bonus;}

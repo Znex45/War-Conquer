@@ -41,6 +41,7 @@ namespace WarConquer
         {
             int actual=Math.Min(count,p.deck.Count);
             for(int i=0;i<actual;i++) { p.hand.Add(p.deck[0]); p.deck.RemoveAt(0); }
+            if(actual>0)s.Log("J"+(p.id+1)+" roba "+actual+(actual==1?" carta.":" cartas."));
             if(actual<count) s.Log("J"+(p.id+1)+": mazo vacío, no roba más cartas.");
         }
     }

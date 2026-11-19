@@ -25,6 +25,7 @@ namespace WarConquer
         bool setupVisible, scoreDetails;
 
         BoardView board;
+        MatchLogList liveMatchLog;
         ConquestAudioFeedback conquestAudio;
 
         string mode = "inspect", handFilter = "Todas";
@@ -35,7 +36,6 @@ namespace WarConquer
 
         readonly List<int> targets = new List<int>();
 
-        bool useResources;
 
         Biome chosenBiome = Biome.Forest;
 
@@ -59,7 +59,6 @@ namespace WarConquer
             viewedPlayer = 0;
             page = 0;
             lastActor = -1;
-            useResources = false;
 
             conquestAudio = gameObject.AddComponent<ConquestAudioFeedback>();
 
@@ -228,6 +227,13 @@ namespace WarConquer
                 this
             );
 
+            var liveLogPanel = GrayboxUI.Box(boardPanel, "Historial en vivo", 0, BoardView.ViewportHeight,
+                BoardView.Width, 126, SkinPanel);
+            GrayboxUI.Text(liveLogPanel, "HISTORIAL EN VIVO", 14, 5, 250, 20, 13, SkinGold, FontStyle.Bold);
+            GrayboxUI.Button(liveLogPanel, "Historial", 846, 2, 123, 23, ShowLog);
+            SkinMatchButtons(liveLogPanel);
+            liveMatchLog = new MatchLogList(liveLogPanel, 8, 27, 948, 94, true);
+
             inspector = GrayboxUI.Box(
                 matchRoot,
                 "Puntuación y selección",
@@ -380,9 +386,9 @@ namespace WarConquer
                 mainMenuRoot,
                 "Main Menu Panel",
                 608,
-                425,
+                465,
                 450,
-                500,
+                214,
                 new Color32(19, 27, 40, 235)
             );
 
@@ -393,7 +399,7 @@ namespace WarConquer
             CreateMainMenuButton(
                 panel,
                 "JUGAR",
-                45, 55,
+                45, 38,
                 360, 58,
                 StartMainGame,
                 true
@@ -401,44 +407,8 @@ namespace WarConquer
 
             CreateMainMenuButton(
                 panel,
-                "MULTIJUGADOR",
-                45, 125,
-                360, 58,
-                MainMenuMultiplayer,
-                false
-            );
-
-            CreateMainMenuButton(
-                panel,
-                "TUTORIAL",
-                45, 195,
-                360, 58,
-                MainMenuTutorial,
-                false
-            );
-
-            CreateMainMenuButton(
-                panel,
-                "COLECCIÓN",
-                45, 265,
-                360, 58,
-                MainMenuCollection,
-                false
-            );
-
-            CreateMainMenuButton(
-                panel,
-                "OPCIONES",
-                45, 335,
-                360, 58,
-                MainMenuOptions,
-                false
-            );
-
-            CreateMainMenuButton(
-                panel,
                 "SALIR",
-                45, 405,
+                45, 113,
                 360, 58,
                 MainMenuExit,
                 false
@@ -509,34 +479,6 @@ namespace WarConquer
             // Conservamos exactamente el Setup
             // que ya existe en el proyecto.
             ShowSetup();
-        }
-
-        void MainMenuMultiplayer()
-        {
-            Game.Notify(
-                "Multijugador local."
-            );
-        }
-
-        void MainMenuTutorial()
-        {
-            Game.Notify(
-                "Tutorial."
-            );
-        }
-
-        void MainMenuCollection()
-        {
-            Game.Notify(
-                "Colección."
-            );
-        }
-
-        void MainMenuOptions()
-        {
-            Game.Notify(
-                "Opciones."
-            );
         }
 
         void MainMenuExit()
@@ -621,9 +563,6 @@ namespace WarConquer
                 page = 0;
                 handFilter = "Todas";
 
-                useResources =
-                    Game.ActingPlayer.isAI &&
-                    AiPlayer.UseResources;
 
                 ClearAction();
 
@@ -698,6 +637,7 @@ namespace WarConquer
                 focus
             );
 
+            liveMatchLog.Sync(s);
             var chrome =
                 board.Overlay;
             DrawEffectDisplayControl(chrome, 505, 11, 190, 30);
@@ -744,7 +684,7 @@ namespace WarConquer
             );
 
             // Franja informativa de controles (no bloquea el ratón sobre el tablero)
-            var hintBar = GrayboxUI.Box(chrome, "Controles", 0, 618, 982, 30, new Color(0, 0, 0, .55f));
+            var hintBar = GrayboxUI.Box(chrome, "Controles", 0, BoardView.ViewportHeight - 30, BoardView.Width, 30, new Color(0, 0, 0, .55f));
             hintBar.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
 
             var hintText = GrayboxUI.Text(
@@ -960,10 +900,7 @@ namespace WarConquer
 
                     return
                         instance != null &&
-                        Game.CardBlockReason(
-                            instance,
-                            useResources
-                        ) == ""
+                        CardPlayBlockReason(instance) == ""
                         ? Game.CardTargets(
                             Game.Catalog[
                                 instance.cardId
@@ -1352,7 +1289,7 @@ namespace WarConquer
                     ? Game.Play(
                         selectedCard,
                         targets,
-                        useResources,
+                        UseResourcesForSelectedCard(),
                         chosenBiome
                     )
                     : mode == "leader"
