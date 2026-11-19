@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -19,7 +19,7 @@ namespace WarConquer
             {
                 var card=Game.Catalog[instance.cardId];int id=instance.instanceId;
                 var view=CardPresentation.Draw(hand,Game,card,player,12+index*208,38,198,201,useResources,false,
-                    ()=>SelectCard(instance,player),()=>ShowTooltip(card,player),HideTooltip);
+                    ()=>SelectCard(instance,player));
                 if(player.id!=Game.ActingPlayerId||Game.CardBlockReason(instance,useResources)!="")view.gameObject.AddComponent<CanvasGroup>().alpha=.40f;
                 if(id==selectedCard)GrayboxUI.Box(view,"Selección",0,0,198,5,Color.white);
                 index++;
@@ -41,18 +41,12 @@ namespace WarConquer
             Game.Notify(why.Length>0?why:"Selecciona las casillas verdes según el texto de la carta. Resolver selección permite confirmar menos objetivos.");
             if(Touchscreen.current!=null&&Touchscreen.current.primaryTouch.press.isPressed)ShowCardModal(Game.Catalog[instance.cardId],player);
         }
-        void ShowTooltip(CardData card,Player player)
-        {
-            if(Game.State.phase==Phase.Finished)return;HideTooltip();
-            tooltip=CardPresentation.Draw(root,Game,card,player,847,81,388,624,useResources,true);
-            tooltip.name="Vista ampliada (solo lectura)";tooltip.gameObject.AddComponent<CanvasGroup>().blocksRaycasts=false;tooltip.SetAsLastSibling();
-        }
-        void HideTooltip(){if(tooltip!=null){tooltip.gameObject.SetActive(false);Destroy(tooltip.gameObject);tooltip=null;}}
+        void HideTooltip() => CardPreview?.Hide();
         void ShowCardModal(CardData card, Player player)
         {
             HideTooltip(); var body = OpenModal("Carta · " + card.name);
             SkinModalFrame(body);
-            CardPresentation.Draw(body, Game, card, player, 28, 83, 392, 627, useResources, true, piece: selectedPiece != null && selectedPiece.cardId == card.id ? selectedPiece : null);
+            CardPresentation.Draw(body, Game, card, player, 28, 83, 410, 690, useResources, true, piece: selectedPiece != null && selectedPiece.cardId == card.id ? selectedPiece : null);
             var desc = GrayboxUI.Text(body, TimingRules.Description(card), 451, 150, 639, 120, 24, SkinCream); SkinTextShadow(desc);
             var cost = GrayboxUI.Text(body, EnergyManager.Quote(player, card, useResources).Detail, 451, 285, 639, 78, 25, GrayboxUI.PlayerColor(player.id), FontStyle.Bold); SkinTextShadow(cost);
             var instance = player.hand.FirstOrDefault(c => c.instanceId == selectedCard && c.cardId == card.id) ?? player.hand.FirstOrDefault(c => c.cardId == card.id);
@@ -104,7 +98,7 @@ namespace WarConquer
                 var pillText = GrayboxUI.Text(pill, "× " + list.Count, 0, 0, 80, 34, 22, Color.white, FontStyle.Bold);
                 pillText.alignment = TextAnchor.MiddleCenter; pillText.raycastTarget = false;
             }
-            if (discard && list.Count > 0) { var card = Game.Catalog[list.Last().cardId]; var hover = top.gameObject.AddComponent<CardHover>(); hover.enter = () => ShowTooltip(card, player); hover.exit = HideTooltip; }
+            if (discard && list.Count > 0) { var card = Game.Catalog[list.Last().cardId]; CardHoverPreview.Attach(top, CardPreview, Game, card, player); }
         }
         void ShowPile(Player player, bool discard, int pilePage)
         {
@@ -116,7 +110,7 @@ namespace WarConquer
             foreach (var instance in cards.Skip(pilePage * 10).Take(10))
             {
                 var card = Game.Catalog[instance.cardId];
-                CardPresentation.Draw(body, Game, card, player, 50 + (index % 5) * 200, 150 + (index / 5) * 270, 186, 255, false, false, () => ShowCardModal(card, player), () => ShowTooltip(card, player), HideTooltip); index++;
+                CardPresentation.Draw(body, Game, card, player, 50 + (index % 5) * 200, 150 + (index / 5) * 270, 186, 255, false, false, () => ShowCardModal(card, player)); index++;
             }
             if (cards.Count == 0)
             {

@@ -15,6 +15,7 @@ namespace WarConquer
         }
         void CloseModal()
         {
+            HideTooltip();
             if (modal != null) { modal.gameObject.SetActive(false); Destroy(modal.gameObject); modal = null; }
             setupVisible = false; SetMatchVisible(Game?.State != null && Game.State.phase != Phase.Setup);
         }

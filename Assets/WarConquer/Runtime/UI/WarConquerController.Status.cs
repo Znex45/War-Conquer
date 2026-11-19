@@ -60,7 +60,9 @@ namespace WarConquer
                 var effects=selectedPiece!=null?PieceStatusPresentation.Collect(Game,selectedPiece):null;
                 string summary=effects==null?"":effects.Count==0?"Sin estados activos":string.Join(" · ",effects.Take(2).Select(e=>e.label))+(effects.Count>2?" · +"+(effects.Count-2):"");
                 GrayboxUI.Text(box,stats,0,80,300,35,14);GrayboxUI.Text(box,instance!=null?quote.Detail:Names.Categories[(int)card.category]+" · ALC "+card.range+(selectedPiece!=null?"\n"+summary:""),0,116,300,31,12,GrayboxUI.Muted);
-                GrayboxUI.Button(box,"Ver carta completa",0,153,190,28,()=>ShowCardModal(card,s.players[selectedPiece?.owner??viewedPlayer]));
+                var cardOwner = s.players[selectedPiece?.owner ?? viewedPlayer];
+                var viewCard = GrayboxUI.Button(box,"Ver carta completa",0,153,190,28,()=>ShowCardModal(card,cardOwner));
+                CardHoverPreview.Attach((RectTransform)viewCard.transform, CardPreview, Game, card, cardOwner, useResources, selectedPiece);
                 if(selectedPiece!=null)GrayboxUI.Button(box,"Estados ("+effects.Count+")",199,153,101,28,()=>ShowPieceStates(selectedPiece),GrayboxUI.Purple);
                 if(selectedPiece!=null&&!Game.ActingPlayer.isAI&&Game.CanTakeTurnAction(TurnStage.Assault)&&selectedPiece.owner==Game.ActingPlayerId&&!(targets.Count>0&&(mode=="card"||mode=="leader"||mode=="ability")))
                 {

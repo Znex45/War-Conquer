@@ -5,11 +5,6 @@ namespace WarConquer
 {
     public partial class WarConquerController
     {
-        void ShowRecastTooltip(CardData card,Player player)
-        {
-            HideTooltip();tooltip=CardPresentation.Draw(root,Game,card,player,847,81,388,624,false,true,recastEnergy:XiltharRules.RecastCost(Game,player.id,card,true));
-            tooltip.name="Vista ampliada (solo lectura)";tooltip.gameObject.AddComponent<CanvasGroup>().blocksRaycasts=false;tooltip.SetAsLastSibling();
-        }
         void DrawXiltharLeader(Player p)
         {
             var color=GrayboxUI.PlayerColor(p.id);

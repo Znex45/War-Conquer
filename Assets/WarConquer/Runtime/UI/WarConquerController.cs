@@ -13,10 +13,11 @@ namespace WarConquer
     {
         public GameManager Game { get; private set; }
 
-        RectTransform root, matchRoot, header, left, leaderPanel, boardPanel, inspector, hand, piles, modal, tooltip, mainMenuRoot;
+        RectTransform root, matchRoot, header, left, leaderPanel, boardPanel, inspector, hand, piles, modal, mainMenuRoot;
 
         // Fondo independiente (cambia según la pantalla: menú o partida).
         Image bgImage;
+        internal CardHoverPreview CardPreview { get; private set; }
         CanvasScaler cachedScaler;CanvasGroup cachedMatchGroup;
         CanvasGroup stageActionsGroup,leaderActionsGroup,handActionsGroup;
 
@@ -65,6 +66,7 @@ namespace WarConquer
             Game = new GameManager(CardCatalog.Load());
 
             CreateUI();
+            CardPreview = CardHoverPreview.Create(root);
 
             Game.Changed += Render;
 

@@ -1,158 +1,96 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace WarConquer
 {
-    // Carta de Unit con la plantilla Card_Front (solo visual).
-    // Capas: arte (o relleno temporal) -> marco -> textos.
     public static class CardUnitFrame
     {
-        const float TW = 768f, TH = 1024f;
+        static readonly Dictionary<string, Sprite> artwork = new Dictionary<string, Sprite>();
+        static Sprite frame;
+        public static Sprite Frame => frame != null ? frame : (frame = Resources.Load<Sprite>("UI/Cards/Card_Front"));
 
-        public static bool TryDraw(RectTransform root, GameManager game, CardData card, Player player,
-            float w, float h, bool resources, bool large, Piece piece, int? recastEnergy)
+        public static Sprite Art(string cardId)
         {
-            bool isSpell = card.category == Category.Spell;
-            bool isStructure = card.IsStructure;
-
-            var frame = Resources.Load<Sprite>("UI/Cards/Card_Front");
-
-            if (frame == null)
-            {
-                Debug.LogWarning("Falta Resources/UI/Cards/Card_Front (Sprite)");
-                return false;
-            }
-
-            // Cartas pequeñas (mano, listas): se muestran sin descripción.
-            bool compact = w < 260f;
-
-            float s = Mathf.Min(w / TW, h / TH);
-            float fw = TW * s, fh = TH * s;
-            float ox = (w - fw) / 2f, oy = (h - fh) / 2f;
-
-            var rootImage = root.GetComponent<Image>();
-            if (rootImage != null) rootImage.color = new Color(0, 0, 0, 0);
-
-            // ---------- 1. ARTE (detrás del marco) ----------
-            Color tone = card.biomes != null && card.biomes.Length > 0 && card.biomes[0] != Biome.Neutral
-                ? GrayboxUI.BiomeColor(card.biomes[0])
-                : GrayboxUI.PlayerColor(player.id);
-
-            var artBox = GrayboxUI.Box(root, "Arte", ox + 80 * s, oy + 168 * s, 608 * s, 390 * s,
-                Color.Lerp(tone, GrayboxUI.Panel, .45f));
-            var artImage = artBox.GetComponent<Image>();
-            artImage.raycastTarget = false;
-
-            var art = Resources.Load<Sprite>("UI/CardArt/" + card.id);
-
-            if (art != null)
-            {
-                artImage.sprite = art;
-                artImage.color = Color.white;
-                artImage.preserveAspect = false;
-            }
-            else
-            {
-                Label(artBox, card.name.Substring(0, 1), 0, 20 * s, 608 * s, 280 * s, 220 * s,
-                    new Color(1, 1, 1, .25f), TextAnchor.MiddleCenter, false, FontStyle.Bold, false);
-
-                if (!compact)
-                    Label(artBox, card.id, 0, 330 * s, 608 * s, 50 * s, 26 * s,
-                        new Color(1, 1, 1, .55f), TextAnchor.MiddleCenter, false, FontStyle.Bold, false);
-            }
-
-            // ---------- 2. MARCO ----------
-            var frameBox = GrayboxUI.Box(root, "Marco de carta", ox, oy, fw, fh, Color.white);
-            var frameImage = frameBox.GetComponent<Image>();
-            frameImage.sprite = frame;
-            frameImage.color = Color.white;
-            frameImage.preserveAspect = false;
-            frameImage.raycastTarget = false;
-
-            // ---------- 3. TEXTOS ----------
-            var cream = new Color32(255, 250, 235, 255);
-            var ink = new Color32(48, 26, 8, 255);
-
-            var quote = EnergyManager.Quote(player, card, resources);
-            string cost = recastEnergy.HasValue ? recastEnergy.Value.ToString() : quote.EnergyLabel;
-
-            // Nombre (placa de madera) y coste (círculo azul)
-            Label(root, card.name, ox + 80 * s, oy + 72 * s, 500 * s, 86 * s, compact ? 54 * s : 46 * s, cream, TextAnchor.MiddleCenter, true, FontStyle.Bold, true);
-            Label(root, cost, ox + 590 * s, oy + 68 * s, 106 * s, 94 * s, 62 * s, Color.white, TextAnchor.MiddleCenter, true, FontStyle.Bold, true);
-
-            // Tipo y descripción (pergamino)
-            string type = (card.combatSpell ? "Combat Spell" : Names.Categories[(int)card.category])
-                + (card.subtypes != null && card.subtypes.Length > 0 ? " · " + string.Join(" / ", card.subtypes) : "");
-
-            if (!compact)
-            {
-                Label(root, type, ox + 92 * s, oy + 586 * s, 584 * s, 32 * s, 24 * s, ink, TextAnchor.MiddleLeft, true, FontStyle.Bold, false);
-                Label(root, card.description, ox + 92 * s, oy + 620 * s, 584 * s, 118 * s, 32 * s, ink, TextAnchor.UpperLeft, true, FontStyle.Bold, false);
-            }
-            else if (isSpell || isStructure)
-            {
-                // En la mano, las Magias y Estructuras muestran su tipo en el pergamino.
-                string shortType = card.combatSpell ? "Magia de combate" : isSpell ? "Magia" : "Estructura";
-                Label(root, shortType, ox + 92 * s, oy + 630 * s, 584 * s, 90 * s, 58 * s, ink, TextAnchor.MiddleCenter, true, FontStyle.Bold, false);
-            }
-
-            // Estadísticas: izquierda MOV, centro (dorada) VIDA, derecha ATK. Sin dato: ---
-            const string none = "---";
-            int attackValue = piece != null ? CombatManager.AttackValue(game, piece) : card.attack;
-
-            string mov = isSpell || isStructure ? none : (piece != null ? piece.remainingMovement : card.movement).ToString();
-            string hp = isSpell ? none : (piece != null ? piece.health : card.health).ToString();
-            string atk = isSpell ? none : (isStructure && attackValue <= 0 ? none : attackValue.ToString());
-
-            Stat(root, "MOV", mov, ox + 82 * s, oy + 828 * s, 170 * s, 107 * s, s, cream, compact);
-            Stat(root, "VIDA", hp, ox + 290 * s, oy + 806 * s, 188 * s, 109 * s, s, cream, compact);
-            Stat(root, "ATK", atk, ox + 517 * s, oy + 828 * s, 170 * s, 107 * s, s, cream, compact);
-
-            return true;
+            if (artwork.TryGetValue(cardId, out var sprite)) return sprite;
+            sprite = Resources.Load<Sprite>("UI/CardArt/" + cardId);
+            artwork.Add(cardId, sprite);
+            return sprite;
         }
 
-        static void Stat(RectTransform root, string label, string value, float x, float y, float bw, float bh, float s, Color color, bool compact)
+        // Both card sizes use the same original artwork window, wooden plates and cost medallion.
+        public sealed class Front
         {
-            if (compact)
+            static readonly Color Cream = new Color32(255, 250, 235, 255);
+            static readonly Color Ink = new Color32(48, 26, 8, 255);
+            readonly Image illustration, textBand;
+            readonly Text title, energy, health, movement, attack, category, summary, subtype, terrains, glyph;
+
+            public Front(RectTransform parent, float x, float y, float width, float height, bool showText)
             {
-                // Sin etiqueta: el número ocupa toda la caja
-                Label(root, value, x, y + 6 * s, bw, bh - 12 * s, 92 * s, color, TextAnchor.MiddleCenter, true, FontStyle.Bold, true);
-                return;
+                var root = GrayboxUI.Rect(parent, "Frente original de carta", x, y, width, height);
+                float sx = width / 768, sy = height / 1024;
+                RectTransform Area(string key, float left, float top, float w, float h)
+                    => GrayboxUI.Rect(root, key, left * sx, top * sy, w * sx, h * sy);
+
+                Text Label(string key, float left, float top, float w, float h, int size, Color color, FontStyle style = FontStyle.Bold)
+                {
+                    var node = Area(key, left, top, w, h);
+                    return CardPresentation.Label(node, key, 0, 0, w * sx, h * sy, size, color, style, TextAnchor.MiddleCenter);
+                }
+
+                illustration = Area("IlustraciÃ³n original", 85, 163, 600, 394).gameObject.AddComponent<Image>();
+                illustration.raycastTarget = false;
+                glyph = Label("Emblema", 90, 195, 585, 235, 40, Cream);
+                var wood = Area("Marco de carta", 0, 0, 768, 1024).gameObject.AddComponent<Image>();
+                wood.sprite = Frame;
+                wood.color = Frame != null ? Color.white : new Color(1, 1, 1, 0);
+                wood.raycastTarget = false;
+
+                title = Label("Nombre", 77, 67, 490, 100, 15, Cream);
+                energy = Label("Coste", 589, 72, 113, 85, 17, Color.white);
+                movement = Label("MOV", 82, 832, 173, 92, 12, Cream);
+                health = Label("HP", 290, 811, 188, 103, 13, Cream);
+                attack = Label("ATK", 515, 832, 173, 92, 12, Cream);
+                if (!showText) return;
+
+                textBand = Area("Subtipos y afinidad", 90, 395, 588, 152).gameObject.AddComponent<Image>();
+                textBand.color = new Color(.12f, .07f, .04f, .88f);
+                textBand.raycastTarget = false;
+                subtype = Label("Subtipos", 94, 397, 580, 76, 11, Cream);
+                terrains = Label("Terrenos predilectos", 94, 474, 580, 71, 11, Cream);
+                category = Label("CategorÃ­a", 90, 584, 588, 63, 13, Ink);
+                summary = Label("DescripciÃ³n breve", 95, 648, 578, 83, 11, Ink, FontStyle.Normal);
             }
 
-            Label(root, label, x, y + 2 * s, bw, 30 * s, 24 * s, new Color(color.r, color.g, color.b, .95f), TextAnchor.MiddleCenter, false, FontStyle.Bold, true);
-            Label(root, value, x, y + 30 * s, bw, bh - 34 * s, 70 * s, color, TextAnchor.MiddleCenter, true, FontStyle.Bold, true);
-        }
-
-        // outline = true: contorno marrón oscuro (para texto claro sobre madera).
-        static Text Label(Transform parent, string text, float x, float y, float w, float h, float size,
-            Color color, TextAnchor align, bool fit, FontStyle style, bool outline)
-        {
-            int fontSize = Mathf.Max(7, Mathf.RoundToInt(size));
-            var t = GrayboxUI.Text(parent, text, x, y, w, h, fontSize, color, style);
-
-            t.alignment = align;
-            t.raycastTarget = false;
-            t.horizontalOverflow = HorizontalWrapMode.Wrap;
-            t.verticalOverflow = VerticalWrapMode.Truncate;
-
-            if (fit)
+            public void Bind(CardData card, Color color, string cost, string hp, string mov, string atk, string effect, string affinity)
             {
-                t.resizeTextForBestFit = true;
-                t.resizeTextMinSize = 6;
-                t.resizeTextMaxSize = fontSize;
+                illustration.sprite = Art(card.id);
+                illustration.color = illustration.sprite != null ? Color.white : Color.Lerp(color, GrayboxUI.Panel, .55f);
+                glyph.text = card.name.Substring(0, 1);
+                glyph.gameObject.SetActive(illustration.sprite == null);
+                title.text = card.name;
+                energy.text = cost.Replace(" â†’ ", "â†’");
+                health.text = "HP " + hp;
+                movement.text = "MOV " + mov;
+                attack.text = "ATK " + atk;
+                CardPresentation.Fit(title, 15, 10, true);
+                CardPresentation.Fit(energy, 17, 9, true);
+                CardPresentation.Fit(health, 13, 9, false);
+                CardPresentation.Fit(movement, 12, 9, false);
+                CardPresentation.Fit(attack, 12, 9, false);
+                if (category == null) return;
+
+                category.text = CardPresentation.CategoryLabel(card);
+                summary.text = CardReading.Summary(effect);
+                subtype.text = string.Join(" Â· ", card.subtypes ?? System.Array.Empty<string>());
+                terrains.text = affinity;
+                textBand.gameObject.SetActive(subtype.text.Length > 0 || affinity.Length > 0);
+                CardPresentation.Fit(category, 13, 10, false);
+                CardPresentation.Fit(summary, 11, 10, true);
+                CardPresentation.Fit(subtype, 11, 9, true);
+                CardPresentation.Fit(terrains, 11, 9, false);
             }
-
-            if (outline)
-            {
-                var o = t.gameObject.AddComponent<Outline>();
-                float d = Mathf.Max(1f, size * .045f);
-
-                o.effectColor = new Color(.14f, .07f, .02f, .95f);
-                o.effectDistance = new Vector2(d, -d);
-            }
-
-            return t;
         }
     }
 }

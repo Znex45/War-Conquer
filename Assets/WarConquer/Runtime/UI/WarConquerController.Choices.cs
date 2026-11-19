@@ -44,7 +44,7 @@ namespace WarConquer
                 int id = instance.instanceId; var card = Game.Catalog[instance.cardId]; float x = 78 + (index % 4) * 265, y = 128 + (index / 4) * 260;
                 var view = CardPresentation.Draw(body, Game, card, player, x, y, 187, 250, false, false, () => {
                     if (discardSelection.Contains(id)) discardSelection.Remove(id); else if (discardSelection.Count < choice.count) discardSelection.Add(id); ShowDiscardChoice();
-                }, () => { if (choice.kind == "DarknessPick") ShowRecastTooltip(card, player); else ShowTooltip(card, player); }, HideTooltip, recastEnergy: choice.kind == "DarknessPick" ? (int?)XiltharRules.RecastCost(Game, player.id, card, true) : null);
+                }, recastEnergy: choice.kind == "DarknessPick" ? (int?)XiltharRules.RecastCost(Game, player.id, card, true) : null);
                 if (discardSelection.Contains(id))
                 {
                     SkinOutline(view, SkinGold, 4f);
