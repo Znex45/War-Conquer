@@ -59,7 +59,13 @@ namespace WarConquer
             foreach(var signal in pending)
             {
                 if(signal.state!=state)continue;
+                if(signal.kind==CombatVisualKind.SpellDraw)
+                {
+                    board.PlaySpellDraw(signal.owner);
+                    continue;
+                }
                 if(signal.tile<0||signal.tile>=state.tiles.Count)continue;
+                if(signal.spellUnitDamage)board.PlaySpellDamage(signal.tile);
                 bool leader=signal.kind==CombatVisualKind.LeaderDamage;
                 int id=leader?-100-signal.owner:signal.piece;
                 var actor=ActorFor(id,leader?board.LeaderVisual(signal.owner):board.UnitVisual(id));

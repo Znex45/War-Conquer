@@ -8,7 +8,7 @@ namespace WarConquer
     {
         public string kind,prompt,tokenId,returnCardId;
         public int dq,dr,summonsLeft=1,poisonAfterId=-1;
-        public bool adjacentOnly,direct,attack;
+        public bool adjacentOnly,direct,attack,spellDamage;
         public int cardRefId=-1,victimId=-1,amount,kills;
         public int owner,sourceId=-1,tileId=-1,count=1,drawAfter;
         public bool optional;
@@ -38,7 +38,7 @@ namespace WarConquer
         {
             if(g.State.players[choice.owner].eliminated)return;
             choice.count=Math.Min(choice.count,Targets(g,choice).Count);
-            if(choice.count==0){if(choice.kind=="DeathTerraform")FactionCardRules.CompleteDeathChoice(g,choice);if(choice.drawAfter>0)DeckManager.Draw(g.State,g.State.players[choice.owner],choice.drawAfter);return;}
+            if(choice.count==0){if(choice.kind=="DeathTerraform")FactionCardRules.CompleteDeathChoice(g,choice);if(choice.drawAfter>0)g.DrawFromSpell(g.State.players[choice.owner],choice.drawAfter);return;}
             g.State.pendingChoices.Add(choice);
         }
         public static bool Resolve(GameManager g,IList<int> targets,bool skip=false) => g.Decide(() => ResolveCore(g,targets,skip));
@@ -65,7 +65,7 @@ namespace WarConquer
                     if(dest>=0&&TerrainManager.CheckUnstable(g,p,g.State.tiles[p.tileId],true)&&TerrainManager.CheckUnstable(g,p,g.State.tiles[dest],false))MovementManager.Relocate(g,p,dest,true);
                 }
                 if(c.kind=="Discard")
-                {foreach(int id in targets){var card=player.hand.Find(x=>x.instanceId==id);player.hand.Remove(card);player.discardPile.Add(card);}DeckManager.Draw(g.State,player,c.drawAfter);}
+                {foreach(int id in targets){var card=player.hand.Find(x=>x.instanceId==id);player.hand.Remove(card);player.discardPile.Add(card);}g.DrawFromSpell(player,c.drawAfter);}
                 if(c.kind=="Panther"&&targets.Count>0)
                 {var source=BoardManager.Pieces(g.State).FirstOrDefault(p=>p.id==c.sourceId);CombatManager.DirectDamage(g,g.State.tiles[targets[0]].unit,2,source);}
                 if(c.kind=="Emergency"&&targets.Count>0)GenericCardRules.SpecialMove(g,g.State.tiles[targets[0]].unit,c.tileId);

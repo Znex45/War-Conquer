@@ -10,7 +10,7 @@ namespace WarConquer
     {
         sealed class TileVisual
         {
-            public Transform root, surface, decor, baseModel, leaderPlatform, turnArrow;
+            public Transform root, surface, decor, baseModel, leaderPlatform, leaderOrigin, turnArrow;
             public MeshRenderer ground,ring;
             public TextMesh number,baseLabel;
             public string decorationKey;
@@ -48,17 +48,45 @@ namespace WarConquer
         BoardTurnNeon turnNeon;
         BoardLandingWave landingWaves;
         BoardCombatPresentation combat;
+        BoardVFXManager boardVfx;
         Transform hoverRing;
         readonly HashSet<int> actionTargets=new HashSet<int>();
         readonly RaycastHit[] pickHits=new RaycastHit[128];
         GameManager observed;
         readonly Dictionary<int,List<int>> movementPaths=new Dictionary<int,List<int>>();
+
         void RecordMovement(int id,int from,int to)
         {
             if(!movementPaths.TryGetValue(id,out var path))movementPaths[id]=path=new List<int>();
             path.Add(to);
         }
         public Transform LeaderVisual(int owner){foreach(var tile in tiles.Values)if(tile.baseOwner==owner)return tile.leaderPlatform;return null;}
+        public bool TryGetTileWorldPosition(int tileId, out Vector3 position)
+        {
+            position = Vector3.zero;
+
+            if (state == null || !tiles.TryGetValue(tileId, out var tile))
+                return false;
+
+            position = tile.surface.TransformPoint(Vector3.up * BoardMeshFactory.Surface);
+
+            return true;
+        }
+        internal void PlaySpellDamage(int tileId)
+        {
+            if (boardVfx.isActiveAndEnabled && TryGetTileWorldPosition(tileId, out var position))
+                boardVfx.PlayDamage(position);
+        }
+        internal void PlaySpellDraw(int owner)
+        {
+            if (!boardVfx.isActiveAndEnabled) return;
+            foreach (var tile in tiles.Values)
+            {
+                if (tile.baseOwner != owner || tile.leaderOrigin == null) continue;
+                boardVfx.PlayDraw(tile.leaderOrigin.position);
+                return;
+            }
+        }
         public Transform UnitVisual(int id)=>pieces.TryGetValue(id,out var p)?p.root:null;
         public bool IsAnimating
         {
@@ -88,6 +116,8 @@ namespace WarConquer
             hoverRing=mesh.Part(transform,"Casilla bajo el cursor",mesh.Ring,Vector3.zero,Vector3.one*1.01f,Color.white).transform;
             hoverRing.gameObject.SetActive(false);hoverRing.GetComponent<Renderer>().shadowCastingMode=ShadowCastingMode.Off;
             combat=gameObject.AddComponent<BoardCombatPresentation>();combat.Initialize(mesh,this);
+            boardVfx=GetComponent<BoardVFXManager>();
+            if(boardVfx==null)boardVfx=gameObject.AddComponent<BoardVFXManager>();
             landingWaves=gameObject.AddComponent<BoardLandingWave>();
             biomes=gameObject.AddComponent<BoardBiomeVisuals>();biomes.Initialize(mesh);
             leaderSkybox=gameObject.AddComponent<LeaderSkybox>();
@@ -133,6 +163,7 @@ namespace WarConquer
             bool rebuilding=state!=game.State;
             if(rebuilding)
             {
+                boardVfx.ClearEffects();
                 foreach(var tile in tiles.Values)BoardMeshFactory.Release(tile.root.gameObject);
                 foreach(var piece in pieces.Values)BoardMeshFactory.Release(piece.root.gameObject);
                 foreach(var route in routes)BoardMeshFactory.Release(route);
@@ -193,6 +224,7 @@ namespace WarConquer
                         var crystal=mesh.Part(v.leaderPlatform,"Cristal suspendido",mesh.Cone,new Vector3(0,-.5f,0),new Vector3(1.6f,1.3f,1.6f),faction);
                         crystal.transform.localRotation=Quaternion.Euler(180,0,0);
                         var presentation=mesh.Group(v.leaderPlatform,"Observador",Vector3.up*.03f);
+                        v.leaderOrigin=presentation;
                         presentation.localScale=Vector3.one*2.6f;
                         // Imported leaders face local -Z after their prefab alignment.
                         presentation.rotation=Quaternion.LookRotation(outward,Vector3.up);

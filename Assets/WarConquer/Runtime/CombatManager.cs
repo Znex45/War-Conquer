@@ -59,9 +59,9 @@ namespace WarConquer
                 if(leader.leaderHealth==0){Eliminate(g,leader);tile.owner=attacker.owner;g.State.Log("J"+(attacker.owner+1)+" conquista la base de J"+(leader.id+1)+".");}
             }
         }
-        public static void Damage(GameManager g,Piece p,int amount,bool attack,Piece source=null,bool bypass=false)
+        public static void Damage(GameManager g,Piece p,int amount,bool attack,Piece source=null,bool bypass=false,bool spellDamage=false)
         {
-            if(!bypass&&XiltharRules.PreventHit(g,p,amount,source,false,attack))return;
+            if(!bypass&&XiltharRules.PreventHit(g,p,amount,source,false,attack,spellDamage))return;
             var c=g.Data(p);var nearby=BoardManager.Nearby(g.State,p.tileId).Where(a=>a.owner==p.owner).ToList(); int defense=0;
             if(c.subtypes.Contains("Hongo"))defense+=nearby.Count(a=>g.Data(a).Has("FungusDefenseAura"));
             if(c.Has("StructureGuard")&&nearby.Any(a=>g.Data(a).IsStructure))defense++;
@@ -70,12 +70,12 @@ namespace WarConquer
             var ownTile=g.State.tiles[p.tileId];
             bool oasis=c.Has("OasisGuard")&&ownTile.structure!=null&&g.Data(ownTile.structure).Has("Oasis");
             if((guard||oasis)&&p.protectionRound!=g.State.round){defense++;p.protectionRound=g.State.round;}
-            int actual=Math.Max(0,amount-defense);p.health-=actual;g.ReportDamage(p,actual,source);
+            int actual=Math.Max(0,amount-defense);p.health-=actual;g.ReportDamage(p,actual,source,spellDamage);
             g.State.Log(c.name+" recibe "+actual+" daño"+(defense>0?" (defensa "+defense+")":"")+".");
             if(p.health<=0)Remove(g,p);
         }
-        public static void DirectDamage(GameManager g,Piece p,int amount,Piece source=null,bool bypass=false)
-        {if(p==null||p.health<=0)return;if(!bypass&&XiltharRules.PreventHit(g,p,amount,source,true,false))return;int actual=Math.Max(0,amount);p.health-=actual;g.ReportDamage(p,actual,source);g.State.Log(g.Data(p).name+" recibe "+amount+" daño directo.");if(p.health<=0){XiltharRules.RegisterKill(g,source);Remove(g,p);GenericCardRules.OnKill(g,source,p);}}
+        public static void DirectDamage(GameManager g,Piece p,int amount,Piece source=null,bool bypass=false,bool spellDamage=false)
+        {if(p==null||p.health<=0)return;if(!bypass&&XiltharRules.PreventHit(g,p,amount,source,true,false,spellDamage))return;int actual=Math.Max(0,amount);p.health-=actual;g.ReportDamage(p,actual,source,spellDamage);g.State.Log(g.Data(p).name+" recibe "+amount+" daño directo.");if(p.health<=0){XiltharRules.RegisterKill(g,source);Remove(g,p);GenericCardRules.OnKill(g,source,p);}}
         public static void PoisonDamage(GameManager g,Piece p,int amount)
         {
             int actual=Math.Min(p.health,amount);p.health-=actual;g.ReportDamage(p,actual);g.State.Log(g.Data(p).name+": pierde "+amount+" VIDA por veneno.");

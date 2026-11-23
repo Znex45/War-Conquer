@@ -67,10 +67,10 @@ namespace WarConquer
             }
         }
         public static bool PendingHit(GameManager g,int victim)=>g.State.pendingChoices.Any(c=>c.kind=="VoidPrevent"&&c.victimId==victim);
-        public static bool PreventHit(GameManager g,Piece victim,int damage,Piece source,bool direct,bool attack)
+        public static bool PreventHit(GameManager g,Piece victim,int damage,Piece source,bool direct,bool attack,bool spellDamage=false)
         {
             if(victim==null||victim.health<=0||damage<=0||g.Data(victim).IsStructure)return false;
-            var choice=new PendingChoice{kind="VoidPrevent",owner=victim.owner,sourceId=source?.id??-1,victimId=victim.id,tileId=victim.tileId,amount=damage,direct=direct,attack=attack,optional=true,prompt="Void Hole · recibe 1 daño para prevenir el impacto, u omite para recibirlo"};
+            var choice=new PendingChoice{kind="VoidPrevent",owner=victim.owner,sourceId=source?.id??-1,victimId=victim.id,tileId=victim.tileId,amount=damage,direct=direct,attack=attack,spellDamage=spellDamage,optional=true,prompt="Void Hole · recibe 1 daño para prevenir el impacto, u omite para recibirlo"};
             if(ChoiceTargets(g,choice).Count==0)return false;
             int auto=g.State.pendingChoices.FindIndex(IsAuto);
             if(auto<0)g.State.pendingChoices.Add(choice);else g.State.pendingChoices.Insert(auto,choice);
@@ -151,7 +151,7 @@ namespace WarConquer
             {
                 var victim=Piece(g,c.victimId);if(victim==null)return true;
                 if(!skip&&target>=0){var hole=g.State.tiles[target].unit;hole.voidHoleTurn=g.State.turn;CombatManager.DirectDamage(g,hole,1,null,true);g.State.Log("Void Hole previene "+c.amount+" de daño.");}
-                else {var source=Piece(g,c.sourceId);if(c.direct){CombatManager.DirectDamage(g,victim,c.amount,source,true);if(source==null&&victim.health<=0)RegisterKill(g,c.sourceId);}else{CombatManager.Damage(g,victim,c.amount,c.attack,source,true);if(c.attack)GenericCardRules.OnKill(g,source,victim);}}
+                else {var source=Piece(g,c.sourceId);if(c.direct){CombatManager.DirectDamage(g,victim,c.amount,source,true,c.spellDamage);if(source==null&&victim.health<=0)RegisterKill(g,c.sourceId);}else{CombatManager.Damage(g,victim,c.amount,c.attack,source,true,c.spellDamage);if(c.attack)GenericCardRules.OnKill(g,source,victim);}}
                 return true;
             }
             if(skip||target<0)return true;

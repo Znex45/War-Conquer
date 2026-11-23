@@ -33,9 +33,9 @@ namespace WarConquer
                         case "Buff": if(p!=null)p.bonusAttack+=effect.amount;break;
                         case "Poison": if(p!=null)Poison(g,p,effect.amount,g.ActingPlayerId);g.ActingPlayer.towerUsed=true;break;
                         case "Sleep": if(p!=null)Sleep(g,p,g.ActingPlayerId);break;
-                        case "SleepPoisonDamage": if(p!=null){bool poisoned=p.poison>0;Sleep(g,p,g.ActingPlayerId);if(poisoned)CombatManager.Damage(g,p,1,false);}break;
-                        case "SporeDamage": g.ActingPlayer.spores--;if(p!=null)CombatManager.Damage(g,p,1,false);break;
-                        case "Damage": if(p!=null)CombatManager.Damage(g,p,effect.amount,false);break;
+                        case "SleepPoisonDamage": if(p!=null){bool poisoned=p.poison>0;Sleep(g,p,g.ActingPlayerId);if(poisoned)CombatManager.Damage(g,p,1,false,spellDamage:true);}break;
+                        case "SporeDamage": g.ActingPlayer.spores--;if(p!=null)CombatManager.Damage(g,p,1,false,spellDamage:true);break;
+                        case "Damage": if(p!=null)CombatManager.Damage(g,p,effect.amount,false,spellDamage:true);break;
                         case "Heal": GenericCardRules.Heal(g,p,effect.amount);break;
                         case "Slow": if(p!=null){p.slow=effect.amount;p.slowUntilTurn=g.NextTurnOf(p.owner);Negative(g,p);}break;
                         case "DestroyBiome": TerrainManager.DestroyBiome(g,t);break;
