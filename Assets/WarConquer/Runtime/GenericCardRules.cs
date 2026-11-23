@@ -46,22 +46,22 @@ namespace WarConquer
             switch(op)
             {
                 case "UnderDarkness": XiltharRules.BeginDarkness(g,owner);break;
-                case "GenericTerraform": TerrainManager.Terraform(g,t.id,choice,owner);DeckManager.Draw(s,player,1);break;
-                case "ClearingSpace": TerrainManager.Terraform(g,t.id,Biome.Wasteland,owner);DeckManager.Draw(s,player,2);break;
+                case "GenericTerraform": TerrainManager.Terraform(g,t.id,choice,owner);g.DrawFromSpell(player,1);break;
+                case "ClearingSpace": TerrainManager.Terraform(g,t.id,Biome.Wasteland,owner);g.DrawFromSpell(player,2);break;
                 case "CleansingConquest":
                     TerrainManager.Terraform(g,t.id,Biome.Wasteland,owner);SpecialMove(g,s.tiles[targets[1]].unit,t.id);break;
                 case "KillUnit": CombatManager.Remove(g,t.unit);break;
                 case "DiscardDraw": ChoiceManager.Enqueue(g,new PendingChoice{kind="Discard",owner=owner,count=1,drawAfter=2,prompt="One for the Team · descarta 1; después roba 2"});break;
                 case "DrawDiscard":
-                    DeckManager.Draw(s,player,3);ChoiceManager.Enqueue(g,new PendingChoice{kind="Discard",owner=owner,count=Math.Min(2,player.hand.Count),prompt="A Price to Pay · elige 2 cartas para descartar"});break;
+                    g.DrawFromSpell(player,3);ChoiceManager.Enqueue(g,new PendingChoice{kind="Discard",owner=owner,count=Math.Min(2,player.hand.Count),prompt="A Price to Pay · elige 2 cartas para descartar"});break;
                 case "DestroyWasteland": TerrainManager.DestroyBiome(g,t);break;
-                case "TokenDraw": DeckManager.Draw(s,player,g.Allies(owner).Count(p=>p.token));break;
-                case "LastGift": int hp=t.unit.health;CombatManager.Remove(g,t.unit);DeckManager.Draw(s,player,hp);break;
+                case "TokenDraw": g.DrawFromSpell(player,g.Allies(owner).Count(p=>p.token));break;
+                case "LastGift": int hp=t.unit.health;CombatManager.Remove(g,t.unit);g.DrawFromSpell(player,hp);break;
                 case "Engage":
                     var ally=t.unit;var enemy=s.tiles[targets[1]].unit;int destination=enemy.tileId;
                     if(!TerrainManager.CheckAction(g,ally,"Engage"))break;
                     g.ReportAttack(ally,enemy.tileId,BoardManager.AxialDistance(s.tiles[ally.tileId],s.tiles[enemy.tileId]));
-                    CombatManager.DirectDamage(g,enemy,CombatManager.AttackValue(g,ally,enemy),ally);
+                    CombatManager.DirectDamage(g,enemy,CombatManager.AttackValue(g,ally,enemy),ally,spellDamage:true);
                     if(XiltharRules.PendingHit(g,enemy.id))XiltharRules.DeferEngage(g,ally,enemy,destination);
                     if(enemy.health<=0&&CanLand(g,ally,s.tiles[destination]))SpecialMove(g,ally,destination);break;
                 case "TimeToMove":

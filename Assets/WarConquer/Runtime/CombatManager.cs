@@ -30,13 +30,6 @@ namespace WarConquer
         static bool AttackCore(GameManager g,Piece attacker,int target)
         {
             if(!Targets(g,attacker).Contains(target))return g.Fail("No puedes atacar: objetivo, alcance, ataque usado o Dormido.");
-            var tile = g.State.tiles[target];
-            var defender = tile.unit != null && tile.unit.owner != attacker.owner ? tile.unit :
-                tile.structure != null && tile.structure.owner != attacker.owner ? tile.structure : null;
-            int defenderOwner = defender?.owner ?? tile.baseOwner;
-            string defenderName = defender == null ? "base" : g.Data(defender).name;
-            g.State.LogAction(attacker.owner, g.Data(attacker).name + " ataca a " + defenderName + " de J" + (defenderOwner + 1),
-                "HEX " + (attacker.tileId + 1) + " → HEX " + (target + 1));
             if(attacker.attacked&&XiltharRules.CanSecondAttack(g,attacker)){attacker.darkFlyExtraAttack=true;attacker.remainingMovement=0;}
             if(!TerrainManager.CheckAction(g,attacker,"atacar")){attacker.attacked=true;g.Notify("Ataque interrumpido por el terreno.");return true;}
             BattleManager.Open(g,attacker,target);
@@ -66,9 +59,9 @@ namespace WarConquer
                 if(leader.leaderHealth==0){Eliminate(g,leader);tile.owner=attacker.owner;g.State.Log("J"+(attacker.owner+1)+" conquista la base de J"+(leader.id+1)+".");}
             }
         }
-        public static void Damage(GameManager g,Piece p,int amount,bool attack,Piece source=null,bool bypass=false)
+        public static void Damage(GameManager g,Piece p,int amount,bool attack,Piece source=null,bool bypass=false,bool spellDamage=false)
         {
-            if(!bypass&&XiltharRules.PreventHit(g,p,amount,source,false,attack))return;
+            if(!bypass&&XiltharRules.PreventHit(g,p,amount,source,false,attack,spellDamage))return;
             var c=g.Data(p);var nearby=BoardManager.Nearby(g.State,p.tileId).Where(a=>a.owner==p.owner).ToList(); int defense=0;
             if(c.subtypes.Contains("Hongo"))defense+=nearby.Count(a=>g.Data(a).Has("FungusDefenseAura"));
             if(c.Has("StructureGuard")&&nearby.Any(a=>g.Data(a).IsStructure))defense++;
@@ -77,12 +70,12 @@ namespace WarConquer
             var ownTile=g.State.tiles[p.tileId];
             bool oasis=c.Has("OasisGuard")&&ownTile.structure!=null&&g.Data(ownTile.structure).Has("Oasis");
             if((guard||oasis)&&p.protectionRound!=g.State.round){defense++;p.protectionRound=g.State.round;}
-            int actual=Math.Max(0,amount-defense);p.health-=actual;g.ReportDamage(p,actual,source);
-            g.State.Log("J" + (p.owner + 1) + " · " + c.name+" recibe "+actual+" daño"+(defense>0?" (defensa "+defense+")":"")+".");
+            int actual=Math.Max(0,amount-defense);p.health-=actual;g.ReportDamage(p,actual,source,spellDamage);
+            g.State.Log(c.name+" recibe "+actual+" daño"+(defense>0?" (defensa "+defense+")":"")+".");
             if(p.health<=0)Remove(g,p);
         }
-        public static void DirectDamage(GameManager g,Piece p,int amount,Piece source=null,bool bypass=false)
-        {if(p==null||p.health<=0)return;if(!bypass&&XiltharRules.PreventHit(g,p,amount,source,true,false))return;int actual=Math.Max(0,amount);p.health-=actual;g.ReportDamage(p,actual,source);g.State.Log(g.Data(p).name+" recibe "+amount+" daño directo.");if(p.health<=0){XiltharRules.RegisterKill(g,source);Remove(g,p);GenericCardRules.OnKill(g,source,p);}}
+        public static void DirectDamage(GameManager g,Piece p,int amount,Piece source=null,bool bypass=false,bool spellDamage=false)
+        {if(p==null||p.health<=0)return;if(!bypass&&XiltharRules.PreventHit(g,p,amount,source,true,false,spellDamage))return;int actual=Math.Max(0,amount);p.health-=actual;g.ReportDamage(p,actual,source,spellDamage);g.State.Log(g.Data(p).name+" recibe "+amount+" daño directo.");if(p.health<=0){XiltharRules.RegisterKill(g,source);Remove(g,p);GenericCardRules.OnKill(g,source,p);}}
         public static void PoisonDamage(GameManager g,Piece p,int amount)
         {
             int actual=Math.Min(p.health,amount);p.health-=actual;g.ReportDamage(p,actual);g.State.Log(g.Data(p).name+": pierde "+amount+" VIDA por veneno.");
@@ -92,12 +85,7 @@ namespace WarConquer
         {
             if(p==null)return;var t=g.State.tiles[p.tileId];if(t.unit!=p&&t.structure!=p)return;g.ReportDeath(p);p.health=0;if(t.unit==p)t.unit=null;if(t.structure==p)t.structure=null;
             if(t.specialEffect!=null&&t.specialEffect.sourceId==p.id)t.specialEffect=null;
-            if (!p.token && !g.Data(p).Has("BabyPhoenix"))
-            {
-                var discarded = new CardInstance { instanceId = p.id, cardId = p.cardId };
-                g.State.players[p.owner].discardPile.Add(discarded);
-                g.State.RecordCardFlow(new CardFlow(CardFlowKind.Discard, p.owner, discarded, p.tileId));
-            }
+            if(!p.token&&!g.Data(p).Has("BabyPhoenix"))g.State.players[p.owner].discardPile.Add(new CardInstance {instanceId=p.id,cardId=p.cardId});
             XiltharRules.OnDeath(g,p);FactionCardRules.OnDestroyed(g,p,poisonAfterId);GenericCardRules.OnDestroyed(g,p);GenericCardRules.SyncAuras(g);TerrainManager.MaintainRoutes(g);ConquestManager.Refresh(g.State);g.State.Log(g.Data(p).name+" destruida"+(p.token?".":g.Data(p).Has("BabyPhoenix")?" → retorno a mano pendiente.":" → descarte."));
         }
         static void Eliminate(GameManager g,Player player)
