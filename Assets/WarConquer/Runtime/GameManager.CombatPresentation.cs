@@ -2,7 +2,7 @@ using System;
 
 namespace WarConquer
 {
-    public enum CombatVisualKind { Attack, Damage, Death, LeaderDamage, SpellDraw }
+    public enum CombatVisualKind { Attack, Damage, Death, LeaderDamage, SpellDraw, Terraform, Buff, Target }
 
     // Transient presentation messages are intentionally outside the saved game and undo history.
     public readonly struct CombatVisualSignal
@@ -33,5 +33,8 @@ namespace WarConquer
             if(drawn>0)
                 CombatVisual?.Invoke(new CombatVisualSignal(State,CombatVisualKind.SpellDraw,-1,-1,-1,-1,drawn,player.id));
         }
+
+        internal void ReportBoardVfx(CombatVisualKind kind,int tile,int owner)
+        {CombatVisual?.Invoke(new CombatVisualSignal(State,kind,-1,-1,tile,tile,0,owner));}
     }
 }

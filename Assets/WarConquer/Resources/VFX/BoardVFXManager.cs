@@ -10,6 +10,9 @@ namespace WarConquer
         [Header("Effects")]
         [SerializeField] private VisualEffectAsset damageEffect;
         [SerializeField] private VisualEffectAsset drawEffect;
+        [SerializeField] private VisualEffectAsset terraformEffect;
+        [SerializeField] private VisualEffectAsset buffEffect;
+        [SerializeField] private VisualEffectAsset targetEffect;
 
         private readonly List<GameObject> activeEffects = new();
         private const float BurstLifetime = 8f;
@@ -20,10 +23,16 @@ namespace WarConquer
                 damageEffect = Resources.Load<VisualEffectAsset>("VFX/Damage");
             if (drawEffect == null)
                 drawEffect = Resources.Load<VisualEffectAsset>("VFX/Draw");
+            if (terraformEffect == null) terraformEffect = Resources.Load<VisualEffectAsset>("VFX/Terraform");
+            if (buffEffect == null) buffEffect = Resources.Load<VisualEffectAsset>("VFX/Buff");
+            if (targetEffect == null) targetEffect = Resources.Load<VisualEffectAsset>("VFX/Target");
         }
 
         public void PlayDamage(Vector3 position) => PlayBurst(damageEffect, "Damage", position);
         public void PlayDraw(Vector3 position) => PlayBurst(drawEffect, "Draw", position);
+        public void PlayTerraform(Vector3 position) => PlayBurst(terraformEffect, "Terraform", position);
+        public void PlayBuff(Vector3 position) => PlayBurst(buffEffect, "Buff", position);
+        public void PlayTarget(Vector3 position) => PlayBurst(targetEffect, "Target", position);
 
         private void PlayBurst(VisualEffectAsset asset, string effectName, Vector3 position)
         {
@@ -38,13 +47,24 @@ namespace WarConquer
             instance.layer = BoardMeshFactory.Layer;
             instance.transform.SetParent(transform, true);
             instance.transform.position = position;
+            instance.transform.localScale = Vector3.one * (effectName == "Damage" ? 1.55f : 1.2f);
 
             VisualEffect effect = instance.AddComponent<VisualEffect>();
             effect.visualEffectAsset = asset;
             instance.SetActive(true);
+            effect.Reinit();
+            effect.Play();
+            SetLayerRecursively(instance, BoardMeshFactory.Layer);
 
             activeEffects.Add(instance);
             StartCoroutine(RemoveBurst(instance));
+        }
+
+        private static void SetLayerRecursively(GameObject root, int layer)
+        {
+            root.layer = layer;
+            foreach (Transform child in root.transform)
+                SetLayerRecursively(child.gameObject, layer);
         }
 
         private IEnumerator RemoveBurst(GameObject instance)

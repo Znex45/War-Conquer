@@ -135,13 +135,10 @@ namespace WarConquer
             }
             return new List<int>();
         }
-        static void Recast(GameManager g,PendingChoice c,int tile,bool darkness,bool debt,int paid)
+        static void Recast(GameManager g,PendingChoice c,int tile,bool darkness,bool debt)
         {
             var card=DiscardCard(g,c);if(card==null)return;
-            g.State.LogAction(c.owner, "Vuelve a jugar " + g.Catalog[card.cardId].name + " desde el descarte", "HEX " + (tile + 1) + " · Pago: " + paid + " Energía" + (debt ? " · Pago diferido pendiente" : ""));
             g.State.players[c.owner].discardPile.Remove(card);g.State.tiles[tile].owner=c.owner;
-            g.State.RecordCardFlow(new CardFlow(CardFlowKind.Play, c.owner, card,
-                payment: paid + " Energía", targets: "HEX " + (tile + 1), battle: g.State.battle, fromDiscard: true));
             var unit=g.Place(card.cardId,c.owner,tile,card.instanceId,false);unit.underDarkness=darkness;unit.beaconDebt=debt;g.ForPlayer(c.owner,()=>{EffectManager.OnEnter(g,unit);return true;});
             if(debt&&g.State.endingTurn&&c.owner==g.State.activePlayer)
                 ChoiceManager.Enqueue(g,new PendingChoice{kind="BeaconDebt",owner=c.owner,sourceId=unit.id,tileId=tile,prompt="Void Beacon · pagar coste +2 o dejar morir"});
@@ -153,7 +150,7 @@ namespace WarConquer
             if(c.kind=="VoidPrevent")
             {
                 var victim=Piece(g,c.victimId);if(victim==null)return true;
-                if(!skip&&target>=0){var hole=g.State.tiles[target].unit;hole.voidHoleTurn=g.State.turn;CombatManager.DirectDamage(g,hole,1,null,true);g.State.Log("Void Hole previene "+c.amount+" de daño.");}
+        if(!skip&&target>=0){var hole=g.State.tiles[target].unit;hole.voidHoleTurn=g.State.turn;CombatManager.DirectDamage(g,hole,1,null,true);g.State.Log("Void Hole previene "+c.amount+" de daño.");}
                 else {var source=Piece(g,c.sourceId);if(c.direct){CombatManager.DirectDamage(g,victim,c.amount,source,true,c.spellDamage);if(source==null&&victim.health<=0)RegisterKill(g,c.sourceId);}else{CombatManager.Damage(g,victim,c.amount,c.attack,source,true,c.spellDamage);if(c.attack)GenericCardRules.OnKill(g,source,victim);}}
                 return true;
             }
@@ -164,18 +161,18 @@ namespace WarConquer
             if(c.kind=="DarknessLand")
             {
                 var card=DiscardCard(g,c);int tax=RecastCost(g,c.owner,g.Catalog[card.cardId],true);
-                if(player.currentEnergy>=tax){player.currentEnergy-=tax;Recast(g,c,target,true,false,tax);}
+                if(player.currentEnergy>=tax){player.currentEnergy-=tax;Recast(g,c,target,true,false);}
             }
             if(c.kind=="BeaconPick")ChoiceManager.Enqueue(g,new PendingChoice{kind="BeaconMode",owner=c.owner,cardRefId=c.cardRefId,sourceId=g.State.tiles[target].structure.id,tileId=target,optional=true,prompt="Void Beacon · elige el pago o la muerte diferida"});
             if(c.kind=="BeaconMode")
             {
-                var card=DiscardCard(g,c);int paid=RecastCost(g,c.owner,g.Catalog[card.cardId],target==0);player.currentEnergy-=paid;
-                var beacon=Piece(g,c.sourceId);int tile=beacon.tileId;CombatManager.Remove(g,beacon);Recast(g,c,tile,false,target==0,paid);
+                var card=DiscardCard(g,c);player.currentEnergy-=RecastCost(g,c.owner,g.Catalog[card.cardId],target==0);
+                var beacon=Piece(g,c.sourceId);int tile=beacon.tileId;CombatManager.Remove(g,beacon);Recast(g,c,tile,false,target==0);
             }
             if(c.kind=="BeaconDebt")
             {
-                var unit=Piece(g,c.sourceId);if(target==1){int paid=g.Data(unit).energyCost+2;player.currentEnergy-=paid;unit.beaconDebt=false;g.State.LogAction(c.owner,"Mantiene a "+g.Data(unit).name+" con Void Beacon","Pago: "+paid+" Energía");}
-                else CombatManager.Remove(g,unit);
+                var unit=Piece(g,c.sourceId);if(target==1){player.currentEnergy-=g.Data(unit).energyCost+2;unit.beaconDebt=false;}
+                else {g.ReportBoardVfx(CombatVisualKind.Damage,unit.tileId,c.owner);CombatManager.Remove(g,unit);}
             }
             return true;
         }

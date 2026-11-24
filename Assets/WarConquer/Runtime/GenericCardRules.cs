@@ -50,13 +50,13 @@ namespace WarConquer
                 case "ClearingSpace": TerrainManager.Terraform(g,t.id,Biome.Wasteland,owner);g.DrawFromSpell(player,2);break;
                 case "CleansingConquest":
                     TerrainManager.Terraform(g,t.id,Biome.Wasteland,owner);SpecialMove(g,s.tiles[targets[1]].unit,t.id);break;
-                case "KillUnit": CombatManager.Remove(g,t.unit);break;
+                case "KillUnit": if(t.unit!=null){g.ReportBoardVfx(CombatVisualKind.Damage,t.id,owner);CombatManager.Remove(g,t.unit);}break;
                 case "DiscardDraw": ChoiceManager.Enqueue(g,new PendingChoice{kind="Discard",owner=owner,count=1,drawAfter=2,prompt="One for the Team · descarta 1; después roba 2"});break;
                 case "DrawDiscard":
                     g.DrawFromSpell(player,3);ChoiceManager.Enqueue(g,new PendingChoice{kind="Discard",owner=owner,count=Math.Min(2,player.hand.Count),prompt="A Price to Pay · elige 2 cartas para descartar"});break;
                 case "DestroyWasteland": TerrainManager.DestroyBiome(g,t);break;
                 case "TokenDraw": g.DrawFromSpell(player,g.Allies(owner).Count(p=>p.token));break;
-                case "LastGift": int hp=t.unit.health;CombatManager.Remove(g,t.unit);g.DrawFromSpell(player,hp);break;
+                case "LastGift": int hp=t.unit.health;g.ReportBoardVfx(CombatVisualKind.Damage,t.id,owner);CombatManager.Remove(g,t.unit);g.DrawFromSpell(player,hp);break;
                 case "Engage":
                     var ally=t.unit;var enemy=s.tiles[targets[1]].unit;int destination=enemy.tileId;
                     if(!TerrainManager.CheckAction(g,ally,"Engage"))break;
@@ -66,7 +66,8 @@ namespace WarConquer
                     if(enemy.health<=0&&CanLand(g,ally,s.tiles[destination]))SpecialMove(g,ally,destination);break;
                 case "TimeToMove":
                     foreach(var unit in BoardManager.UnitsWithinRadius(s,t.id,8))
-                    {unit.temporaryMovement+=4;unit.movementExpiresTurn=s.turn;if(!g.IsSleeping(unit))unit.remainingMovement+=4;}break;
+                    {unit.temporaryMovement+=4;unit.movementExpiresTurn=s.turn;if(!g.IsSleeping(unit))unit.remainingMovement+=4;}
+                    g.ReportBoardVfx(CombatVisualKind.Buff,t.id,owner);break;
                 case "Bomb": CombatManager.DirectDamage(g,t.structure,3);break;
                 default:return false;
             }
