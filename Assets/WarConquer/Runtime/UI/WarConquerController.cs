@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.InputSystem;
 
 namespace WarConquer
 {
@@ -26,6 +27,7 @@ namespace WarConquer
         BoardView board;
         ConquestAudioFeedback conquestAudio;
         MatchMusic matchMusic;
+        VideoGameplayDirector videoGameplay;
 
         string mode = "inspect", handFilter = "Todas";
 
@@ -63,6 +65,7 @@ namespace WarConquer
 
             conquestAudio = gameObject.AddComponent<ConquestAudioFeedback>();
             matchMusic = gameObject.AddComponent<MatchMusic>();
+            videoGameplay = gameObject.AddComponent<VideoGameplayDirector>();
 
             Game = new GameManager(CardCatalog.Load());
 
@@ -567,6 +570,8 @@ namespace WarConquer
             if (root == null)
                 return;
 
+            CheckVideoGameplayCommand();
+
             var canvas =
                 cachedScaler;
 
@@ -586,6 +591,8 @@ namespace WarConquer
             // no ejecutamos la lógica visual de la partida.
             if (mainMenuVisible)
                 return;
+
+            if(videoGameplay!=null&&videoGameplay.EnsurePlayableUnit(Game))Render();
 
             if (Mathf.Abs(AvailableMatchWidth - 1600f - matchExtraWidth) > .1f)
                 Render();

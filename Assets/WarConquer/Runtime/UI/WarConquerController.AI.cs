@@ -13,7 +13,8 @@ namespace WarConquer
             {nextAiAction=Time.unscaledTime+.75f;return;}
             if(Time.unscaledTime<nextAiAction)return;
             nextAiAction=Time.unscaledTime+.65f;
-            aiPlayer.Step(Game);
+            if(videoGameplay!=null&&videoGameplay.Active)videoGameplay.StepAI(Game);
+            else aiPlayer.Step(Game);
         }
     }
 }
