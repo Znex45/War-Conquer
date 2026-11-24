@@ -29,7 +29,13 @@ namespace WarConquer
             input.Scroll=(amount,cursor)=>World.ZoomAt(amount,cursor);
             input.Hover=position=>World.Hover(position.HasValue?World.Pick(position.Value):-1);
             Overlay=GrayboxUI.Rect(parent,"Información sobre el tablero",0,0,982,648);
+            Stretch(imageRoot);Stretch(Overlay);
             Tick();
+        }
+        static void Stretch(RectTransform rect)
+        {
+            rect.anchorMin=Vector2.zero;rect.anchorMax=Vector2.one;
+            rect.offsetMin=Vector2.zero;rect.offsetMax=Vector2.zero;
         }
         public void Render(GameManager game,HashSet<int> valid,HashSet<int> selected,int focus)
         {GrayboxUI.Clear(Overlay);World.Sync(game,valid,selected,focus);Tick();}
@@ -64,7 +70,7 @@ namespace WarConquer
         }
         public void OnDrag(PointerEventData data)
         {
-            if(data.button!=PointerEventData.InputButton.Left&&data.button!=PointerEventData.InputButton.Right)return;
+            if(data.button!=PointerEventData.InputButton.Middle&&data.button!=PointerEventData.InputButton.Right)return;
             bool beginning=!dragged;
             if(beginning)
             {

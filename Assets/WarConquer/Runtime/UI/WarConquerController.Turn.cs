@@ -61,13 +61,12 @@ namespace WarConquer
         void DrawAbilityAction(ref float y)
         {
             var available=selectedPiece!=null&&AbilityManager.CanActivate(Game,selectedPiece)?selectedPiece:Game.Allies(Game.ActingPlayerId).FirstOrDefault(p=>AbilityManager.CanActivate(Game,p));
-            if(available!=null)ActionButton("Habilidad de pieza",ref y,()=>{selectedPiece=available;focus=available.tileId;selectedCard=-1;if(AbilityManager.TargetCount(Game.Data(available))==0)AbilityManager.Activate(Game,available,new int[0]);else Begin("ability");});
+            if(available!=null)ActionButton("Habilidad de pieza",ref y,()=>ChooseActionPiece("ability"));
         }
         void FilterHand(string filter){ClearAction();handFilter=filter;page=0;Render();}
         void SelectActionPiece(bool attack)
         {
-            ClearAction();selectedPiece=Game.Allies(Game.ActingPlayerId).FirstOrDefault(p=>attack?CombatManager.Targets(Game,p).Count>0:MovementManager.Paths(Game,p).Count>0);
-            if(selectedPiece==null)return;focus=selectedPiece.tileId;mode=attack?"attack":"move";Render();
+            ChooseActionPiece(attack?"attack":"move");
         }
         void DrawLeader(Player player)
         {

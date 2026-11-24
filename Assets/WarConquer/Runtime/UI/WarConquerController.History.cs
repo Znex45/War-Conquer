@@ -17,6 +17,7 @@ namespace WarConquer
             }
             rewindButton.gameObject.SetActive(!setupVisible&&Game.State.phase!=Phase.Setup);
             rewindButton.interactable=Game.CanUndo;
+            ((RectTransform)rewindButton.transform).anchoredPosition=new Vector2(1210f+matchExtraWidth*.5f,-10f);
             rewindImage.color=Game.CanUndo?Color.Lerp(edge,Color.white,.56f):GrayboxUI.Disabled;
             rewindText.color=Game.CanUndo?GrayboxUI.ActionInk:GrayboxUI.Muted;
             if(rewindButton.transform.GetSiblingIndex()!=rewindButton.transform.parent.childCount-1)rewindButton.transform.SetAsLastSibling();
