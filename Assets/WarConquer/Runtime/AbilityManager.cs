@@ -39,10 +39,10 @@ namespace WarConquer
             if(!TerrainManager.CheckAction(g,p,"habilidad")){p.abilityUsed=true;g.Notify("Habilidad interrumpida por el terreno.");return true;}
             if(XiltharRules.Active(c))XiltharRules.Activate(g,p,targets);
             if(GenericCardRules.IsActive(c))GenericCardRules.Activate(g,p,targets);
-            if(c.Has("ExtendBuff")){g.ActingPlayer.spores--;g.State.tiles[targets[0]].unit.bonusAttack+=bonus;}
+            if(c.Has("ExtendBuff")){g.ActingPlayer.spores--;g.State.tiles[targets[0]].unit.bonusAttack+=bonus;g.ReportBoardVfx(CombatVisualKind.Buff,targets[0],p.owner);}
             if(c.Has("FastNetwork"))TerrainManager.CreateFastRoute(g,targets[0],targets[1],p);
             if(c.Has("StructureDiscount"))g.ActingPlayer.structureDiscount++;
-            if(c.Has("CampStep"))g.State.tiles[targets[0]].unit.remainingMovement++;
+            if(c.Has("CampStep")){g.State.tiles[targets[0]].unit.remainingMovement++;g.ReportBoardVfx(CombatVisualKind.Buff,targets[0],p.owner);}
             if(c.Has("DestroyBiome"))TerrainManager.DestroyBiome(g,g.State.tiles[targets[0]]);
             if(!c.Has("EternalEye"))p.abilityUsed=true;BattleManager.AfterResponse(g);g.Notify("Habilidad de "+c.name+" resuelta.");return true;
         }

@@ -49,6 +49,7 @@ namespace WarConquer
         BoardLandingWave landingWaves;
         BoardCombatPresentation combat;
         BoardVFXManager boardVfx;
+        int lastTargetVfx=-1;
         Transform hoverRing;
         readonly HashSet<int> actionTargets=new HashSet<int>();
         readonly RaycastHit[] pickHits=new RaycastHit[128];
@@ -87,6 +88,9 @@ namespace WarConquer
                 return;
             }
         }
+        internal void PlayTerraform(int tile){if(TryGetTileWorldPosition(tile,out var p))boardVfx.PlayTerraform(p);}
+        internal void PlayBuff(int tile){if(TryGetTileWorldPosition(tile,out var p))boardVfx.PlayBuff(p);}
+        internal void PlayTarget(int tile){if(TryGetTileWorldPosition(tile,out var p))boardVfx.PlayTarget(p);}
         public Transform UnitVisual(int id)=>pieces.TryGetValue(id,out var p)?p.root:null;
         public bool IsAnimating
         {
@@ -405,6 +409,7 @@ namespace WarConquer
             if(!visible)return;
             hoverRing.localPosition=Position(state.tiles[tile])+Vector3.up*(BoardMeshFactory.Surface+.064f);
             mesh.Paint(hoverRing.GetComponent<Renderer>(),actionTargets.Contains(tile)?new Color(.65f,1,.8f):Color.white);
+            if(actionTargets.Contains(tile)&&tile!=lastTargetVfx){lastTargetVfx=tile;PlayTarget(tile);}
         }
         public Vector2 ViewportOf(int tile,float height=BoardMeshFactory.Surface)
         {var point=BoardCamera.WorldToViewportPoint(Position(state.tiles[tile])+Vector3.up*height);return new Vector2(point.x,point.y);}

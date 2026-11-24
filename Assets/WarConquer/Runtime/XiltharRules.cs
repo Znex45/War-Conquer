@@ -150,7 +150,7 @@ namespace WarConquer
             if(c.kind=="VoidPrevent")
             {
                 var victim=Piece(g,c.victimId);if(victim==null)return true;
-                if(!skip&&target>=0){var hole=g.State.tiles[target].unit;hole.voidHoleTurn=g.State.turn;CombatManager.DirectDamage(g,hole,1,null,true);g.State.Log("Void Hole previene "+c.amount+" de daño.");}
+        if(!skip&&target>=0){var hole=g.State.tiles[target].unit;hole.voidHoleTurn=g.State.turn;CombatManager.DirectDamage(g,hole,1,null,true);g.State.Log("Void Hole previene "+c.amount+" de daño.");}
                 else {var source=Piece(g,c.sourceId);if(c.direct){CombatManager.DirectDamage(g,victim,c.amount,source,true,c.spellDamage);if(source==null&&victim.health<=0)RegisterKill(g,c.sourceId);}else{CombatManager.Damage(g,victim,c.amount,c.attack,source,true,c.spellDamage);if(c.attack)GenericCardRules.OnKill(g,source,victim);}}
                 return true;
             }
@@ -172,7 +172,7 @@ namespace WarConquer
             if(c.kind=="BeaconDebt")
             {
                 var unit=Piece(g,c.sourceId);if(target==1){player.currentEnergy-=g.Data(unit).energyCost+2;unit.beaconDebt=false;}
-                else CombatManager.Remove(g,unit);
+                else {g.ReportBoardVfx(CombatVisualKind.Damage,unit.tileId,c.owner);CombatManager.Remove(g,unit);}
             }
             return true;
         }

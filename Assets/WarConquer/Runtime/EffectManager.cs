@@ -30,7 +30,7 @@ namespace WarConquer
                     switch(effect.operation)
                     {
                         case "Terraform": TerrainManager.Terraform(g,id,effect.biome=="ChooseForestSwamp"?choice:(Biome)Enum.Parse(typeof(Biome),effect.biome),g.ActingPlayerId);break;
-                        case "Buff": if(p!=null)p.bonusAttack+=effect.amount;break;
+                        case "Buff": if(p!=null){p.bonusAttack+=effect.amount;g.ReportBoardVfx(CombatVisualKind.Buff,id,g.ActingPlayerId);}break;
                         case "Poison": if(p!=null)Poison(g,p,effect.amount,g.ActingPlayerId);g.ActingPlayer.towerUsed=true;break;
                         case "Sleep": if(p!=null)Sleep(g,p,g.ActingPlayerId);break;
                         case "SleepPoisonDamage": if(p!=null){bool poisoned=p.poison>0;Sleep(g,p,g.ActingPlayerId);if(poisoned)CombatManager.Damage(g,p,1,false,spellDamage:true);}break;

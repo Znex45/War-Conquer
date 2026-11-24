@@ -759,7 +759,7 @@ MonoBehaviour:
   enableRayTracing: 0
   decimationFactor: 1
   raytracedScaleMode: 0
-  needsOwnSort: 1
+  needsOwnSort: 0
   needsOwnAabbBuffer: 0
   m_Topology:
     rid: 4767603742889213954
@@ -778,9 +778,19 @@ MonoBehaviour:
       data:
         shaderGraph: {fileID: 4333940904281232215, guid: ca65a227a6dafec439a4630ce802978d, type: 3}
         materialSettings:
-          m_PropertyNames: []
-          m_PropertyValues: []
-          renderQueue: -1
+          m_PropertyNames:
+          - _Blend
+          - _DstBlend
+          - _DstBlendAlpha
+          - _QueueControl
+          - _SrcBlend
+          m_PropertyValues:
+          - 2
+          - 1
+          - 1
+          - 0
+          - 5
+          renderQueue: 3000
 --- !u!114 &8926484042661614582
 MonoBehaviour:
   m_ObjectHideFlags: 0
