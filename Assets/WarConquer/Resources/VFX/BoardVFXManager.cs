@@ -38,13 +38,24 @@ namespace WarConquer
             instance.layer = BoardMeshFactory.Layer;
             instance.transform.SetParent(transform, true);
             instance.transform.position = position;
+            instance.transform.localScale = Vector3.one * (effectName == "Damage" ? 1.55f : 1.2f);
 
             VisualEffect effect = instance.AddComponent<VisualEffect>();
             effect.visualEffectAsset = asset;
             instance.SetActive(true);
+            effect.Reinit();
+            effect.Play();
+            SetLayerRecursively(instance, BoardMeshFactory.Layer);
 
             activeEffects.Add(instance);
             StartCoroutine(RemoveBurst(instance));
+        }
+
+        private static void SetLayerRecursively(GameObject root, int layer)
+        {
+            root.layer = layer;
+            foreach (Transform child in root.transform)
+                SetLayerRecursively(child.gameObject, layer);
         }
 
         private IEnumerator RemoveBurst(GameObject instance)
