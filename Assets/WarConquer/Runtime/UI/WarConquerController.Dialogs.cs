@@ -125,7 +125,9 @@ foreach (string deck in CardCatalog.Leaders)
         {
             CloseModal(); ClearAction(); lastActor = -1; viewedPlayer = 0; focus = -1; page = 0; handFilter = "Todas"; board.Reset();
             aiPlayer = new AiPlayer(); nextAiAction = Time.unscaledTime + 1;
+            seed = System.Guid.NewGuid().GetHashCode() & int.MaxValue;
             Game.NewGame(leaders, seed, CardCatalog.LoadRules(), humanPlayers);
+            matchMusic?.StartMatch();
             if (scenario) { PrototypeScenario.Load(Game); Game.Notify("Escenario de pruebas: biomas y unidades preparadas. No es el inicio normal de partida."); }
         }
         void ShowMatchMenu()
@@ -143,6 +145,7 @@ foreach (string deck in CardCatalog.Leaders)
             SkinChoiceButton(body, "Cargar", 586, 260, 474, 72, () => { CloseModal(); Load(); }, 26, false, SkinGold);
             SkinChoiceButton(body, "Registro", 70, 352, 474, 72, ShowLog, 26, false, SkinGold);
             SkinChoiceButton(body, "Ayuda", 586, 352, 474, 72, ShowHelp, 26, false, SkinGold);
+            SkinChoiceButton(body, matchMusic != null && matchMusic.Muted ? "Música: SILENCIADA" : "Música: ACTIVADA", 70, 444, 990, 56, () => { matchMusic?.ToggleMute(); ShowMatchMenu(); }, 22, false, SkinGold);
             SkinChoiceButton(body, "Nueva partida", 70, 520, 990, 72, ShowSetup, 26, false, SkinGold);
             SkinChoiceButton(body, "Salir al menú principal", 70, 620, 990, 72, ShowExitConfirm, 26, false, SkinGold);
 
@@ -164,6 +167,14 @@ foreach (string deck in CardCatalog.Leaders)
             SkinChoiceButton(body, "Seguir jugando", 70, 400, 990, 84, ShowMatchMenu, 30, true, SkinGold);
             SkinChoiceButton(body, "Guardar y salir", 70, 510, 474, 72, () => ExitToMainMenu(true), 26, false, SkinGold);
             SkinChoiceButton(body, "Salir sin guardar", 586, 510, 474, 72, () => ExitToMainMenu(false), 26, false, SkinGold);
+        }
+        void ShowAudioOptions(bool mainMenu)
+        {
+            var body=OpenModal("OPCIONES DE AUDIO",false);SkinSetupFrame(body);
+            var title=GrayboxUI.Text(body,"MÚSICA DE PARTIDA",70,150,990,55,30,SkinGold,FontStyle.Bold);title.alignment=TextAnchor.MiddleCenter;
+            var detail=GrayboxUI.Text(body,"Durante cada partida se elige una pista ambiental al azar y se reproduce en bucle a volumen bajo.",120,235,890,100,23,SkinCream);detail.alignment=TextAnchor.MiddleCenter;
+            SkinChoiceButton(body,matchMusic!=null&&matchMusic.Muted?"Activar música":"Silenciar música",220,385,690,78,()=>{matchMusic?.ToggleMute();ShowAudioOptions(mainMenu);},27,true,SkinGold);
+            SkinChoiceButton(body,"Volver",220,510,690,66,()=>{CloseModal();if(mainMenu)ShowMainMenu();else ShowMatchMenu();},24,false,SkinGold);
         }
         void ExitToMainMenu(bool saveFirst)
         {

@@ -9,7 +9,7 @@ namespace WarConquer
     // A live 3D camera inside the existing card HUD.
     public sealed class BoardView : IDisposable
     {
-        public const float Width = 746, ViewportHeight = 648;
+        readonly RectTransform root;
         readonly RawImage viewport;
         readonly Canvas canvas;
         public readonly Board3DScene World;
@@ -18,9 +18,9 @@ namespace WarConquer
         public Vector2 Pan {get=>World.Pan;set=>World.Pan=value;}
         public BoardView(RectTransform parent,WarConquerController controller)
         {
-            canvas=parent.GetComponentInParent<Canvas>();
+            root=parent;canvas=root.GetComponentInParent<Canvas>();
             var world=new GameObject("WAR & CONQUER · TABLERO 3D");world.transform.SetParent(controller.transform,false);World=world.AddComponent<Board3DScene>();World.Initialize();
-            var imageRoot=GrayboxUI.Rect(parent,"Vista del tablero 3D",0,0,Width,ViewportHeight);viewport=imageRoot.gameObject.AddComponent<RawImage>();viewport.color=Color.white;
+            var imageRoot=GrayboxUI.Rect(parent,"Vista del tablero 3D",0,0,982,648);viewport=imageRoot.gameObject.AddComponent<RawImage>();viewport.color=Color.white;
             var input=imageRoot.gameObject.AddComponent<BoardViewportInput>();input.Click=position=>{int id=World.Pick(position);if(id>=0)controller.TileClick(id);};
             input.Drag=(from,to,orbit)=>{
                 if(orbit){var delta=to-from;World.Yaw=Mathf.Repeat(World.Yaw+delta.x*220f,360f);World.Pitch-=delta.y*130f;World.UpdateCamera();}
@@ -28,16 +28,21 @@ namespace WarConquer
             };
             input.Scroll=(amount,cursor)=>World.ZoomAt(amount,cursor);
             input.Hover=position=>World.Hover(position.HasValue?World.Pick(position.Value):-1);
-            Overlay=GrayboxUI.Rect(parent,"Información sobre el tablero",0,0,Width,ViewportHeight);
+            Overlay=GrayboxUI.Rect(parent,"Información sobre el tablero",0,0,982,648);
+            Stretch(imageRoot);Stretch(Overlay);
             Tick();
+        }
+        static void Stretch(RectTransform rect)
+        {
+            rect.anchorMin=Vector2.zero;rect.anchorMax=Vector2.one;
+            rect.offsetMin=Vector2.zero;rect.offsetMax=Vector2.zero;
         }
         public void Render(GameManager game,HashSet<int> valid,HashSet<int> selected,int focus)
         {GrayboxUI.Clear(Overlay);World.Sync(game,valid,selected,focus);Tick();}
         public void Tick()
         {
             float scale=canvas!=null?canvas.scaleFactor:1;
-            var rect = viewport.rectTransform.rect;
-            World.ResizeTexture(Mathf.RoundToInt(rect.width*scale),Mathf.RoundToInt(rect.height*scale));
+            World.ResizeTexture(Mathf.RoundToInt(root.rect.width*scale),Mathf.RoundToInt(root.rect.height*scale));
             if(viewport.texture!=World.Texture)viewport.texture=World.Texture;
         }
         public void Rotate(float degrees){World.Yaw+=degrees;World.UpdateCamera();}
@@ -65,7 +70,7 @@ namespace WarConquer
         }
         public void OnDrag(PointerEventData data)
         {
-            if(data.button!=PointerEventData.InputButton.Left&&data.button!=PointerEventData.InputButton.Right)return;
+            if(data.button!=PointerEventData.InputButton.Middle&&data.button!=PointerEventData.InputButton.Right)return;
             bool beginning=!dragged;
             if(beginning)
             {
