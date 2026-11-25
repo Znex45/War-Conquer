@@ -111,7 +111,7 @@ namespace WarConquer
             if(!g.Data(p).Has("ForestPanther"))return;
             var to=g.State.tiles[p.tileId].biome;
             if(from!=Biome.Forest&&to==Biome.Forest)Heal(g,p,g.MaxHealth(p));
-            if(from==Biome.Forest&&to!=Biome.Forest)ChoiceManager.Enqueue(g,new PendingChoice{owner=p.owner,kind="Panther",sourceId=p.id,tileId=p.tileId,count=1,optional=true,prompt="Panther · elige una unidad a 2rad para infligir 2 de daño"});
+            if(from==Biome.Forest&&to!=Biome.Forest)ChoiceManager.Enqueue(g,new PendingChoice{owner=p.owner,kind="Panther",sourceId=p.id,tileId=p.tileId,count=1,optional=true,prompt="Panther · inflige 2 de daño a un enemigo a 2 casillas de radio del destino."});
         }
         public static void OnKill(GameManager g,Piece source,Piece victim)
         {FactionCardRules.OnKill(g,source,victim);if(source!=null&&source.health>0&&!g.Data(victim).IsStructure&&victim.health<=0&&g.Data(source).Has("KillHeal"))Heal(g,source,g.MaxHealth(source));}

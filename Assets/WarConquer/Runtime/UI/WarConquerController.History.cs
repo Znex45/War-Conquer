@@ -25,7 +25,7 @@ namespace WarConquer
         {
             if(!Game.CanUndo)return;
             CloseModal();ClearAction();discardSelection.Clear();displayedChoice=null;
-            focus=-1;page=0;lastActor=-1;handFilter="Todas";useResources=false;
+            focus=-1;page=0;lastActor=-1;handFilter="Todas";
             aiPlayer=new AiPlayer();nextAiAction=Time.unscaledTime+1;
             Game.Undo();
         }

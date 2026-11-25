@@ -9,14 +9,24 @@ namespace WarConquer
     {
         readonly List<int> discardSelection=new List<int>();
         PendingChoice displayedChoice;
+        readonly Dictionary<int, Vector2> discardOrigins = new Dictionary<int, Vector2>();
         int discardPage;
+
+        static bool NeedsOptionalConsent(PendingChoice choice) =>
+            choice.optional && ChoiceManager.BoardChoice(choice);
         void DrawPendingChoice()
         {
             var choice=Game.State.pendingChoices[0];
-            GrayboxUI.Text(left,"ELECCIÓN · J"+(choice.owner+1),12,12,214,28,18,GrayboxUI.Green,FontStyle.Bold);
+            GrayboxUI.Text(left,(choice.optional?"HABILIDAD OPCIONAL · J":"ELECCIÓN · J")+(choice.owner+1),12,12,214,28,18,GrayboxUI.Green,FontStyle.Bold);
             GrayboxUI.Text(left,choice.prompt,12,62,214,125,17,GrayboxUI.Ink);
             if(ChoiceManager.Targets(Game,choice).Count==0&&!Game.ActingPlayer.isAI)
             {GrayboxUI.Button(left,"Sin objetivos · continuar",12,220,214,34,()=>ChoiceManager.Resolve(Game,Array.Empty<int>()));return;}
+            if (!Game.ActingPlayer.isAI && NeedsOptionalConsent(choice) && acceptedChoice != choice)
+            {
+                GrayboxUI.Button(left, "USAR", 12, 220, 103, 36, () => { acceptedChoice = choice; Render(); }, SkinGold);
+                GrayboxUI.Button(left, "OMITIR", 124, 220, 102, 36, () => ChoiceManager.Resolve(Game, Array.Empty<int>(), true));
+                return;
+            }
             if(DrawXiltharChoice(choice))return;
             if(choice.kind=="DeathTerraform"&&!Game.ActingPlayer.isAI)
             {
@@ -25,12 +35,12 @@ namespace WarConquer
                 if(i==0)GrayboxUI.Button(left,"Continuar",12,220,214,34,()=>ChoiceManager.Resolve(Game,Array.Empty<int>()));return;
             }
             GrayboxUI.Text(left,Game.ActingPlayer.isAI?"La IA está resolviendo.":choice.kind=="Discard"?"Selecciona cartas en el panel.":"Selecciona una casilla resaltada en el tablero.",12,195,214,62,14,GrayboxUI.Muted);
-            if(choice.optional&&!Game.ActingPlayer.isAI)GrayboxUI.Button(left,"Omitir efecto opcional",12,280,214,34,()=>ChoiceManager.Resolve(Game,Array.Empty<int>(),true));
+            if(choice.optional&&!Game.ActingPlayer.isAI)GrayboxUI.Button(left,"OMITIR",12,280,214,34,()=>ChoiceManager.Resolve(Game,Array.Empty<int>(),true));
         }
         void ShowDiscardChoice()
         {
             var choice = Game.State.pendingChoices[0];
-            if (displayedChoice != choice) { discardSelection.Clear(); discardPage = 0; displayedChoice = choice; }
+            if (displayedChoice != choice) { discardSelection.Clear(); discardOrigins.Clear(); discardPage = 0; displayedChoice = choice; }
             var player = Game.State.players[choice.owner]; var cards = choice.kind == "DarknessPick" ? XiltharRules.DarknessCards(Game, choice.owner).ToList() : player.hand; int required = Math.Min(choice.count, cards.Count); discardSelection.RemoveAll(id => !cards.Any(c => c.instanceId == id));
             var body = OpenModal(choice.kind == "DarknessPick" ? "ELEGIR DEL DESCARTE" : "DESCARTAR CARTAS", false);
             // Elección obligatoria: marco y banner, sin botón CERRAR.
@@ -44,9 +54,10 @@ namespace WarConquer
                 int id = instance.instanceId; var card = Game.Catalog[instance.cardId]; float x = 78 + (index % 4) * 265, y = 128 + (index / 4) * 260;
                 var view = CardPresentation.Draw(body, Game, card, player, x, y, 187, 250, false, false, () => {
                     if (discardSelection.Contains(id)) discardSelection.Remove(id); else if (discardSelection.Count < choice.count) discardSelection.Add(id); ShowDiscardChoice();
-                }, () => { if (choice.kind == "DarknessPick") ShowRecastTooltip(card, player); else ShowTooltip(card, player); }, HideTooltip, recastEnergy: choice.kind == "DarknessPick" ? (int?)XiltharRules.RecastCost(Game, player.id, card, true) : null);
+                }, recastEnergy: choice.kind == "DarknessPick" ? (int?)XiltharRules.RecastCost(Game, player.id, card, true) : null);
                 if (discardSelection.Contains(id))
                 {
+                    discardOrigins[id] = CenterInRoot(view);
                     SkinOutline(view, SkinGold, 4f);
                     var mark = GrayboxUI.Box(view, "Carta para descartar", 0, 0, 187, 8, GrayboxUI.Green); mark.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
                 }
@@ -57,7 +68,10 @@ namespace WarConquer
             SkinChoiceButton(body, "Siguiente", 896, 656, 200, 46, () => { if (discardPage < pages - 1) { discardPage++; ShowDiscardChoice(); } }, 20, false, SkinGold);
             SkinChoiceButton(body, choice.kind == "DarknessPick" ? "ELEGIR UNIT DEL DESCARTE" : "CONFIRMAR DESCARTE", 26, 712, 1070, 58, () => {
                 if (discardSelection.Count != required) return;
-                var ids = discardSelection.ToArray(); CloseModal(); ChoiceManager.Resolve(Game, ids); discardSelection.Clear(); displayedChoice = null; Render();
+                var ids = discardSelection.ToArray();
+                foreach (int id in ids)
+                    if (discardOrigins.TryGetValue(id, out var origin)) cardCenters[id] = origin;
+                CloseModal(); ChoiceManager.Resolve(Game, ids); discardSelection.Clear(); displayedChoice = null; Render();
             }, 26, discardSelection.Count == required, SkinGold);
         }
     }

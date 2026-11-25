@@ -31,14 +31,14 @@ namespace WarConquer
             if(responding)
             {
                 GrayboxUI.Text(left,"Solo respuestas autorizadas por el texto de la carta o habilidad.",14,y,212,50,14,GrayboxUI.Muted);y+=57;
-                if(Game.ActingPlayer.hand.Any(c=>Game.CardBlockReason(c,useResources)==""))ActionButton("Elegir respuesta",ref y,()=>FilterHand("Permitidas"));
+                if(Game.ActingPlayer.hand.Any(c=>CardPlayBlockReason(c)==""))ActionButton("RESPONDER",ref y,()=>FilterHand("Permitidas"));
                 DrawAbilityAction(ref y);
                 GrayboxUI.Button(left,"PASAR / RESOLVER",12,280,214,34,()=>{ClearAction();BattleManager.Pass(Game,Game.ActingPlayerId);},edge);return;
             }
             if(s.stage==TurnStage.Deployment)
             {
-                if(Game.ActingPlayer.hand.Any(c=>!Game.Catalog[c.cardId].IsStructure&&Game.Catalog[c.cardId].category!=Category.Spell&&Game.CardBlockReason(c,useResources)==""))ActionButton("Jugar unidad / Latente",ref y,()=>FilterHand("Unidades"));
-                if(Game.ActingPlayer.hand.Any(c=>Game.Catalog[c.cardId].IsStructure&&Game.CardBlockReason(c,useResources)==""))ActionButton("Construir estructura",ref y,()=>FilterHand("Estructuras"));
+                if(Game.ActingPlayer.hand.Any(c=>!Game.Catalog[c.cardId].IsStructure&&Game.Catalog[c.cardId].category!=Category.Spell&&CardPlayBlockReason(c)==""))ActionButton("Jugar unidad / Latente",ref y,()=>FilterHand("Unidades"));
+                if(Game.ActingPlayer.hand.Any(c=>Game.Catalog[c.cardId].IsStructure&&CardPlayBlockReason(c)==""))ActionButton("Construir estructura",ref y,()=>FilterHand("Estructuras"));
             }
             else if(s.stage==TurnStage.Terraforming)
             {
@@ -50,7 +50,7 @@ namespace WarConquer
                 if(Game.Allies(Game.ActingPlayerId).Any(p=>MovementManager.Paths(Game,p).Count>0))ActionButton("Mover / conquistar",ref y,()=>SelectActionPiece(false));
                 if(Game.Allies(Game.ActingPlayerId).Any(p=>CombatManager.Targets(Game,p).Count>0))ActionButton("Atacar unidad o base",ref y,()=>SelectActionPiece(true));
             }
-            if(Game.ActingPlayer.hand.Any(c=>Game.Catalog[c.cardId].category==Category.Spell&&Game.CardBlockReason(c,useResources)==""))ActionButton("Magias permitidas",ref y,()=>FilterHand("Magias"));
+            if(Game.ActingPlayer.hand.Any(c=>Game.Catalog[c.cardId].category==Category.Spell&&CardPlayBlockReason(c)==""))ActionButton("Magias permitidas",ref y,()=>FilterHand("Magias"));
             DrawAbilityAction(ref y);
             if(y==130)GrayboxUI.Text(left,"Sin acciones disponibles.\nPuedes avanzar de etapa.",14,y,211,65,15,GrayboxUI.Muted);
             string next=s.stage==TurnStage.Deployment?"IR A ASALTO":s.stage==TurnStage.Assault?"IR A TERRAFORMACIÓN":"FINALIZAR TURNO";
@@ -86,7 +86,8 @@ namespace WarConquer
             }
             GrayboxUI.Text(leaderPanel, player.leader, 88, 16, 142, 27, 20, color, FontStyle.Bold);
             GrayboxUI.Text(leaderPanel, player.factionTag + " · J" + (player.id + 1), 88, 45, 140, 24, 12, GrayboxUI.Muted);
-            GrayboxUI.Text(leaderPanel, "VIDA " + player.leaderHealth + " / " + Game.State.rules.leaderHealth + (player.eliminated ? " · FUERA" : ""), 14, 83, 214, 26, 18, color, FontStyle.Bold);
+            if (player.eliminated)
+                GrayboxUI.Text(leaderPanel, "FUERA DE PARTIDA", 14, 83, 214, 26, 16, GrayboxUI.Muted, FontStyle.Bold);
             if (player.leader == "XIL'THAR") { DrawXiltharLeader(player); return; }
             if (player.leader == "FAUNAR")
             {

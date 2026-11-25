@@ -54,6 +54,7 @@ namespace WarConquer
         static bool MoveCore(GameManager g,Piece p,int destination)
         {
             var paths=Paths(g,p); if(!paths.TryGetValue(destination,out var path)) return g.Fail("Movimiento inválido: alcance, ocupación o estado Dormido.");
+            int start = p.tileId, movementSpent = 0;
             bool fastBonusUsed=p.fastBonusUsed;
             foreach(int next in path)
             {
@@ -66,10 +67,14 @@ namespace WarConquer
                 bool landing=g.Data(p).movementType!="Flying"||next==destination;
                 if(cost>p.remainingMovement)break;
                 p.remainingMovement=Math.Max(0,p.remainingMovement-cost);
+                movementSpent += cost;
                 if(!landing)continue;
                 if(!TerrainManager.CheckUnstable(g,p,g.State.tiles[next],false))break;
                 Relocate(g,p,next);if(p.health<=0||g.State.pendingChoices.Count>0)break;
             }
+            string outcome = p.tileId == destination ? "" : " · Destino previsto: HEX " + (destination + 1);
+            g.State.LogAction(p.owner, "Mueve " + g.Data(p).name,
+                "HEX " + (start + 1) + " → HEX " + (p.tileId + 1) + " · Gasto: " + movementSpent + " MOV" + outcome);
             g.Notify(g.Data(p).name+" · movimiento resuelto. Revisa el registro si hubo tiradas."); return true;
         }
         public static void Relocate(GameManager g,Piece p,int destination,bool carried=false)
@@ -80,13 +85,14 @@ namespace WarConquer
             g.ReportRelocation(p.id,from.id,destination);
             p.forestSinceTurn=-1;
             TerrainManager.MaintainRoutes(g);GenericCardRules.SyncAuras(g);if(p.health>0){EffectManager.OnTileEnter(g,p);GenericCardRules.OnMove(g,p,from.biome);FactionCardRules.OnMove(g,p,from,carried);}ConquestManager.Refresh(g.State);
-            g.State.Log(g.Data(p).name+" → hex "+(destination+1));
+            g.State.Log("J" + (p.owner + 1) + " · " + g.Data(p).name + ": HEX " + (from.id + 1) + " → HEX " + (destination + 1) + (carried ? " (transportada)" : ""));
         }
         public static bool FreeStep(GameManager g,Piece p,int destination) => g.Decide(() => FreeStepCore(g,p,destination));
         static bool FreeStepCore(GameManager g,Piece p,int destination)
         {
             if(!g.CanTakeTurnAction(TurnStage.Assault)||!g.IsCurrentPiece(p)||p.owner!=g.State.activePlayer||g.IsSleeping(p)||p.darkFlyExtraAttack||g.State.Active.freeSteps<=0||!g.State.tiles[p.tileId].neighbors.Contains(destination)||!CanStop(g,p,destination)) return g.Fail("No hay un paso adicional válido.");
             g.State.Active.freeSteps--;
+            g.State.LogAction(p.owner, "Usa un paso adicional con " + g.Data(p).name, "HEX " + (p.tileId + 1) + " → HEX " + (destination + 1) + " · Gasto: 1 paso adicional");
             if(TerrainManager.CheckUnstable(g,p,g.State.tiles[p.tileId],true)&&TerrainManager.CheckUnstable(g,p,g.State.tiles[destination],false)) Relocate(g,p,destination);
             g.Notify("Paso adicional resuelto.");return true;
         }
