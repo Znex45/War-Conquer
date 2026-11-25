@@ -166,7 +166,7 @@ namespace WarConquer
                 }
                 else
                 {
-                    front.Bind(card, GrayboxUI.PlayerColor(player.id), energy, health, movement, attack, effect, affinity);
+                    front.Bind(card, GrayboxUI.PlayerColor(player.id), recastEnergy.HasValue ? energy : quote.CompactEnergyLabel, health, movement, attack, effect, affinity);
                 }
 
                 var phases = TimingRules.Order.Where(stage => (card.allowedPhases ?? Array.Empty<TurnStage>()).Contains(stage)).ToArray();
@@ -182,7 +182,7 @@ namespace WarConquer
                 category.text = CategoryLabel(card);
                 subtypes.text = string.Join(" · ", card.subtypes ?? Array.Empty<string>());
                 Fit(subtypes, 15, 12, false);
-                cost.text = "ENERGÍA " + energy;
+                cost.text = (quote.resources > 0 && !recastEnergy.HasValue ? "PAGO " : "ENERGÍA ") + energy;
                 Fit(cost, 17, 12, false);
                 hp.text = "HP " + health;
                 mov.text = "MOV " + movement;

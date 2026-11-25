@@ -11,13 +11,16 @@ namespace WarConquer
 {
     public partial class WarConquerController : MonoBehaviour
     {
+        const float BoardBaseWidth = 746f, BoardHeight = 648f;
+        const float InspectorLeft = 1024f, ActivityLeft = 1360f;
+
         public GameManager Game { get; private set; }
+        internal CardHoverPreview CardPreview { get; private set; }
 
         RectTransform root, matchRoot, header, left, leaderPanel, boardPanel, inspector, hand, piles, modal, mainMenuRoot;
 
         // Fondo independiente (cambia según la pantalla: menú o partida).
         Image bgImage;
-        internal CardHoverPreview CardPreview { get; private set; }
         CanvasScaler cachedScaler;CanvasGroup cachedMatchGroup;
         CanvasGroup stageActionsGroup,leaderActionsGroup,handActionsGroup;
 
@@ -25,8 +28,9 @@ namespace WarConquer
         bool setupVisible, scoreDetails;
 
         BoardView board;
-        MatchLogList liveMatchLog;
         ConquestAudioFeedback conquestAudio;
+        MatchMusic matchMusic;
+        VideoGameplayDirector videoGameplay;
 
         string mode = "inspect", handFilter = "Todas";
 
@@ -61,6 +65,8 @@ namespace WarConquer
             lastActor = -1;
 
             conquestAudio = gameObject.AddComponent<ConquestAudioFeedback>();
+            matchMusic = gameObject.AddComponent<MatchMusic>();
+            videoGameplay = gameObject.AddComponent<VideoGameplayDirector>();
 
             Game = new GameManager(CardCatalog.Load());
 
@@ -215,8 +221,8 @@ namespace WarConquer
                 "Board",
                 266,
                 76,
-                BoardView.Width,
-                648,
+                BoardBaseWidth,
+                BoardHeight,
                 new Color32(17, 29, 38, 255)
             );
 
@@ -227,15 +233,13 @@ namespace WarConquer
                 this
             );
 
-            CreateActivityPanel();
-
             inspector = GrayboxUI.Box(
                 matchRoot,
                 "Puntuación y selección",
-                1024,
+                InspectorLeft,
                 76,
                 324,
-                648,
+                BoardHeight,
                 GrayboxUI.Panel
             );
 
@@ -258,6 +262,8 @@ namespace WarConquer
                 248,
                 GrayboxUI.Panel
             );
+
+            CreateActivityPanel();
 
             // Main Menu.
             CreateMainMenu();
@@ -381,9 +387,9 @@ namespace WarConquer
                 mainMenuRoot,
                 "Main Menu Panel",
                 608,
-                465,
+                425,
                 450,
-                214,
+                500,
                 new Color32(19, 27, 40, 235)
             );
 
@@ -394,7 +400,7 @@ namespace WarConquer
             CreateMainMenuButton(
                 panel,
                 "JUGAR",
-                45, 38,
+                45, 55,
                 360, 58,
                 StartMainGame,
                 true
@@ -402,8 +408,44 @@ namespace WarConquer
 
             CreateMainMenuButton(
                 panel,
+                "MULTIJUGADOR",
+                45, 125,
+                360, 58,
+                MainMenuMultiplayer,
+                false
+            );
+
+            CreateMainMenuButton(
+                panel,
+                "TUTORIAL",
+                45, 195,
+                360, 58,
+                MainMenuTutorial,
+                false
+            );
+
+            CreateMainMenuButton(
+                panel,
+                "COLECCIÓN",
+                45, 265,
+                360, 58,
+                MainMenuCollection,
+                false
+            );
+
+            CreateMainMenuButton(
+                panel,
+                "OPCIONES",
+                45, 335,
+                360, 58,
+                MainMenuOptions,
+                false
+            );
+
+            CreateMainMenuButton(
+                panel,
                 "SALIR",
-                45, 113,
+                45, 405,
                 360, 58,
                 MainMenuExit,
                 false
@@ -445,6 +487,7 @@ namespace WarConquer
         }
         void ShowMainMenu()
         {
+            matchMusic?.StopMatch();
             // El fondo del menú principal solo se usa aquí.
             SetBackground("UI/MainMenu_Background");
 
@@ -476,6 +519,32 @@ namespace WarConquer
             ShowSetup();
         }
 
+        void MainMenuMultiplayer()
+        {
+            Game.Notify(
+                "Multijugador local."
+            );
+        }
+
+        void MainMenuTutorial()
+        {
+            Game.Notify(
+                "Tutorial."
+            );
+        }
+
+        void MainMenuCollection()
+        {
+            Game.Notify(
+                "Colección."
+            );
+        }
+
+        void MainMenuOptions()
+        {
+            ShowAudioOptions(true);
+        }
+
         void MainMenuExit()
         {
             Application.Quit();
@@ -485,10 +554,28 @@ namespace WarConquer
         // UPDATE
         // =========================================================
 
+        float matchExtraWidth;
+        float AvailableMatchWidth => Mathf.Max(1600f, Screen.safeArea.width / Mathf.Max(.1f, cachedScaler.scaleFactor));
+
+        void LayoutMatch()
+        {
+            matchExtraWidth = AvailableMatchWidth - 1600f;
+            matchRoot.anchoredPosition = new Vector2(-matchExtraWidth * .5f, 0);
+            matchRoot.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 1600f + matchExtraWidth);
+            header.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 1600f + matchExtraWidth);
+            boardPanel.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, BoardBaseWidth + matchExtraWidth);
+            inspector.anchoredPosition = new Vector2(InspectorLeft + matchExtraWidth, -76f);
+            activityPanel.anchoredPosition = new Vector2(ActivityLeft + matchExtraWidth, -76f);
+            hand.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 1268f + matchExtraWidth);
+            piles.anchoredPosition = new Vector2(1296f + matchExtraWidth, -736f);
+        }
+
         void Update()
         {
             if (root == null)
                 return;
+
+            CheckVideoGameplayCommand();
 
             var canvas =
                 cachedScaler;
@@ -509,6 +596,11 @@ namespace WarConquer
             // no ejecutamos la lógica visual de la partida.
             if (mainMenuVisible)
                 return;
+
+            if(videoGameplay!=null&&videoGameplay.EnsurePlayableUnit(Game))Render();
+
+            if (Mathf.Abs(AvailableMatchWidth - 1600f - matchExtraWidth) > .1f)
+                Render();
 
             board?.Tick();
 
@@ -544,6 +636,9 @@ namespace WarConquer
                 Game.State
             );
 
+            LayoutMatch();
+            AnnounceStage();
+
             SetMatchVisible(
                 !setupVisible &&
                 Game.State.phase != Phase.Setup
@@ -558,7 +653,6 @@ namespace WarConquer
                 viewedPlayer = actor;
                 page = 0;
                 handFilter = "Todas";
-
 
                 ClearAction();
 
@@ -636,9 +730,10 @@ namespace WarConquer
 
             UpdateCardPresentation(s, player);
             if (historyOpen) liveMatchLog.Sync(s);
-            var chrome =
-                board.Overlay;
-            DrawEffectDisplayControl(chrome, 295, 11, 180, 30);
+
+            var chrome = board.Overlay;
+            var boardSize = boardPanel.rect.size;
+            DrawEffectDisplayControl(chrome, boardSize.x - 477f, 11, 190, 30);
 
             GrayboxUI.Text(
                 chrome,
@@ -656,9 +751,9 @@ namespace WarConquer
                 board.World.ShowLabels
                     ? "Ocultar datos"
                     : "Ver datos",
-                488,
+                boardSize.x - 279f,
                 11,
-                112,
+                120,
                 30,
                 () => {
                     board.World.ShowLabels =
@@ -671,9 +766,9 @@ namespace WarConquer
             GrayboxUI.Button(
                 chrome,
                 "Restaurar vista",
-                610,
+                boardSize.x - 151f,
                 11,
-                125,
+                140,
                 30,
                 () => {
                     board.Reset();
@@ -682,15 +777,15 @@ namespace WarConquer
             );
 
             // Franja informativa de controles (no bloquea el ratón sobre el tablero)
-            var hintBar = GrayboxUI.Box(chrome, "Controles", 0, BoardView.ViewportHeight - 30, BoardView.Width, 30, new Color(0, 0, 0, .55f));
+            var hintBar = GrayboxUI.Box(chrome, "Controles", 0, boardSize.y - 30, boardSize.x, 30, new Color(0, 0, 0, .55f));
             hintBar.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
 
             var hintText = GrayboxUI.Text(
                 hintBar,
-                "Rueda del ratón: ampliar   ·   Clic y arrastrar: mover   ·   Clic derecho y arrastrar: rotar",
+                "Rueda: zoom · Botón central + arrastrar: mover · Derecho: rotar · Restaurar vista: volver al tablero",
                 0,
                 0,
-                BoardView.Width,
+                boardSize.x,
                 30,
                 15,
                 new Color32(238, 236, 228, 255),
@@ -776,7 +871,7 @@ namespace WarConquer
                 actor.currentEnergy +
                 " / " +
                 actor.maxEnergy,
-                925,
+                925 + matchExtraWidth,
                 10,
                 280,
                 28,
@@ -804,7 +899,7 @@ namespace WarConquer
                 ) +
                 "  Esporas " +
                 actor.spores,
-                925,
+                925 + matchExtraWidth,
                 39,
                 470,
                 20,
@@ -815,7 +910,7 @@ namespace WarConquer
             GrayboxUI.Button(
                 header,
                 "Menú",
-                1402,
+                1402 + matchExtraWidth,
                 14,
                 182,
                 36,
@@ -1144,7 +1239,7 @@ namespace WarConquer
 
                 if (done)
                 {
-                    ClearAction();
+                    if(mode!="terraform")ClearAction();
 
                     focus = id;
                 }

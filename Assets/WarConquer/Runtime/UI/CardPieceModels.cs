@@ -77,9 +77,17 @@ namespace WarConquer
                 P(parent,"Bisel de la peana",m.Cylinder,Vector3.up*.064f,new Vector3(.81f,.025f,.81f),trim);
                 P(parent,"Suelo del hábitat",m.Cylinder,Vector3.up*.09f,new Vector3(.78f,.035f,.78f),stone);
                 model=G(parent,"Escultura de carta",Vector3.up*.125f);
-                if(card.IsStructure)EnhanceStructureIdentity();
-                else{Unit();EnhanceUnitIdentity();FinishUnitSculpture();}
-                ApplyFactionStyle();
+                bool illustratedKind = card.category == Category.Unit || card.category == Category.Structure;
+                bool customSculpture = card.category == Category.Unit
+                    ? SculptRefinedUnit()
+                    : card.category == Category.Structure && (SculptVoidArt() || SculptIllustratedStructure());
+                if (!customSculpture)
+                {
+                    if(card.IsStructure)EnhanceStructureIdentity();
+                    else{Unit();EnhanceUnitIdentity();FinishUnitSculpture();}
+                    ApplyFactionStyle();
+                    if(illustratedKind)RefineTheme();
+                }
                 return model;
             }
             void Unit()

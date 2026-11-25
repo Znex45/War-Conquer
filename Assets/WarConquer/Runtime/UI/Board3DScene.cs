@@ -103,7 +103,7 @@ namespace WarConquer
         }
         public Camera BoardCamera { get; private set; }
         public RenderTexture Texture { get; private set; }
-        public const float DefaultZoom=1.6f;
+        public const float DefaultZoom=1f;
         public float Zoom=DefaultZoom,Yaw=0,Pitch=53;
         public Vector2 Pan;
         public float PanHeight;
@@ -144,7 +144,11 @@ namespace WarConquer
         public void ResizeTexture(int width,int height)
         {
             if(SystemInfo.graphicsDeviceType==GraphicsDeviceType.Null)return;
-            width=Mathf.Clamp(width,480,2000);height=Mathf.Clamp(height,320,1500);
+            // Scale both dimensions together: independent clamps distort wide viewports.
+            width=Mathf.Max(1,width);height=Mathf.Max(1,height);
+            float resolutionScale=Mathf.Min(1f,2000f/width,1500f/height);
+            width=Mathf.Max(1,Mathf.RoundToInt(width*resolutionScale));
+            height=Mathf.Max(1,Mathf.RoundToInt(height*resolutionScale));
             if(Texture!=null&&Texture.width==width&&Texture.height==height)return;
             if(Texture!=null){BoardCamera.targetTexture=null;Texture.Release();BoardMeshFactory.Release(Texture);}
             Texture=new RenderTexture(width,height,24,RenderTextureFormat.ARGB32){name="WarConquer tablero 3D",antiAliasing=2,filterMode=FilterMode.Bilinear};

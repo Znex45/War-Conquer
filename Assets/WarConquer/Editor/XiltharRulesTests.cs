@@ -57,14 +57,23 @@ namespace WarConquer.Editor
             test("Crystal Minion salta Void a Void a 3rad consumiendo MOV",()=>{
                 var g=New();g.State.stage=TurnStage.Assault;var p=Put(g,"crystal-minion",0,0,0);int dest=At(g,3,0).id;At(g,3,0).biome=Biome.Void;At(g,4,0).biome=Biome.Void;
                 Check(MovementManager.Paths(g,p).ContainsKey(dest)&&!MovementManager.Paths(g,p).ContainsKey(At(g,4,0).id),"RAD de salto.");
-                Check(MovementManager.Move(g,p,dest)&&p.remainingMovement==0,"MOV de salto.");Check(MovementManager.Paths(g,p).Count==0,"Salto infinito.");Valid(g);
+                int movement = p.remainingMovement;
+                Check(MovementManager.Move(g,p,dest)&&p.remainingMovement==movement-1,"El salto no consume 1 MOV.");
+                while(p.remainingMovement>0)
+                {
+                    int next = MovementManager.Paths(g,p).Keys.First();
+                    int before = p.remainingMovement;
+                    Check(MovementManager.Move(g,p,next)&&p.remainingMovement<before,"Salto sin consumo.");
+                }
+                Check(MovementManager.Paths(g,p).Count==0,"Salto infinito.");Valid(g);
             });
             test("Dark Fly cura al moverse y segundo ataque reemplaza todo movimiento",()=>{
                 var g=New();g.State.stage=TurnStage.Assault;var fly=Put(g,"dark-fly",0,0,0);var enemy=Put(g,"old-mummy",1,1,0);fly.health=1;
                 foreach(var p in g.State.players){p.deck.AddRange(p.hand);p.hand.Clear();}
                 Check(CombatManager.Attack(g,fly,enemy.tileId)&&fly.attacked,"Primer ataque.");Check(CombatManager.Attack(g,fly,enemy.tileId)&&fly.darkFlyExtraAttack&&fly.remainingMovement==0,"Segundo ataque.");
                 Check(!CombatManager.Attack(g,fly,enemy.tileId)&&MovementManager.Paths(g,fly).Count==0,"Tercer ataque o movimiento.");
-                var other=Put(g,"dark-fly",0,-2,0);other.health=1;int dest=MovementManager.Paths(g,other).Keys.First();Check(MovementManager.Move(g,other,dest)&&other.health==2,"No cura movimiento.");Valid(g);
+                var other=Put(g,"dark-fly",0,-2,0);other.health=2;At(g,-1,0).biome=Biome.Void;
+                Check(MovementManager.Move(g,other,At(g,-1,0).id)&&other.health==g.MaxHealth(other),"No cura movimiento.");Valid(g);
             });
             test("Eye y Hole no se curan; Eye en Void es inmune a objetivos",()=>{
                 var g=New();var eye=Put(g,"the-eternal-eye",0,0,0);var hole=Put(g,"void-hole",0,1,0);eye.health=2;hole.health=1;GenericCardRules.Heal(g,eye,99);GenericCardRules.Heal(g,hole,99);Check(eye.health==2&&hole.health==1,"Curación prohibida.");
@@ -72,6 +81,59 @@ namespace WarConquer.Editor
                 Check(!g.CardTargets(g.Catalog["engage"],new[]{At(g,2,0).id}).Contains(eye.tileId),"Engage selecciona Eye.");
                 var tower=Put(g,"vigilant-tower",1,3,0);Check(!AbilityManager.Targets(g,tower).Contains(eye.tileId),"Tower selecciona Eye.");
                 Check(g.TerraformTarget(eye.tileId),"No permite excepción global.");g.State.stage=TurnStage.Terraforming;Check(g.Terraform(eye.tileId,Biome.Desert)&&XiltharRules.CanTarget(g,eye),"No anula Void.");
+            });
+            test("Engage y Cleansing Conquest solo ofrecen cadenas de objetivos que se pueden completar", () =>
+            {
+                var g = New();
+                var source = Put(g,"crystal-minion",0,0,0);
+                var eyeTile = At(g,1,0);
+                eyeTile.biome = Biome.Void;
+                g.Place("the-eternal-eye",1,eyeTile.id);
+                g.State.stage = TurnStage.Assault;
+                var engage = g.Catalog["engage"];
+                Check(!g.CardTargets(engage).Contains(source.tileId), "Engage ofrece un aliado si solamente hay enemigos inmunes.");
+                var enemy = Put(g,"old-mummy",1,2,0);
+                Check(g.CardTargets(engage).Contains(source.tileId) &&
+                    g.CardTargets(engage,new[] {source.tileId}).SequenceEqual(new[] {enemy.tileId}), "Engage pierde el otro objetivo legal.");
+                CombatManager.Remove(g,source);
+                var actorEye = Put(g,"the-eternal-eye",0,0,0);
+                var slab = At(g,-1,0);
+                slab.owner=0;
+                g.State.stage = TurnStage.Deployment;
+                var conquest = g.Catalog["cleansing-conquest"];
+                Check(!g.CardTargets(conquest).Contains(slab.id), "Conquest ofrece un destino que solo puede alcanzar Eye inmune.");
+                TerrainManager.Terraform(g,actorEye.tileId,Biome.Forest,0);
+                Check(g.CardTargets(conquest).Contains(slab.id), "Conquest pierde el destino tras quitar la inmunidad.");
+            });
+            test("Erosion alcanza la estructura enemiga aunque en el mismo hex haya una unidad inmune", () =>
+            {
+                var g = New();
+                var tile = At(g,1,0);
+                tile.biome = Biome.Void;
+                tile.owner = 1;
+                var structure = g.Place("arena-profunda",1,tile.id);
+                var eye = g.Place("the-eternal-eye",1,tile.id);
+                Put(g,"crystal-minion",0,0,0);
+                g.State.stage = TurnStage.Assault;
+                var card = new CardInstance { instanceId = g.State.nextId++, cardId = "erosion" };
+                g.State.Active.hand.Add(card);
+                int structureHealth = structure.health, eyeHealth = eye.health;
+                Check(g.Play(card.instanceId,new[] {tile.id}) && structure.health == structureHealth-2 && eye.health == eyeHealth,
+                    "Erosion no coincide entre selección y daño: " + g.LastMessage);
+            });
+            test("Med Camp y Resting Camp evitan objetivos que no pueden curarse", () =>
+            {
+                var g = New();
+                var med = g.Place("med-camp",0,At(g,0,0).id);
+                var rest = g.Place("resting-camp",0,At(g,0,1).id);
+                var hole = Put(g,"void-hole",0,1,0);
+                hole.health--;
+                g.State.stage = TurnStage.Assault;
+                Check(!AbilityManager.CanActivate(g,med) && !AbilityManager.CanActivate(g,rest), "Ofrece curar a Void Hole.");
+                var ally = Put(g,"crystal-minion",0,2,0);
+                ally.health--;
+                Check(AbilityManager.Targets(g,med).SequenceEqual(new[] {ally.tileId}) &&
+                    AbilityManager.Activate(g,med,new[] {ally.tileId}) && ally.health == g.MaxHealth(ally), "Med Camp no cura al aliado válido.");
             });
             test("Eye paga 1 en cada salto sin límite por turno y aplica impuesto real",()=>{
                 var g=New();g.State.stage=TurnStage.Assault;var eye=Put(g,"the-eternal-eye",0,0,0);At(g,8,0).biome=Biome.Void;int start=eye.tileId,far=At(g,8,0).id,energy=g.State.Active.currentEnergy;
@@ -88,21 +150,23 @@ namespace WarConquer.Editor
             });
             test("Insolator: 2 daño a 3rad, una terraformación por muerte, fuera no afecta",()=>{
                 var g=New();g.State.stage=TurnStage.Assault;var source=Put(g,"insolator",0,0,0);var near=Put(g,"dark-fly",0,3,0);var far=Put(g,"dark-fly",0,4,0);
-                Check(AbilityManager.Activate(g,source,Array.Empty<int>()),g.LastMessage);Check(near.health==0&&far.health==2&&g.State.pendingChoices.Single().kind=="VoidTerraform","Daño, RAD o disparador.");
+                near.health=2;int farHealth=far.health;
+                Check(AbilityManager.Activate(g,source,Array.Empty<int>()),g.LastMessage);Check(near.health==0&&far.health==farHealth&&g.State.pendingChoices.Single().kind=="VoidTerraform","Daño, RAD o disparador.");
                 int count=g.State.Active.xilTerraformCount;Choose(g,ChoiceManager.Targets(g,g.State.pendingChoices[0]).First());Check(g.State.Active.xilTerraformCount==count+1,"No cuenta terraformación.");Valid(g);
             });
             test("Insolator sin muertes no terraforma",()=>{
                 var g=New();g.State.stage=TurnStage.Assault;var source=Put(g,"insolator",0,0,0);var p=Put(g,"crystal-minion",0,1,0);
-                Check(AbilityManager.Activate(g,source,Array.Empty<int>())&&p.health==1&&g.State.pendingChoices.Count==0,"Disparó sin matar.");
+                int before=p.health;
+                Check(AbilityManager.Activate(g,source,Array.Empty<int>())&&p.health==before-2&&g.State.pendingChoices.Count==0,"Disparó sin matar.");
             });
             test("Void Hole prevención opcional a 5rad, coste 1 HP y una vez por turno",()=>{
-                var g=New();var hole=Put(g,"void-hole",0,0,0);var ally=Put(g,"crystal-minion",0,5,0);CombatManager.DirectDamage(g,ally,3);
-                Check(ally.health==3&&g.State.pendingChoices.Single().kind=="VoidPrevent","Daño antes de elección.");Choose(g,hole.tileId);
-                Check(hole.health==2&&ally.health==3,"Prevención.");CombatManager.DirectDamage(g,ally,1);Check(ally.health==2&&g.State.pendingChoices.Count==0,"Reutiliza prevención.");
-                End(g);CombatManager.DirectDamage(g,ally,1);Check(g.State.pendingChoices.Count==1,"No reinicia por turno.");Check(ChoiceManager.Resolve(g,Array.Empty<int>(),true)&&ally.health==1,"Omitir no aplica daño.");Valid(g);
+                var g=New();var hole=Put(g,"void-hole",0,0,0);var ally=Put(g,"crystal-minion",0,5,0);int allyHealth=ally.health,holeHealth=hole.health;CombatManager.DirectDamage(g,ally,3);
+                Check(ally.health==allyHealth&&g.State.pendingChoices.Single().kind=="VoidPrevent","Daño antes de elección.");Choose(g,hole.tileId);
+                Check(hole.health==holeHealth-1&&ally.health==allyHealth,"Prevención.");CombatManager.DirectDamage(g,ally,1);Check(ally.health==allyHealth-1&&g.State.pendingChoices.Count==0,"Reutiliza prevención.");
+                End(g);CombatManager.DirectDamage(g,ally,1);Check(g.State.pendingChoices.Count==1,"No reinicia por turno.");Check(ChoiceManager.Resolve(g,Array.Empty<int>(),true)&&ally.health==allyHealth-2,"Omitir no aplica daño.");Valid(g);
             });
             test("Void Hole fuera de 5rad no previene; guarda y deshace hit pendiente",()=>{
-                var g=New();g.State.stage=TurnStage.Assault;var hole=Put(g,"void-hole",0,0,0);var far=Put(g,"crystal-minion",0,6,0);CombatManager.DirectDamage(g,far,1);Check(far.health==2&&g.State.pendingChoices.Count==0,"RAD confundido.");
+                var g=New();g.State.stage=TurnStage.Assault;var hole=Put(g,"void-hole",0,0,0);var far=Put(g,"crystal-minion",0,6,0);int farHealth=far.health;CombatManager.DirectDamage(g,far,1);Check(far.health==farHealth-1&&g.State.pendingChoices.Count==0,"RAD confundido.");
                 var ally=Put(g,"crystal-minion",0,1,0);var tower=Put(g,"vigilant-tower",0,2,0);ConquestManager.Refresh(g.State);string before=GamePersistence.Serialize(g.State);
                 Check(AbilityManager.Activate(g,tower,new[]{ally.tileId}),g.LastMessage);var saved=GamePersistence.Deserialize(GamePersistence.Serialize(g.State));Check(saved.pendingChoices[0].victimId==ally.id,"No conserva hit.");
                 Choose(g,hole.tileId);Check(g.Undo()&&GamePersistence.Serialize(g.State)==before,"No restaura prevención atómica.");Valid(g);
@@ -136,18 +200,31 @@ namespace WarConquer.Editor
                 Check(AbilityManager.Activate(g,sprite,new[]{other.tileId}),g.LastMessage);Check(sprite.health==0&&other.tileId==tile&&g.State.Active.currentEnergy==e-1&&g.State.Active.discardPile.Any(c=>c.instanceId==sprite.id),"Coste, movimiento o muerte.");
                 Check(g.State.pendingChoices.All(c=>c.kind!="DeathTerraform"),"Sprite es tratado como Token.");Valid(g);
             });
-            test("Void Hole puede protegerse sin recursión y consume un solo uso",()=>{
-                var g=New();var hole=Put(g,"void-hole",0,0,0);CombatManager.DirectDamage(g,hole,3);Choose(g,hole.tileId);
-                Check(hole.health==2&&g.State.pendingChoices.Count==0,"Prevención propia recursiva.");CombatManager.DirectDamage(g,hole,1);Check(hole.health==1,"Repite protección propia.");Valid(g);
+            test("Void Hole solo protege a otra unidad aliada, incluso si es otro Void Hole", () =>
+            {
+                var g = New();
+                var victim = Put(g,"void-hole",0,0,0);
+                int health = victim.health;
+                CombatManager.DirectDamage(g,victim,1);
+                Check(victim.health == health-1 && g.State.pendingChoices.Count == 0, "Void Hole se protege a sí mismo.");
+                var protector = Put(g,"void-hole",0,1,0);
+                int protectorHealth = protector.health;
+                CombatManager.DirectDamage(g,victim,2);
+                var choice = g.State.pendingChoices.Single();
+                Check(ChoiceManager.Targets(g,choice).SequenceEqual(new[] {protector.tileId}), "Se puede seleccionar a la víctima.");
+                Choose(g,protector.tileId);
+                Check(victim.health == health-1 && protector.health == protectorHealth-1 &&
+                    g.State.pendingChoices.Count == 0, "El pago no es exactamente 1 HP o provocó recursión.");
+                Valid(g);
             });
             test("Insolator espera prevención antes de conceder terraformación",()=>{
-                var g=New();g.State.stage=TurnStage.Assault;var source=Put(g,"insolator",0,0,0);var victim=Put(g,"dark-fly",0,1,0);var hole=Put(g,"void-hole",0,5,0);
+                var g=New();g.State.stage=TurnStage.Assault;var source=Put(g,"insolator",0,0,0);var victim=Put(g,"dark-fly",0,1,0);victim.health=2;var hole=Put(g,"void-hole",0,5,0);
                 Check(AbilityManager.Activate(g,source,Array.Empty<int>()),g.LastMessage);Check(g.State.pendingChoices[0].kind=="VoidPrevent"&&victim.health==2,"Daño antes de prevención.");
                 Check(ChoiceManager.Resolve(g,Array.Empty<int>(),true),g.LastMessage);Check(victim.health==0&&g.State.pendingChoices.Single().kind=="VoidTerraform","No atribuye muerte diferida al Insolator.");Valid(g);
             });
             test("Sprite no cobra ni muere si su Slab sería un destino ilegal",()=>{
                 var g=New();g.State.stage=TurnStage.Assault;var sprite=Put(g,"sprinting-sprite",0,0,0);var other=Put(g,"crystal-minion",0,5,0);g.State.tiles[sprite.tileId].baseOwner=1;int e=g.State.Active.currentEnergy;
-                Check(!AbilityManager.Targets(g,sprite).Contains(other.tileId)&&!AbilityManager.Activate(g,sprite,new[]{other.tileId})&&sprite.health==1&&g.State.Active.currentEnergy==e,"Consume sacrificio inválido.");
+                Check(!AbilityManager.Targets(g,sprite).Contains(other.tileId)&&!AbilityManager.Activate(g,sprite,new[]{other.tileId})&&sprite.health==g.MaxHealth(sprite)&&g.State.Active.currentEnergy==e,"Consume sacrificio inválido.");
             });
             test("IA Xil'thar resuelve descarte, Void y las tres etapas sin atascarse",()=>{
                 var g=New();g.State.Active.isAI=true;g.State.Active.deck.AddRange(g.State.Active.hand);g.State.Active.hand.Clear();
@@ -156,7 +233,7 @@ namespace WarConquer.Editor
                 Check(g.State.activePlayer==1&&steps<160,"La IA no devuelve el turno.");
             });
             test("Mana Pool, Valiant Seal y costes visibles reutilizan los sistemas existentes",()=>{
-                var g=New();Put(g,"mana-pool",0,0,0);Put(g,"valiant-seal",0,1,0);var unit=Put(g,"crystal-minion",0,2,0);Check(CombatManager.AttackValue(g,unit)==4,"Valiant Seal.");
+                var g=New();Put(g,"mana-pool",0,0,0);Put(g,"valiant-seal",0,1,0);var unit=Put(g,"crystal-minion",0,2,0);Check(CombatManager.AttackValue(g,unit)==g.Data(unit).attack+TerrainManager.GetTerrainStatModifier(g,unit)+1,"Valiant Seal.");
                 End(g);End(g);End(g);End(g);Check(g.State.Active.currentEnergy==g.State.Active.maxEnergy+1,"Mana Pool.");
                 foreach(var c in g.Catalog.Deck("XIL'THAR"))Check(EnergyManager.Quote(g.State.Active,c).energy==c.energyCost,"Coste mostrado: "+c.id);Valid(g);
             });

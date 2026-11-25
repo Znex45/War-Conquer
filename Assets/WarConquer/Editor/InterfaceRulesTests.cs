@@ -51,7 +51,7 @@ namespace WarConquer.Editor
             });
             test("Pago mixto explícito: fuente única para energía y recursos compatibles",()=>{
                 var g=New(catalog);EnergyManager.AddResource(g.State,g.State.Active,Biome.Forest,1);var c=Hand(g,0,"bestia-micelial");
-                var quote=EnergyManager.Quote(g.State.Active,catalog[c.cardId],true);Check(quote.energy==2&&quote.resources==1&&quote.EnergyLabel=="3 → 2","Desglose no coincide.");
+                var quote=EnergyManager.Quote(g.State.Active,catalog[c.cardId],true);Check(quote.energy==2&&quote.resources==1&&quote.EnergyLabel=="2 E + 1 R","Desglose no coincide.");
                 Check(g.Play(c.instanceId,new[]{Home(g)},true)&&g.State.Active.currentEnergy==1&&g.State.Active.resources[0].amount==0,"Pago mixto diferente del mostrado.");
             });
             test("Despliegue Asalto Terraformación conserva energía y mano",()=>{
@@ -81,6 +81,8 @@ namespace WarConquer.Editor
                 int thirdTile=g.State.tiles.First(t=>t.territory==4&&!t.IsOccupied&&t.neighbors.Contains(attacker.tileId)).id;var third=PrototypeScenario.Spawn(g,2,"bestia-micelial",thirdTile);
                 int fourthTile=g.State.tiles.First(t=>t.territory==4&&!t.IsOccupied&&t.neighbors.Contains(thirdTile)).id;PrototypeScenario.Spawn(g,3,"nomada-de-arena",fourthTile);
                 var a=Hand(g,0,"lluvia-de-esporas");var b=Hand(g,1,"erosion");var c=Hand(g,2,"lluvia-de-esporas");var d=Hand(g,3,"erosion");
+                int attackerHealth = attacker.health;
+                int attackWithRain = CombatManager.AttackValue(g, attacker, victim) + 1;
                 Check(CombatManager.Attack(g,attacker,victim.tileId)&&g.ActingPlayerId==0&&victim.health==8,"No abre ventana antes del daño.");
                 Check(!g.AdvanceStage()&&!g.EndTurn()&&MovementManager.Paths(g,attacker).Count==0,"Acciones paralelas a batalla.");
                 Check(!BattleManager.Pass(g,2),"Tercero salta la prioridad.");
@@ -88,7 +90,7 @@ namespace WarConquer.Editor
                 Check(g.Play(b.instanceId,new[]{attacker.tileId})&&g.ActingPlayerId==2,"No responde defensor.");
                 Check(g.Play(c.instanceId,new[]{third.tileId})&&g.ActingPlayerId==3,"No interviene tercero.");
                 Check(g.Play(d.instanceId,new[]{third.tileId})&&g.State.battle==null,"No interviene cuarto ni resuelve.");
-                Check(victim.health==4&&attacker.health==3&&g.State.players[0].currentEnergy==8&&g.State.players[1].currentEnergy==7&&g.State.players[2].currentEnergy==8&&g.State.players[3].currentEnergy==7,"Daño o pago de respuestas incorrecto.");
+                Check(victim.health==8-attackWithRain&&attacker.health==attackerHealth-2&&g.State.players[0].currentEnergy==8&&g.State.players[1].currentEnergy==7&&g.State.players[2].currentEnergy==8&&g.State.players[3].currentEnergy==7,"Daño o pago de respuestas incorrecto.");
                 Check(g.State.activePlayer==0&&g.State.stage==TurnStage.Assault,"La respuesta cambió el turno.");Check(StateValidator.Validate(g.State,custom)=="","Integridad tras batalla.");
             });
             test("Permiso de defensa no habilita al atacante ni a terceros",()=>{
@@ -129,10 +131,11 @@ namespace WarConquer.Editor
             test("Guardar y cargar batalla conserva prioridad y no repite daño",()=>{
                 var custom=WithPermission(catalog,"erosion",ActionTiming.Defending);var g=BattleFixture(custom);Hand(g,1,"erosion");
                 var attacker=g.Allies(0).First(p=>!g.Data(p).IsStructure);var victim=g.Allies(1).First();victim.health=9;
+                int expectedHealth = victim.health - CombatManager.AttackValue(g, attacker, victim);
                 CombatManager.Attack(g,attacker,victim.tileId);var saved=GamePersistence.Deserialize(GamePersistence.Serialize(g.State));
                 Check(StateValidator.Validate(saved,custom)==""&&saved.battle.priorityPlayer==1,"Batalla no se guarda.");
-                var loaded=new GameManager(custom);loaded.Restore(saved);BattleManager.Pass(loaded,1);Check(loaded.State.tiles[victim.tileId].unit.health==6&&loaded.State.battle==null,"Daño incorrecto tras carga.");
-                Check(!BattleManager.Pass(loaded,1)&&loaded.State.tiles[victim.tileId].unit.health==6,"Daño repetido al pasar.");
+                var loaded=new GameManager(custom);loaded.Restore(saved);BattleManager.Pass(loaded,1);Check(loaded.State.tiles[victim.tileId].unit.health==expectedHealth&&loaded.State.battle==null,"Daño incorrecto tras carga.");
+                Check(!BattleManager.Pass(loaded,1)&&loaded.State.tiles[victim.tileId].unit.health==expectedHealth,"Daño repetido al pasar.");
             });
             test("Control sin guarnición o sin bioma no genera puntos",()=>{
                 var g=New(catalog);var center=g.State.tiles.First(ConquestManager.IsCenter);center.owner=0;
@@ -165,8 +168,10 @@ namespace WarConquer.Editor
                 {
                     var card=catalog["bestia-micelial"];var view=CardPresentation.Draw(holder.transform,g,card,g.State.Active,0,0,388,624,false,true);
                     var text=view.GetComponentsInChildren<Text>().Select(t=>t.text).ToArray();
-                    Check(text.Contains("ENERGÍA")&&text.Contains("VIDA")&&text.Contains("ATK")&&text.Contains("MOV")&&text.Any(t=>t.Contains("VENTANAS DE USO")),"Carta incompleta.");
-                    Check(text.Contains(EnergyManager.Quote(g.State.Active,card).EnergyLabel)&&before==GamePersistence.Serialize(g.State),"Tooltip modifica estado o coste.");
+                    Check(text.Contains("HP " + card.health) && text.Contains("ATK " + card.attack) &&
+                        text.Contains("MOV " + card.movement) && text.Contains(TimingRules.Description(card)), "Carta incompleta.");
+                    Check(text.Contains("ENERGÍA " + EnergyManager.Quote(g.State.Active, card).EnergyLabel) &&
+                        before == GamePersistence.Serialize(g.State), "Tooltip modifica estado o coste.");
                 }
                 finally{UnityEngine.Object.DestroyImmediate(holder);}
             });

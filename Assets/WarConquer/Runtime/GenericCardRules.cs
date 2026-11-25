@@ -17,19 +17,32 @@ namespace WarConquer
             string op=card.effects.FirstOrDefault()?.operation;
             if(op=="Engage")
             {
-                if(selected.Count==0)return g.Allies(g.ActingPlayerId).Where(p=>!g.Data(p).IsStructure&&!g.IsSleeping(p)&&BoardManager.UnitsWithinRadius(g.State,p.tileId,6).Any(x=>x.owner!=p.owner)).Select(p=>p.tileId).ToList();
-                if(selected.Count!=1)return new List<int>();
-                var ally=g.State.tiles[selected[0]].unit;
-                return ally==null?new List<int>():BoardManager.UnitsWithinRadius(g.State,ally.tileId,6).Where(p=>p.owner!=ally.owner).Select(p=>p.tileId).ToList();
+                if (selected.Count == 0)
+                    return g.Allies(g.ActingPlayerId).Where(p => !g.Data(p).IsStructure && !g.IsSleeping(p) &&
+                        XiltharRules.CanTarget(g, p) && EngageEnemies(g, p).Any()).Select(p => p.tileId).ToList();
+                if (selected.Count != 1) return new List<int>();
+                var ally = g.State.tiles[selected[0]].unit;
+                return ally == null ? new List<int>() : EngageEnemies(g, ally).Select(p => p.tileId).ToList();
             }
             if(op=="CleansingConquest")
             {
-                if(selected.Count==0)return g.State.tiles.Where(t=>g.TerraformTarget(t.id)&&!t.IsOccupied&&t.baseOwner<0&&g.Allies(g.ActingPlayerId).Any(p=>!g.Data(p).IsStructure&&!g.IsSleeping(p)&&BoardManager.AxialDistance(t,g.State.tiles[p.tileId])<=8)).Select(t=>t.id).ToList();
-                if(selected.Count!=1)return new List<int>();
-                return BoardManager.UnitsWithinRadius(g.State,selected[0],8).Where(p=>p.owner==g.ActingPlayerId&&!g.IsSleeping(p)).Select(p=>p.tileId).ToList();
+                if (selected.Count == 0)
+                    return g.State.tiles.Where(t => !t.IsOccupied && t.baseOwner < 0 && g.TerraformTarget(t.id) &&
+                        ConquestMovers(g, t).Any()).Select(t => t.id).ToList();
+                if (selected.Count != 1) return new List<int>();
+                return ConquestMovers(g, g.State.tiles[selected[0]]).Select(p => p.tileId).ToList();
             }
             return null;
         }
+        static IEnumerable<Piece> EngageEnemies(GameManager g, Piece ally) =>
+            BoardManager.UnitsWithinRadius(g.State, ally.tileId, 6)
+                .Where(p => p.owner != ally.owner && p.health > 0 && XiltharRules.CanTarget(g, p));
+
+        static IEnumerable<Piece> ConquestMovers(GameManager g, HexTile destination) =>
+            BoardManager.UnitsWithinRadius(g.State, destination.id, 8)
+                .Where(p => p.owner == g.ActingPlayerId && p.health > 0 &&
+                    !g.IsSleeping(p) && XiltharRules.CanTarget(g, p) && CanLand(g, p, destination));
+
         public static string BlockReason(GameManager g,CardData c,CardInstance instance)
         {
             if(c.effects.Any(e=>e.operation=="DiscardDraw")&&g.ActingPlayer.hand.Count<2)return "Requiere otra carta en la mano para descartar.";
@@ -79,7 +92,14 @@ namespace WarConquer
             if(TerrainManager.CheckUnstable(g,p,g.State.tiles[p.tileId],true)&&TerrainManager.CheckUnstable(g,p,g.State.tiles[destination],false))MovementManager.Relocate(g,p,destination);
             return true;
         }
-        public static void Heal(GameManager g,Piece p,int amount){if(p!=null&&p.health>0&&!FactionCardRules.HealingBlocked(g,p)&&!g.Data(p).Has("EternalEye")&&!g.Data(p).Has("VoidHole"))p.health=Math.Min(g.MaxHealth(p),p.health+amount);}
+        internal static bool CanHeal(GameManager g, Piece p) =>
+            p != null && p.health > 0 && !FactionCardRules.HealingBlocked(g, p) &&
+            !g.Data(p).Has("EternalEye") && !g.Data(p).Has("VoidHole");
+
+        public static void Heal(GameManager g, Piece p, int amount)
+        {
+            if (CanHeal(g, p)) p.health = Math.Min(g.MaxHealth(p), p.health + amount);
+        }
         public static int ForestHealth(GameManager g,Piece p)=>(g.Data(p).Has("ForestHealth")&&g.State.tiles[p.tileId].biome==Biome.Forest?2:0)+FactionCardRules.TokenStats(g,p);
         public static int HealthAura(GameManager g,Piece p)=>ForestHealth(g,p)+TerrainManager.GetTerrainStatModifier(g,p);
         public static int MovementAura(GameManager g,Piece p)=>g.Data(p).IsStructure?0:g.Allies(p.owner).Count(x=>g.Data(x).Has("GlobalMovement"))+FactionCardRules.SwampMovement(g,p)+TerrainManager.GetTerrainStatModifier(g,p);
@@ -136,7 +156,7 @@ namespace WarConquer
         public static List<int> AbilityTargets(GameManager g,Piece p)
         {
             var c=g.Data(p);var s=g.State;var special=FactionCardRules.AbilityTargets(g,p);if(special!=null)return special;
-            if(c.Has("MedCamp")||c.Has("RestingCamp"))return BoardManager.UnitsWithinRadius(s,p.tileId,c.Has("MedCamp")?5:4).Where(a=>a.owner==p.owner&&a.health<g.MaxHealth(a)).Select(a=>a.tileId).ToList();
+            if(c.Has("MedCamp")||c.Has("RestingCamp"))return BoardManager.UnitsWithinRadius(s,p.tileId,c.Has("MedCamp")?5:4).Where(a=>a.owner==p.owner&&CanHeal(g,a)&&a.health<g.MaxHealth(a)).Select(a=>a.tileId).ToList();
             if(c.Has("VigilantTower"))return BoardManager.UnitsWithinRadius(s,p.tileId,6).Select(a=>a.tileId).ToList();
             if(c.Has("ForestLeap"))return BoardManager.StructuresWithinRadius(s,p.tileId,4).Where(a=>a.owner==p.owner&&(g.Data(a).Tag("BOSQUE")||s.tiles[a.tileId].biome==Biome.Forest)).SelectMany(a=>s.tiles[a.tileId].neighbors).Distinct().Where(id=>CanLand(g,p,s.tiles[id])).ToList();
             return new List<int>();

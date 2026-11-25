@@ -10,14 +10,14 @@ namespace WarConquer
         void DrawHand(Player player)
         {
             GrayboxUI.Text(hand,"MANO J"+(player.id+1)+" · "+player.hand.Count+" CARTAS",12,9,300,23,14,GrayboxUI.PlayerColor(player.id),FontStyle.Bold);
-            GrayboxUI.Button(hand,handFilter=="Todas"?"Todas":"Filtro: "+handFilter,802,5,166,27,()=>FilterHand("Todas"));
+            GrayboxUI.Button(hand,handFilter=="Todas"?"Todas":"Filtro: "+handFilter,580+matchExtraWidth,5,210,27,()=>FilterHand("Todas"));
             var cards=player.hand.Where(c=>HandMatches(Game.Catalog[c.cardId],c)).ToList();int pages=Math.Max(1,(cards.Count+5)/6);page=Math.Clamp(page,0,pages-1);
-            GrayboxUI.Button(hand,"<",1030,5,35,27,()=>{page=Math.Max(0,page-1);Render();});GrayboxUI.Text(hand,(page+1)+" / "+pages,1073,9,80,22,13);GrayboxUI.Button(hand,">",1157,5,35,27,()=>{page=Math.Min(pages-1,page+1);Render();});
+            GrayboxUI.Button(hand,"<",1030+matchExtraWidth,5,35,27,()=>{page=Math.Max(0,page-1);Render();});GrayboxUI.Text(hand,(page+1)+" / "+pages,1073+matchExtraWidth,9,80,22,13);GrayboxUI.Button(hand,">",1157+matchExtraWidth,5,35,27,()=>{page=Math.Min(pages-1,page+1);Render();});
             int index=0;
             foreach(var instance in cards.Skip(page*6).Take(6))
             {
                 var card=Game.Catalog[instance.cardId];int id=instance.instanceId;
-                var view=CardPresentation.Draw(hand,Game,card,player,12+index*208,38,198,201,UseResourcesFor(player, card),false,
+                var view=CardPresentation.Draw(hand,Game,card,player,12+index*(208+matchExtraWidth/6f)+matchExtraWidth/12f,38,198,201,UseResourcesFor(player, card),false,
                     ()=>SelectCard(instance,player));
                 currentPositions[id] = CenterInRoot(view);
                 if(player.id!=Game.ActingPlayerId||CardPlayBlockReason(instance)!="")view.gameObject.AddComponent<CanvasGroup>().alpha=.40f;
@@ -71,7 +71,7 @@ namespace WarConquer
         {
             HideTooltip(); var body = OpenModal("Carta · " + card.name);
             SkinModalFrame(body);
-            CardPresentation.Draw(body, Game, card, player, 28, 83, 410, 690, UseResourcesFor(player, card), true, piece: selectedPiece != null && selectedPiece.cardId == card.id ? selectedPiece : null);
+            CardPresentation.Draw(body, Game, card, player, 28, 83, 392, 627, UseResourcesFor(player, card), true, piece: selectedPiece != null && selectedPiece.cardId == card.id ? selectedPiece : null);
             var desc = GrayboxUI.Text(body, TimingRules.Description(card), 451, 150, 639, 120, 24, SkinCream); SkinTextShadow(desc);
             var cost = GrayboxUI.Text(body, EnergyManager.Quote(player, card, UseResourcesFor(player, card)).Detail, 451, 285, 639, 78, 25, GrayboxUI.PlayerColor(player.id), FontStyle.Bold); SkinTextShadow(cost);
             var instance = player.hand.FirstOrDefault(c => c.instanceId == selectedCard && c.cardId == card.id) ?? player.hand.FirstOrDefault(c => c.cardId == card.id);
