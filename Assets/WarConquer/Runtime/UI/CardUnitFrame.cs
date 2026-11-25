@@ -12,9 +12,9 @@ namespace WarConquer
 
         public static Sprite Art(string cardId)
         {
-            if (artwork.TryGetValue(cardId, out var sprite)) return sprite;
+            if (artwork.TryGetValue(cardId, out var sprite) && sprite != null) return sprite;
             sprite = Resources.Load<Sprite>("UI/CardArt/" + cardId);
-            artwork.Add(cardId, sprite);
+            artwork[cardId] = sprite;
             return sprite;
         }
 
@@ -67,7 +67,8 @@ namespace WarConquer
             {
                 illustration.sprite = Art(card.id);
                 illustration.color = illustration.sprite != null ? Color.white : Color.Lerp(color, GrayboxUI.Panel, .55f);
-                glyph.text = card.name.Substring(0, 1);
+                glyph.text = card.id;
+                CardPresentation.Fit(glyph, 40, 9, true);
                 glyph.gameObject.SetActive(illustration.sprite == null);
                 title.text = card.name;
                 energy.text = cost.Replace(" → ", "→");
