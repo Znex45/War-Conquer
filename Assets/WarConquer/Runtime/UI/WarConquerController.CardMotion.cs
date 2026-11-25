@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,44 +6,77 @@ namespace WarConquer
 {
     public partial class WarConquerController
     {
-        Player animatedHandOwner;
-        readonly Dictionary<int,string> previousHand=new Dictionary<int,string>();
-        readonly HashSet<int> previousDeck=new HashSet<int>();
-        readonly Dictionary<int,Vector3> previousCardPositions=new Dictionary<int,Vector3>();
-        void AnimateHandChanges(Player player)
+        readonly List<CardFlight> flights = new List<CardFlight>();
+
+        sealed class CardFlight
         {
-            if(animatedHandOwner==player)
-            {
-                int order=0;
-                foreach(var card in player.hand.Where(c=>!previousHand.ContainsKey(c.instanceId)&&previousDeck.Contains(c.instanceId)))
-                    StartCoroutine(FlyCard(player,card.cardId,piles.TransformPoint(new Vector3(72,-120,0)),hand.TransformPoint(new Vector3(110+matchExtraWidth*.5f,-138,0)),order++*.12f));
-                foreach(var card in player.discardPile.Where(c=>previousHand.ContainsKey(c.instanceId)))
-                    StartCoroutine(FlyCard(player,card.cardId,previousCardPositions.TryGetValue(card.instanceId,out var pos)?pos:hand.TransformPoint(new Vector3(110,-138,0)),piles.TransformPoint(new Vector3(213,-120,0)),order++*.12f));
-            }
-            animatedHandOwner=player;previousHand.Clear();previousDeck.Clear();previousCardPositions.Clear();
-            foreach(var c in player.hand)previousHand[c.instanceId]=c.cardId;
-            foreach(var c in player.deck)previousDeck.Add(c.instanceId);
-            int index=0;
-            foreach(var c in player.hand.Where(c=>HandMatches(Game.Catalog[c.cardId],c)).Skip(page*6).Take(6))
-                previousCardPositions[c.instanceId]=hand.TransformPoint(new Vector3(111+index++*(208+matchExtraWidth/6f)+matchExtraWidth/12f,-138,0));
+            public RectTransform view, face, back;
+            public CanvasGroup group;
+            public Vector2 from, to;
+            public float start, duration;
+            public CardFlowKind kind;
         }
-        IEnumerator FlyCard(Player owner,string cardId,Vector3 from,Vector3 to,float delay)
+
+        void LaunchCard(CardFlow flow, Vector2 from, Vector2 to, float delay, CardFlowKind? kind = null)
         {
-            if(delay>0)yield return new WaitForSecondsRealtime(delay);
-            if(animatedHandOwner!=owner)yield break;
-            var visual=CardPresentation.Draw(root,Game,Game.Catalog[cardId],owner,0,0,198,201,false,false);
-            visual.name="Carta en tránsito";
-            var group=visual.gameObject.AddComponent<CanvasGroup>();group.blocksRaycasts=false;group.interactable=false;
-            visual.pivot=new Vector2(.5f,.5f);visual.SetAsLastSibling();
-            float elapsed=0;
-            while(elapsed<.55f&&visual!=null&&animatedHandOwner==owner)
+            if (flights.Count >= 24) return;
+
+            var motion = kind ?? flow.Kind;
+            const float width = 198, height = 201;
+            var view = GrayboxUI.Rect(animationLayer, "Carta animada · " + motion, from.x, from.y, width, height);
+            view.pivot = new Vector2(.5f, .5f);
+            var group = view.gameObject.AddComponent<CanvasGroup>();
+            group.interactable = group.blocksRaycasts = false;
+            group.alpha = 0;
+
+            var face = GrayboxUI.Box(view, "Frente", 0, 0, width, height, SkinPanel);
+            var presentation = new CardPresentation.Face(face, width, height, false);
+            presentation.Bind(Game, Game.Catalog[flow.CardId], Game.State.players[flow.Player], false, null, null);
+
+            RectTransform back = null;
+            if (motion == CardFlowKind.Draw)
             {
-                float t=Mathf.Clamp01(elapsed/.55f),u=t*t*(3-2*t);
-                visual.position=Vector3.Lerp(from,to,u)+Vector3.up*(Mathf.Sin(t*Mathf.PI)*65f*cachedScaler.scaleFactor);
-                visual.localRotation=Quaternion.Euler(0,0,Mathf.Sin(t*Mathf.PI)*-8f);
-                elapsed+=Time.unscaledDeltaTime;yield return null;
+                face.gameObject.SetActive(false);
+                back = GrayboxUI.Box(view, "Dorso", 0, 0, width, height, SkinPanel);
+                var image = back.GetComponent<Image>();
+                image.sprite = Resources.Load<Sprite>("UI/Cards/Card_Back") ?? CardUnitFrame.Frame;
+                image.color = image.sprite != null ? Color.white : SkinPanel;
+                image.preserveAspect = true;
             }
-            if(visual!=null)Destroy(visual.gameObject);
+
+            flights.Add(new CardFlight
+            {
+                view = view, face = face, back = back, group = group,
+                from = from, to = to, kind = motion,
+                start = Time.unscaledTime + delay, duration = motion == CardFlowKind.Play ? .34f : .55f
+            });
+            animationLayer.SetAsLastSibling();
+        }
+
+        void TickCardFlights(float now)
+        {
+            for (int i = flights.Count - 1; i >= 0; i--)
+            {
+                var flight = flights[i];
+                if (now < flight.start) continue;
+
+                float t = Mathf.Clamp01((now - flight.start) / flight.duration);
+                if (flight.back != null && flight.back.gameObject.activeSelf && t >= .72f)
+                {
+                    flight.back.gameObject.SetActive(false);
+                    flight.face.gameObject.SetActive(true);
+                }
+                float arc = Mathf.Sin(t * Mathf.PI);
+                Vector2 p = Vector2.Lerp(flight.from, flight.to, Mathf.SmoothStep(0, 1, t));
+                flight.view.anchoredPosition = new Vector2(p.x, -p.y + arc * 65f);
+                flight.view.localRotation = Quaternion.Euler(0, 0, arc * -8f);
+                flight.view.localScale = Vector3.one * Mathf.Lerp(.68f, .88f, arc);
+                flight.group.alpha = Mathf.Min(t * 10, (1 - t) * 5);
+                if (t < 1) continue;
+
+                Destroy(flight.view.gameObject);
+                flights.RemoveAt(i);
+            }
         }
     }
 }

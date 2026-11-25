@@ -15,7 +15,7 @@ namespace WarConquer
         }
         void StartVideoGameplay()
         {
-            CloseModal();ClearAction();lastActor=-1;viewedPlayer=0;focus=-1;page=0;handFilter="Todas";useResources=false;
+            CloseModal();ClearAction();lastActor=-1;viewedPlayer=0;focus=-1;page=0;handFilter="Todas";
             humanPlayers=1;leaders[0]="ZUKGROK";leaders[1]="SAHRIA";seed=25112026;
             SetBackground("UI/Game_Background");mainMenuVisible=false;
             if(mainMenuRoot!=null)mainMenuRoot.gameObject.SetActive(false);

@@ -11,6 +11,7 @@ namespace WarConquer
         RectTransform activityPanel, historyContent, playedPanel, animationLayer;
         Text playedBy, playedInfo;
         ScrollRect playedDetails;
+        MatchLogList liveMatchLog;
         Text actionToast;
         string lastActionMessage;
         float actionToastUntil;
@@ -26,23 +27,11 @@ namespace WarConquer
         bool historyOpen;
         readonly Dictionary<int, Vector2> currentPositions = new Dictionary<int, Vector2>();
         readonly Dictionary<int, Vector2> cardCenters = new Dictionary<int, Vector2>();
-        readonly List<CardFlight> flights = new List<CardFlight>();
         Vector2 deckCenter, discardCenter, handCenter;
-
-        sealed class CardFlight
-        {
-            public RectTransform view;
-            public CanvasGroup group;
-            public Vector2 from, to;
-            public float start, duration;
-            public CardFlowKind kind;
-            public Sprite reveal;
-            public Image image;
-        }
 
         void CreateActivityPanel()
         {
-            activityPanel = GrayboxUI.Rect(matchRoot, "Actividad de partida", 1360, 76, RightWidth, 648);
+            activityPanel = GrayboxUI.Rect(matchRoot, "Actividad de partida", ActivityLeft, 76, RightWidth, BoardHeight);
             historyButton = GrayboxUI.Button(activityPanel, "REGISTRO", 0, 0, RightWidth, 34, ToggleHistory, SkinGold);
             historyButtonLabel = historyButton.GetComponentInChildren<Text>();
             SkinMatchButtons(activityPanel);
@@ -131,7 +120,7 @@ namespace WarConquer
                         {
                             var uv = board.World.ViewportOf(flow.SourceTile);
                             Vector2 middle = CenterInRoot(boardPanel);
-                            source = middle + new Vector2((uv.x - .5f) * BoardView.Width, (.5f - uv.y) * BoardView.ViewportHeight);
+                            source = middle + Vector2.Scale(new Vector2(uv.x - .5f, .5f - uv.y), boardPanel.rect.size);
                         }
                         LaunchCard(flow, source, discardCenter, Mathf.Min(discards++, 10) * .075f);
                     }
@@ -181,55 +170,10 @@ namespace WarConquer
             playedDetails.verticalNormalizedPosition = 1;
         }
 
-        void LaunchCard(CardFlow flow, Vector2 from, Vector2 to, float delay, CardFlowKind? kind = null)
-        {
-            var mode = kind ?? flow.Kind;
-            if (flights.Count >= 24) return;
-            var node = GrayboxUI.Box(animationLayer, "Carta animada · " + mode, from.x, from.y, 78, 104, SkinPanel);
-            node.pivot = new Vector2(.5f, .5f);
-            var image = node.GetComponent<Image>();
-            image.raycastTarget = false;
-            var sprite = mode == CardFlowKind.Draw ? Resources.Load<Sprite>("UI/Cards/Card_Back") : CardUnitFrame.Art(flow.CardId);
-            image.sprite = sprite != null ? sprite : CardUnitFrame.Frame;
-            image.color = Color.white;
-            image.preserveAspect = true;
-            if (mode != CardFlowKind.Draw)
-            {
-                var name = GrayboxUI.Text(node, Game.Catalog[flow.CardId].name, 3, 69, 72, 32, 11, SkinCream, FontStyle.Bold);
-                name.alignment = TextAnchor.MiddleCenter;
-            }
-            var canvas = node.gameObject.AddComponent<CanvasGroup>();
-            canvas.interactable = canvas.blocksRaycasts = false;
-            canvas.alpha = 0;
-            flights.Add(new CardFlight { view = node, group = canvas, from = from, to = to, kind = mode,
-                image = image, reveal = mode == CardFlowKind.Draw ? CardUnitFrame.Art(flow.CardId) : null,
-                start = Time.unscaledTime + delay, duration = mode == CardFlowKind.Draw ? .42f : .34f });
-            animationLayer.SetAsLastSibling();
-        }
-
         void TickCardPresentation()
         {
             float now = Time.unscaledTime;
-            for (int i = flights.Count - 1; i >= 0; i--)
-            {
-                var flight = flights[i];
-                if (now < flight.start) continue;
-                float t = Mathf.Clamp01((now - flight.start) / flight.duration);
-                float ease = Mathf.SmoothStep(0, 1, t);
-                if (flight.reveal != null && t >= .72f)
-                {
-                    flight.image.sprite = flight.reveal;
-                    flight.reveal = null;
-                }
-                Vector2 p = Vector2.Lerp(flight.from, flight.to, ease);
-                p.y -= Mathf.Sin(t * Mathf.PI) * 24;
-                flight.view.anchoredPosition = new Vector2(p.x, -p.y);
-                flight.view.localScale = Vector3.one * (flight.kind == CardFlowKind.Discard ? Mathf.Lerp(1, .65f, t) : 1 + Mathf.Sin(t * Mathf.PI) * .12f);
-                flight.group.alpha = Mathf.Min(t * 10, (1 - t) * 5);
-                if (t < 1) continue;
-                Destroy(flight.view.gameObject);
-                flights.RemoveAt(i);
-            }
+            TickCardFlights(now);
             if (actionToast != null && now >= actionToastUntil)
                 actionToast.transform.parent.gameObject.SetActive(false);
             if (lastPlayed == null) return;
@@ -253,6 +197,7 @@ namespace WarConquer
         void DrawActionContext(RectTransform chrome)
         {
             var state = Game.State;
+            float boardWidth = chrome.rect.width;
             actionToast = null;
             if (state.battle == null && state.responsePlayer < 0)
             {
@@ -264,16 +209,16 @@ namespace WarConquer
                 if (string.IsNullOrEmpty(lastActionMessage) || Time.unscaledTime >= actionToastUntil) return;
                 bool unavailable = lastActionMessage.Contains("Panther") &&
                     state.log.Skip(Mathf.Max(0, state.log.Count - 3)).Any(entry => entry.Contains("Panther sin objetivos válidos"));
-                var note = GrayboxUI.Box(chrome, "Acción actual", 12, 44, BoardView.Width - 24, 30, SkinDark);
+                var note = GrayboxUI.Box(chrome, "Acción actual", 12, 44, boardWidth - 24, 30, SkinDark);
                 note.GetComponent<Image>().raycastTarget = false;
                 actionToast = GrayboxUI.Text(note, unavailable ? "Panther · Sin objetivos válidos. Puedes continuar." : lastActionMessage,
-                    8, 2, BoardView.Width - 40, 26, 13, SkinCream);
+                    8, 2, boardWidth - 40, 26, 13, SkinCream);
                 return;
             }
 
-            var banner = GrayboxUI.Box(chrome, "Ventana de respuesta", 12, 45, BoardView.Width - 24, 90, SkinDark);
+            var banner = GrayboxUI.Box(chrome, "Ventana de respuesta", 12, 45, boardWidth - 24, 90, SkinDark);
             banner.GetComponent<Image>().raycastTarget = false;
-            GrayboxUI.Text(banner, "VENTANA DE RESPUESTA", 9, 3, BoardView.Width - 43, 18, 13, SkinGold, FontStyle.Bold);
+            GrayboxUI.Text(banner, "VENTANA DE RESPUESTA", 9, 3, boardWidth - 43, 18, 13, SkinGold, FontStyle.Bold);
             string text;
             if (state.battle != null)
             {
@@ -292,13 +237,13 @@ namespace WarConquer
                 text = "Intervención durante " + TimingRules.StageName(state.stage) + " de " + PlayerLabel(state.activePlayer);
                 text += "\n" + PlayerLabel(state.responsePlayer) + " tiene permiso para intervenir.";
             }
-            GrayboxUI.Text(banner, text, 9, 23, BoardView.Width - 43, 42, 13, SkinCream);
+            GrayboxUI.Text(banner, text, 9, 23, boardWidth - 43, 42, 13, SkinCream);
             bool thirdParty = state.battle != null && Game.ActingPlayerId != state.battle.attackerOwner &&
                 Game.ActingPlayerId != state.battle.defenderOwner;
             string available = state.pendingChoices.Count > 0 ? "resuelve la elección" :
                 thirdParty ? "puede intervenir o pasar" : "puede responder o pasar";
             GrayboxUI.Text(banner, "Prioridad: " + PlayerLabel(Game.ActingPlayerId) + " · " + available,
-                9, 66, BoardView.Width - 43, 20, 14, SkinGold, FontStyle.Bold);
+                9, 66, boardWidth - 43, 20, 14, SkinGold, FontStyle.Bold);
         }
     }
 }
