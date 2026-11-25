@@ -114,8 +114,12 @@ namespace WarConquer.Editor
                 Check(ally.health==hp&&CombatManager.AttackValue(g,ally)==atk,"Mejora permanente.");
             });
             test("Old Mummy cura y recibe exactamente +1 MOV cada turno en Desierto",()=>{
-                var g=New(catalog);var p=Put(g,"old-mummy",0,0,0,Biome.Desert);p.health=1;Round(g);Check(p.health==5&&p.remainingMovement==1,"Mummy inicio.");Round(g);Check(p.remainingMovement==1,"Acumula MOV.");
-                g.State.tiles[p.tileId].biome=Biome.Wasteland;Round(g);Check(p.remainingMovement==0,"MOV fuera de Desierto.");
+                var g=New(catalog);var p=Put(g,"old-mummy",0,0,0,Biome.Desert);p.health=1;
+                int moveInDesert = catalog[p.cardId].movement + TerrainManager.GetTerrainStatModifier(g,p) + 1;
+                Round(g);Check(p.health==g.MaxHealth(p)&&p.remainingMovement==moveInDesert,"Mummy inicio.");
+                Round(g);Check(p.remainingMovement==moveInDesert,"Acumula MOV.");
+                TerrainManager.Terraform(g,p.tileId,Biome.Wasteland,p.owner);
+                Round(g);Check(p.remainingMovement==catalog[p.cardId].movement,"MOV fuera de Desierto.");
             });
             test("Wandering Beast: habilidad una vez por turno, 3rad, dos daño y robo cuatro",()=>{
                 var g=New(catalog);var p=Put(g,"wandering-beast",0,0,0);var target=Put(g,"med-camp",1,3,0);Put(g,"med-camp",1,4,0);g.State.stage=TurnStage.Assault;
@@ -136,7 +140,7 @@ namespace WarConquer.Editor
             });
             test("Frog y Alligator Token: MOV en Pantano se aplica y retira sin acumulación",()=>{
                 foreach(string id in new[]{"frog-token","alligator-token"})
-                {var g=New(catalog);var p=Put(g,id,0,0,0,Biome.Swamp,true);Check(p.remainingMovement==4,"MOV Pantano.");GenericCardRules.SyncAuras(g);Check(p.remainingMovement==4,"MOV acumulado.");TerrainManager.Terraform(g,p.tileId,Biome.Desert,0);Check(p.remainingMovement==catalog[id].movement,"MOV no se retira.");}
+                {var g=New(catalog);var p=Put(g,id,0,0,0,Biome.Swamp,true);Check(p.remainingMovement==4,"MOV Pantano.");GenericCardRules.SyncAuras(g);Check(p.remainingMovement==4,"MOV acumulado.");TerrainManager.Terraform(g,p.tileId,Biome.Desert,0);Check(p.remainingMovement==catalog[id].movement+TerrainManager.GetTerrainStatModifier(g,p),"MOV no se retira.");}
             });
             test("Frog envenena al atacar sin exigir Pantano",()=>{
                 var g=New(catalog);foreach(var player in g.State.players){player.deck.AddRange(player.hand);player.hand.Clear();}
@@ -167,13 +171,13 @@ namespace WarConquer.Editor
             test("Lushroom: dos daño Poison, aura booleana, bloqueo curación exige las cuatro condiciones",()=>{
                 var g=New(catalog);var lush=Put(g,"lushroom",1,0,0,Biome.Swamp);Put(g,"lushroom",1,0,1,Biome.Swamp);var p=Put(g,"old-mummy",0,1,0,Biome.Swamp);p.health=2;EffectManager.Poison(g,p,1,1);
                 Check(FactionCardRules.PoisonDamage(g,p)==2,"Lushroom acumula bonus.");GenericCardRules.Heal(g,p,9);Check(p.health==2,"Cura en Pantano envenenado.");
-                g.State.tiles[p.tileId].biome=Biome.Desert;GenericCardRules.Heal(g,p,9);Check(p.health==5,"Bloquea fuera de Pantano.");
-                p.health=2;p.poison=0;g.State.tiles[p.tileId].biome=Biome.Swamp;GenericCardRules.Heal(g,p,9);Check(p.health==5,"Bloquea no envenenado.");
-                EffectManager.Poison(g,lush,1,0);lush.health=2;GenericCardRules.Heal(g,lush,9);Check(lush.health==5,"Bloquea aliado.");
+                g.State.tiles[p.tileId].biome=Biome.Desert;GenericCardRules.Heal(g,p,9);Check(p.health==g.MaxHealth(p),"Bloquea fuera de Pantano.");
+                p.health=2;p.poison=0;g.State.tiles[p.tileId].biome=Biome.Swamp;GenericCardRules.Heal(g,p,9);Check(p.health==g.MaxHealth(p),"Bloquea no envenenado.");
+                EffectManager.Poison(g,lush,1,0);lush.health=2;GenericCardRules.Heal(g,lush,9);Check(lush.health==g.MaxHealth(lush),"Bloquea aliado.");
                 p.poison=1;g.State.tiles[lush.tileId].biome=Biome.Forest;g.State.tiles[At(g,0,1).id].biome=Biome.Forest;Check(FactionCardRules.PoisonDamage(g,p)==1&&!FactionCardRules.HealingBlocked(g,p),"Lushroom fuera de Pantano sigue activo.");
             });
             test("Lushroom modifica el tick real y los Tokens muertos por Poison activan Zukgrok",()=>{
-                var g=New(catalog);Put(g,"lushroom",0,0,0,Biome.Swamp);var p=Put(g,"frog-token",1,1,0,Biome.Swamp,true);EffectManager.Poison(g,p,1,0);End(g);
+                var g=New(catalog);Put(g,"lushroom",0,0,0,Biome.Swamp);var p=Put(g,"frog-token",1,1,0,Biome.Swamp,true);p.health=2;EffectManager.Poison(g,p,1,0);End(g);
                 Check(p.health==0&&g.State.tiles[p.tileId].biome!=Biome.Neutral,"Poison no mata Token o no terraforma.");
             });
             test("Alligator: +HP +ATK por Token real, conserva daño y elimina aura al morir Token",()=>{

@@ -10,12 +10,7 @@ namespace WarConquer
         static Piece Piece(GameManager g,int id)=>BoardManager.Pieces(g.State).FirstOrDefault(p=>p.id==id);
         public static bool InVoid(GameManager g,Piece p)=>p!=null&&g.State.tiles[p.tileId].biome==Biome.Void;
         public static bool CanTarget(GameManager g,Piece p)=>p==null||!g.Data(p).Has("EternalEye")||!InVoid(g,p);
-        public static bool TargetsPiece(string kind)=>new[]{"Unit","AllyUnit","EnemyUnit","EnemyGround","EnemyForest","EnemyForestSwamp","EnemyPiece","EnemyAdjacent","AllyDesertUnit"}.Contains(kind);
-        public static List<int> FilterSpellTargets(GameManager g,CardData card,List<int> ids,IList<int> selected)
-        {
-            string op=card.effects.FirstOrDefault()?.operation;
-            return op=="Engage"||op=="CleansingConquest"&&selected.Count>0?ids.Where(id=>CanTarget(g,g.State.tiles[id].unit)).ToList():ids;
-        }
+        public static bool TargetsPiece(string kind)=>new[]{"Unit","AllyUnit","EnemyUnit","EnemyGround","EnemyForest","EnemyForestSwamp","EnemyAdjacent","AllyDesertUnit"}.Contains(kind);
         public static bool EyeTerraformException(GameManager g,HexTile t,int owner)=>t.unit!=null&&t.unit.owner!=owner&&g.Data(t.unit).Has("EternalEye")&&(t.structure==null||t.structure.owner==owner);
         public static void OnTerraform(GameManager g,int owner)
         {
@@ -115,7 +110,10 @@ namespace WarConquer
         public static bool BoardChoice(string kind)=>kind!="DarknessPick"&&kind!="BeaconMode"&&kind!="BeaconDebt";
         public static List<int> ChoiceTargets(GameManager g,PendingChoice c)
         {
-            if(c.kind=="VoidPrevent")return g.Allies(c.owner).Where(p=>p.health>0&&g.Data(p).Has("VoidHole")&&p.voidHoleTurn!=g.State.turn&&BoardManager.AxialDistance(g.State.tiles[p.tileId],g.State.tiles[c.tileId])<=5).Select(p=>p.tileId).ToList();
+            if (c.kind == "VoidPrevent")
+                return g.Allies(c.owner).Where(p => p.id != c.victimId && p.health > 0 && g.Data(p).Has("VoidHole") &&
+                    p.voidHoleTurn != g.State.turn && BoardManager.AxialDistance(g.State.tiles[p.tileId], g.State.tiles[c.tileId]) <= 5)
+                    .Select(p => p.tileId).ToList();
             if(c.kind=="PortalLand"){var source=Piece(g,c.sourceId);var unit=Piece(g,c.victimId);return source==null||unit==null?new List<int>():PortalLandings(g,source,unit).ToList();}
             if(c.kind=="VoidTerraform")return g.ForPlayer(c.owner,()=>g.State.tiles.Where(t=>t.biome!=Biome.Void&&g.TerraformTarget(t.id)).Select(t=>t.id).ToList());
             if(c.kind=="DarknessPick")return DarknessCards(g,c.owner).Select(x=>x.instanceId).ToList();

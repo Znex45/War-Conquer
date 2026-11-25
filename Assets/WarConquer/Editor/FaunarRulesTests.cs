@@ -50,6 +50,25 @@ namespace WarConquer.Editor
                 Check(EnergyManager.Cost(p,c["berry-bush"])==2,"Segunda estructura rebajada.");Round(g);Check(!p.firstStructureUsed&&EnergyManager.Cost(p,c["berry-bush"])==1,"No reinicia.");
                 Check(StateValidator.Validate(g.State,c)=="","Se alteró el mazo.");
             });
+            test("Faunar paga el coste completo de una Unit aunque parte se cubra con recursos", () =>
+            {
+                var g = New(c);
+                var player = g.State.Active;
+                var unit = Hand(g, "bober-reinforcer");
+                var card = c[unit.cardId];
+                var slab = Home(g);
+                player.currentEnergy = card.energyCost - 1;
+                EnergyManager.AddResource(g.State, player, Biome.Forest, 1);
+                var mixed = EnergyManager.Quote(player, card, true);
+                Check(mixed.discount == 0 && mixed.faunarDiscount == 0 && mixed.energy + mixed.resources == card.energyCost &&
+                    mixed.Detail.Contains("1 recurso compatible") && !mixed.Detail.Contains("Faunar"), "El pago mixto figura como descuento.");
+                Check(!g.Play(unit.instanceId, new[] { slab.id }), "La unidad se jugó sin tener toda la energía.");
+                Check(g.Play(unit.instanceId, new[] { slab.id }, true) && player.currentEnergy == 0 &&
+                    EnergyManager.CompatibleResources(player, card) == 0 && !player.firstStructureUsed, "El pago mixto alteró la pasiva o la cantidad.");
+                var firstStructure = EnergyManager.Quote(player, c["berry-bush"]);
+                Check(firstStructure.energy == c["berry-bush"].energyCost - 1 && firstStructure.faunarDiscount == 1 &&
+                    firstStructure.Detail.Contains("Faunar"), "El descuento no queda reservado a la primera estructura.");
+            });
             test("Terraform y Clearing Space modifican Slab, cobran y roban realmente",()=>{
                 var g=New(c);Hand(g,"terraform");int deck=g.State.Active.deck.Count;var t=Home(g);Play(g,"terraform",t.id);Check(t.biome==Biome.Forest&&g.State.Active.deck.Count==deck-1,"Terraform no roba.");
                 deck=g.State.Active.deck.Count;Play(g,"clearing-space",t.id);Check(t.biome==Biome.Wasteland&&g.State.Active.deck.Count==deck-2,"Yield no es Yermo.");
@@ -130,10 +149,12 @@ namespace WarConquer.Editor
                 var rabbit=g.Allies(0).First(x=>x.cardId=="rabbit-token");int discard=g.State.Active.discardPile.Count;CombatManager.Remove(g,rabbit);Check(g.State.Active.discardPile.Count==discard,"Token entra al descarte.");
             });
             test("Rabbit HP Bosque calculado sin acumular y conserva daño",()=>{
-                var g=New(c);var rabbit=Put(g,"rabbit-token",0,0,0,Biome.Forest);Check(rabbit.health==4&&g.MaxHealth(rabbit)==4,"Bono inicial.");
-                for(int i=0;i<4;i++)GenericCardRules.SyncAuras(g);Check(rabbit.health==4,"Bono acumulativo.");
+                var g=New(c);var rabbit=Put(g,"rabbit-token",0,0,0,Biome.Forest);
+                int forestHealth = c[rabbit.cardId].health + 2 + TerrainManager.GetTerrainStatModifier(g,rabbit);
+                Check(rabbit.health==forestHealth&&g.MaxHealth(rabbit)==forestHealth,"Bono inicial.");
+                for(int i=0;i<4;i++)GenericCardRules.SyncAuras(g);Check(rabbit.health==forestHealth,"Bono acumulativo.");
                 CombatManager.DirectDamage(g,rabbit,1);var t=At(g,1,0);t.biome=Biome.Neutral;MovementManager.Relocate(g,rabbit,t.id);Check(rabbit.health==1&&g.MaxHealth(rabbit)==2,"Salida no quita bono.");
-                t=At(g,0,0);MovementManager.Relocate(g,rabbit,t.id);Check(rabbit.health==3&&g.MaxHealth(rabbit)==4,"Reentrada borra daño.");
+                t=At(g,0,0);MovementManager.Relocate(g,rabbit,t.id);Check(rabbit.health==forestHealth-1&&g.MaxHealth(rabbit)==forestHealth,"Reentrada borra daño.");
             });
             test("Mongoose roba solo al jugar en Bosque",()=>{
                 var g=New(c);var first=Hand(g,"charming-mongoose");var home=Home(g);home.biome=Biome.Forest;int deck=g.State.Active.deck.Count;
@@ -155,9 +176,24 @@ namespace WarConquer.Editor
             test("Panther transiciones Bosque, elige a2rad y no repite dentro del mismo bioma",()=>{
                 var g=New(c);var p=Put(g,"panther-stealthy-assassin",0,0,0,Biome.Forest);p.health=2;var t=At(g,1,0);t.biome=Biome.Forest;
                 MovementManager.Relocate(g,p,t.id);Check(p.health==2&&g.State.pendingChoices.Count==0,"Dispara entre Bosques.");
-                var enemy=Put(g,"bober-reinforcer",2,4,0);var far=Put(g,"bober-reinforcer",3,5,0);MovementManager.Relocate(g,p,At(g,2,0).id);
-                var choice=g.State.pendingChoices.Single();Check(ChoiceManager.Targets(g,choice).Contains(enemy.tileId)&&!ChoiceManager.Targets(g,choice).Contains(far.tileId),"Radio de Panther.");
-                Check(ChoiceManager.Resolve(g,new[]{enemy.tileId})&&enemy.health==2,"No aplica daño elegido.");MovementManager.Relocate(g,p,t.id);Check(p.health==6,"No cura al entrar.");
+                var exit = At(g,2,0);
+                exit.biome = Biome.Neutral;
+                var ally = Put(g,"bober-reinforcer",0,2,1);
+                var far = Put(g,"bober-reinforcer",3,5,0);
+                MovementManager.Relocate(g,p,exit.id);
+                Check(g.State.pendingChoices.Count == 0, "Panther ofrece una elección sin enemigos válidos.");
+                MovementManager.Relocate(g,p,t.id);
+                Check(p.health == g.MaxHealth(p), "No cura al entrar.");
+                var enemy = Put(g,"bober-reinforcer",2,4,0);
+                MovementManager.Relocate(g,p,exit.id);
+                var choice = g.State.pendingChoices.Single();
+                Check(choice.optional && ChoiceManager.Targets(g,choice).SequenceEqual(new[] { enemy.tileId }), "Panther admite a sí misma, aliados o enemigos fuera de radio.");
+                Check(!ChoiceManager.Resolve(g,new[] { ally.tileId }) &&
+                    ChoiceManager.Resolve(g,Array.Empty<int>(),true) && enemy.health == 4, "Panther no permite omitir o daña al aliado.");
+                MovementManager.Relocate(g,p,t.id);
+                MovementManager.Relocate(g,p,exit.id);
+                Check(ChoiceManager.Resolve(g,new[] { enemy.tileId }) && enemy.health == 2 &&
+                    ally.health == 4 && far.health == 4, "Panther no aplica exactamente el daño elegido.");
             });
             test("IA Faunar usa elecciones y avanza sin bloquear el turno",()=>{
                 var g=New(c,2);g.State.players[0].isAI=true;var ai=new AiPlayer();Hand(g,"one-for-the-team");int steps=0;

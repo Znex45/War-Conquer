@@ -71,12 +71,14 @@ namespace WarConquer
                 CardPresentation.Fit(glyph, 40, 9, true);
                 glyph.gameObject.SetActive(illustration.sprite == null);
                 title.text = card.name;
+                bool mixedPayment = cost.Contains("\n");
                 energy.text = cost.Replace(" → ", "→");
+                energy.lineSpacing = mixedPayment ? .72f : 1f;
                 health.text = "HP " + hp;
                 movement.text = "MOV " + mov;
                 attack.text = "ATK " + atk;
                 CardPresentation.Fit(title, 15, 10, true);
-                CardPresentation.Fit(energy, 17, 9, true);
+                CardPresentation.Fit(energy, mixedPayment ? 10 : 17, mixedPayment ? 7 : 9, !mixedPayment);
                 CardPresentation.Fit(health, 13, 9, false);
                 CardPresentation.Fit(movement, 12, 9, false);
                 CardPresentation.Fit(attack, 12, 9, false);

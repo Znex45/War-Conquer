@@ -70,13 +70,13 @@ namespace WarConquer
                 case "wandering-beast":
                     return "Despliégala en Yermo. Una vez por turno puede infligir 2 puntos de daño directo a una unidad o estructura a 3 casillas de radio. Al morir, roba 4 cartas.";
                 case "panther-stealthy-assassin":
-                    return "Cuando sale de Bosque hacia otro bioma, puedes infligir 2 puntos de daño directo a una unidad a 2 casillas de radio del destino.\n\nCuando entra en Bosque desde otro bioma, se cura hasta su vida máxima.";
+                    return "Cuando sale de Bosque hacia otro bioma, puedes infligir 2 puntos de daño directo a una unidad enemiga a 2 casillas de radio del destino.\n\nCuando entra en Bosque desde otro bioma, se cura hasta su vida máxima.";
                 case "ferret-eluding-hunter":
                     return "Cuando elimina una unidad, se cura hasta su vida máxima.\n\nUna vez por turno puede saltar a una casilla libre junto a una estructura aliada en Bosque o con etiqueta Bosque situada a 4 casillas de radio.";
                 case "bober-reinforcer":
                     return "Al inicio de tu turno, cura 1 HP a todas tus estructuras. Si el castor está en Bosque, puedes construir hasta 2 casillas de radio de él respetando el terreno y la ocupación.";
                 case "berry-bush":
-                    return "Al inicio de tu turno, elige una casilla libre adyacente para invocar un Rabbit Token.";
+                    return "Al inicio de tu turno, invoca automáticamente un Rabbit Token en una casilla libre adyacente aliada o neutral.";
                 case "rabbit-token":
                     return "Es una ficha invocada. Mientras esté en Bosque tiene +2 HP máximos. Este bono propio de la ficha no se acumula. No forma parte del mazo ni va al descarte.";
                 case "frogpit":
@@ -102,7 +102,7 @@ namespace WarConquer
                 case "portal":
                     return "Una vez por turno, paga 2 de energía y elige una unidad despierta en Void a 6 casillas de radio del Portal. Luego elige una casilla válida libre junto al Portal e intenta trasladarla allí.";
                 case "insolator":
-                    return "Activa la habilidad para infligir 2 puntos de daño directo a todas las unidades en un radio de 3 casillas, incluidas tus aliadas. Si mata al menos una, puedes terraformar una casilla válida a Void.";
+                    return "Activa la habilidad para infligir 2 puntos de daño directo a todas las unidades en un radio de 3 casillas, incluidas tus aliadas. Si mata al menos una, elige una casilla válida para terraformarla a Void.";
                 case "crystal-minion":
                     return "Si empieza en Void y tiene movimiento disponible, puede saltar a otra casilla de Void libre y válida a 3 casillas de radio. El salto usa 1 MOV.";
                 case "dark-fly":
@@ -120,7 +120,7 @@ namespace WarConquer
                 case "vigilant-tower":
                     return "Una vez por turno, elige una unidad a 6 casillas de radio. Inflígele 1 punto de daño.";
                 case "emergency-seal":
-                    return "Cuando se destruye esta estructura, puedes elegir una unidad aliada e intentar trasladarla a la casilla que acaba de quedar libre.";
+                    return "Cuando se destruye esta estructura, elige una unidad aliada que pueda trasladarse a la casilla que acaba de quedar libre.";
                 case "mana-pool":
                     return "Al inicio de tu turno, obtén 1 energía adicional. El límite permanente de energía no sube.";
                 case "valiant-seal":

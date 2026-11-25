@@ -1,4 +1,4 @@
-using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace WarConquer
@@ -7,176 +7,302 @@ namespace WarConquer
     {
         sealed partial class Sculptor
         {
-            // Original voidborn silhouettes: living chitin, connective tissue and mineral symbiosis.
-            // Constructed before presentation captures its idle joints; no game data is touched.
-            readonly Color vxShell=new Color(.105f,.065f,.18f);
-            readonly Color vxPlate=new Color(.285f,.13f,.415f);
-            readonly Color vxRidge=new Color(.49f,.265f,.63f);
-            readonly Color vxTissue=new Color(.64f,.13f,.39f);
-            readonly Color vxLight=new Color(.23f,.81f,.93f);
-            readonly Color vxTooth=new Color(.81f,.73f,.81f);
+            // Palette and silhouettes are taken from the eight Void illustrations.
+            bool SculptVoidArt()
+            {
+                switch (id)
+                {
+                    case "crystal-minion": VXCrystalHunter(); break;
+                    case "dark-fly": VXFly(); break;
+                    case "the-eternal-eye": VXEye(); break;
+                    case "void-hole": VXMaw(); break;
+                    case "sprinting-sprite": VXSprinter(); break;
+                    case "void-beacon": VXBeacon(); break;
+                    case "portal": VXPortal(); break;
+                    case "insolator": VXCage(); break;
+                    default: return false;
+                }
+                return true;
+            }
 
-            void ApplyVoidStyle()
-            {
-                if(!new[]{"crystal-minion","dark-fly","the-eternal-eye","void-hole","sprinting-sprite","void-beacon","portal","insolator"}.Contains(id))return;
-                // Preserve the sculpture root, so arrival, movement and combat continue to share it.
-                foreach(var child in model.Cast<Transform>().ToArray())BoardMeshFactory.Release(child.gameObject);
-                switch(id)
-                {
-                    case "crystal-minion":VXCrystalHunter();break;
-                    case "dark-fly":VXFly();break;
-                    case "the-eternal-eye":VXEye();break;
-                    case "void-hole":VXMaw();break;
-                    case "sprinting-sprite":VXSprinter();break;
-                    case "void-beacon":VXBeacon();break;
-                    case "portal":VXPortal();break;
-                    case "insolator":VXCage();break;
-                }
-            }
-            void VXCurve(Transform p,string name,Color color,float width,params Vector3[] points)
-            {
-                for(int j=1;j<points.Length;j++)Flesh(p,name,points[j-1],points[j],width*(1-(j-1)*.14f),color);
-                for(int j=1;j<points.Length-1;j++)Ball(p,name+" · articulación",points[j],Vector3.one*width*.75f,color);
-            }
-            void VXClaw(Transform p,string name,Vector3 a,Vector3 bend,Vector3 tip,float width)
-            {
-                VXCurve(p,name,vxPlate,width,a,bend);
-                Flesh(p,name+" · filo",bend,tip,width*.58f,vxTooth);
-                Ball(p,name+" · bisagra",bend,Vector3.one*width*.86f,vxRidge);
-            }
-            void VXFace(Transform head,bool elongated=false)
-            {
-                Ball(head,"Cráneo de quitina",Vector3.zero,new Vector3(.245f,.22f,elongated?.29f:.23f),vxShell);
-                Ball(head,"Placa frontal del depredador",new Vector3(0,.06f,-.03f),new Vector3(.255f,.13f,.2f),vxPlate);
-                for(int side=-1;side<=1;side+=2)
-                {
-                    var eye=Leaf(head,"Ojo oblicuo del vacío",new Vector3(side*.068f,.015f,-.105f),new Vector3(.045f,.088f,.022f),vxLight,new Vector3(0,0,-side*62));
-                    VXClaw(head,"Mandíbula prensil",new Vector3(side*.085f,-.055f,-.045f),new Vector3(side*.11f,-.1f,-.14f),new Vector3(side*.045f,-.1f,-.19f),.047f);
-                }
-            }
             void VXCrystalHunter()
             {
-                var body=G(model,"Idle:Body",new Vector3(0,.36f,0));
-                Ball(body,"Tórax blindado del esbirro",Vector3.zero,new Vector3(.4f,.4f,.34f),vxShell);
-                Gem(body,"Cristal simbiótico del pecho",new Vector3(0,.015f,-.14f),new Vector3(.23f,.34f,.15f),vxLight);
-                for(int side=-1;side<=1;side+=2)
+                Color darkSmoke=Pigment(0x252035), smoke=Pigment(0x423054), violet=Pigment(0x8D4FCB);
+                var body=G(model,"Idle:Body",V(0,.478f,.016f));
+                Ball(body,"Núcleo de sombra",Vector3.zero,V(.48f,.456f,.438f),darkSmoke);
+                for(int i=0;i<8;i++)
                 {
-                    Ball(body,"Costado de quitina",new Vector3(side*.15f,.02f,.025f),new Vector3(.17f,.36f,.32f),vxPlate).localRotation=Quaternion.Euler(0,0,-side*12);
-                    for(int j=0;j<2;j++)
+                    float angle=i*Mathf.PI/4f;
+                    var curl=Ball(body,"Nube enroscada",V(Mathf.Sin(angle)*.184f,Mathf.Cos(angle)*.181f,.042f),
+                        V(.152f,.127f,.285f),i%2==0?smoke:darkSmoke);
+                    curl.localRotation=Quaternion.Euler(17+5*i,29,-i*45+18);
+                    if(i%2==0)
                     {
-                        var knee=new Vector3(side*.27f,-.105f,j==0?-.18f:.19f);
-                        var foot=new Vector3(side*.31f,-.32f,j==0?-.24f:.27f);
-                        VXCurve(body,"Pata segmentada del esbirro",vxPlate,.09f,new Vector3(side*.14f,-.055f,j==0?-.08f:.12f),knee,foot);
-                        Ball(body,"Apoyo de garra",foot,new Vector3(.095f,.085f,.14f),vxShell);
+                        float side=Mathf.Sin(angle+.43f);
+                        Sweep(body,"Relieve en curva "+i,smoke,Knot(side*.152f,Mathf.Cos(angle+.43f)*.189f,-.12f,.024f),
+                            Knot(Mathf.Sin(angle+.14f)*.224f,Mathf.Cos(angle+.14f)*.209f,-.086f,.029f),
+                            Knot(Mathf.Sin(angle-.19f)*.197f,Mathf.Cos(angle-.19f)*.166f,-.13f,.014f));
                     }
-                    var arm=G(body,side<0?"Idle:ArmL":"Idle:ArmR",new Vector3(side*.18f,.09f,-.025f));
-                    VXClaw(arm,"Guadaña del esbirro",Vector3.zero,new Vector3(side*.16f,-.07f,-.05f),new Vector3(side*.1f,-.2f,-.19f),.105f);
-                    Gem(body,"Espina escapular",new Vector3(side*.14f,.19f,.06f),new Vector3(.105f,.3f,.13f),vxRidge).localRotation=Quaternion.Euler(12,0,-side*25);
                 }
-                VXFace(G(body,"Idle:Head",new Vector3(0,.245f,-.045f)));
+                var face=G(body,"Idle:Head",V(0,.052f,-.213f));
+                face.localRotation=Quaternion.Euler(22,6,-5);
+                MiniatureEyes(face,.092f,.045f,-.013f,.116f,Pigment(0xBE66BE),Pigment(0xF39ED7),4);
+                for(int i=-1;i<=1;i++)
+                {
+                    var pos=V(i*.121f,.286f-Mathf.Abs(i)*.047f,-.03f+.038f*Mathf.Abs(i));
+                    var crown=Gem(body,"Cuarzo del penacho",pos,V(.139f,i==0?.327f:.233f,.151f),
+                        i==0?Pigment(0xB97BDE):violet);
+                    crown.localRotation=Quaternion.Euler(-22,0,-i*31);
+                    Gem(crown,"Cara iluminada del cuarzo",V(-.11f,.081f,-.25f),V(.38f,.62f,.21f),Pigment(0xD99DF1));
+                }
+                var tail=G(body,"Idle:Tail",V(0,-.177f,.055f));
+                Sweep(tail,"Vapor principal curvado",darkSmoke,Knot(0,0,0,.088f),Knot(.032f,-.062f,.037f,.071f),
+                    Knot(.107f,-.114f,.067f,.057f),Knot(.126f,-.177f,.064f,.036f),Knot(.032f,-.228f,.008f,.022f),
+                    Knot(-.047f,-.213f,-.028f,.009f));
+                Sweep(tail,"Rizo de sombra lateral",smoke,Knot(-.074f,.012f,.006f,.046f),
+                    Knot(-.147f,-.039f,.053f,.035f),Knot(-.177f,-.1f,.041f,.024f),Knot(-.121f,-.141f,.015f,.008f));
             }
+
             void VXFly()
             {
-                var body=G(model,"Idle:Body",new Vector3(0,.58f,0));
-                Ball(body,"Abdomen de mosca abisal",new Vector3(0,0,.14f),new Vector3(.32f,.25f,.4f),vxPlate);
-                Ball(body,"Tórax articulado de mosca",new Vector3(0,.02f,-.11f),new Vector3(.25f,.23f,.27f),vxShell);
-                Ball(body,"Saco bioluminiscente",new Vector3(0,-.015f,.29f),new Vector3(.21f,.15f,.16f),vxTissue);
+                Color shell=Pigment(0x211E34), joint=Pigment(0x413651), violet=Pigment(0xA058CC), pale=Pigment(0xD38AE0);
+                var body=G(model,"Idle:Body",V(0,.523f,0));
+                Ball(body,"Abdomen cónico",V(0,-.021f,.147f),V(.229f,.203f,.405f),shell).localRotation=Quaternion.Euler(13,0,0);
+                for(int i=0;i<3;i++)
+                    Ball(body,"Segmento quitinoso",V(0,.059f-i*.028f,.127f+i*.069f),
+                        V(.207f-i*.039f,.123f-i*.019f,.156f),i%2==0?joint:shell).localRotation=Quaternion.Euler(18+i*5,0,0);
+                Ball(body,"Tórax abisal",V(0,.029f,-.081f),V(.245f,.243f,.29f),joint);
+                var head=G(body,"Idle:Head",V(0,.013f,-.235f));
+                Ball(head,"Cabeza de mosca",Vector3.zero,V(.232f,.211f,.205f),shell);
                 for(int side=-1;side<=1;side+=2)
                 {
-                    for(int j=0;j<3;j++)VXCurve(body,"Pata colgante de mosca",vxRidge,.034f,new Vector3(side*.09f,-.025f,-.12f+j*.11f),new Vector3(side*.24f,-.09f,-.18f+j*.15f),new Vector3(side*.3f,-.24f,-.2f+j*.17f));
-                    var wing=G(body,side<0?"Idle:WingL":"Idle:WingR",new Vector3(side*.09f,.1f,-.06f));
-                    Leaf(wing,"Membrana alar abisal",new Vector3(side*.15f,0,.07f),new Vector3(.19f,.57f,.027f),vxTissue,new Vector3(90,0,side*64));
-                    Bone(wing,"Nervadura de ala",Vector3.zero,new Vector3(side*.33f,.01f,.18f),.022f,vxRidge);
-                    Ball(body,"Élitro orgánico",new Vector3(side*.105f,.115f,.09f),new Vector3(.14f,.13f,.29f),vxShell);
+                    var eye=Ball(head,"Ojo compuesto",V(side*.091f,.031f,-.061f),V(.145f,.168f,.132f),violet);
+                    eye.localRotation=Quaternion.Euler(13,side*21,side*9);
+                    Ball(head,"Reflejo violeta",V(side*.113f,.062f,-.11f),V(.051f,.061f,.027f),pale);
+                    Ball(head,"Faceta inferior",V(side*.117f,-.023f,-.091f),V(.042f,.043f,.023f),Pigment(0x6E3B96));
+                    Sweep(head,"Mandíbula de mosca "+side,shell,Knot(side*.061f,-.047f,-.071f,.032f),
+                        Knot(side*.079f,-.099f,-.115f,.024f),Knot(side*.059f,-.151f,-.162f,.011f));
+                    for(int i=0;i<3;i++)
+                    {
+                        float z=-.13f+i*.111f;
+                        CurvedLimb(body,"Pata de mosca oscura "+side+"/"+i,joint,V(side*.074f,-.02f,z),
+                            V(side*.235f,-.074f,z+(i-1)*.066f),V(side*.291f,-.216f,z+.018f*(i-1)),.026f,.018f,.008f);
+                    }
+                    var wing=G(body,side<0?"Idle:WingL":"Idle:WingR",V(side*.073f,.092f,-.041f));
+                    for(int pair=1;pair>=0;pair--)
+                    {
+                        var end=V(side*(.395f-pair*.059f),.259f-pair*.183f,.208f+pair*.130f);
+                        var vane=Plate(wing,"Membrana de ala",end*.50f,V(pair==0?.198f:.167f,end.magnitude*1.08f,.041f),
+                            pair==0?violet:Pigment(0x794DA9),Vector3.zero,"wing",WingEdge);
+                        // The patterned front faces the elevated camera. The fixed leading
+                        // edge remains aligned with the membrane's idle pivot.
+                        vane.localRotation=Quaternion.LookRotation(V(-side*.13f,-.36f,.94f),end);
+                        Bone(vane,"Vena central",V(0,-.438f,-.55f),V(.02f,.398f,-.59f),.052f,shell);
+                        for(int rib=0;rib<2;rib++)
+                            for(int wingSide=-1;wingSide<=1;wingSide+=2)
+                            {
+                                float y=-.16f+rib*.216f;
+                                Bone(vane,"Nervio de ala",V(.01f,y,-.55f),V(wingSide*(.29f+rib*.042f),y+.21f,-.54f),
+                                    .035f,rib==0?shell:pale);
+                            }
+                    }
                 }
-                var head=G(body,"Idle:Head",new Vector3(0,.02f,-.26f));VXFace(head,true);head.localScale=Vector3.one*.8f;
             }
+
             void VXEye()
             {
-                var head=G(model,"Idle:Head",new Vector3(0,.67f,0));
-                Ball(head,"Esclera del ojo eterno",Vector3.zero,new Vector3(.5f,.4f,.38f),new Color(.77f,.62f,.76f));
-                Ball(head,"Iris del ojo eterno",new Vector3(0,0,-.182f),new Vector3(.27f,.29f,.065f),vxLight);
-                Gem(head,"Pupila hendida",new Vector3(0,0,-.217f),new Vector3(.055f,.23f,.025f),ink);
+                Color rock=Pigment(0x3A344D), rim=Pigment(0x594877), crystal=Pigment(0xA581CD), iridescent=Pigment(0xD3ACEA);
+                var ocular=G(model,"Idle:Head",V(0,.563f,.01f));
+                ocular.localRotation=Quaternion.Euler(14,-11,7);
+                Ball(ocular,"Núcleo mineral",Vector3.zero,V(.55f,.539f,.301f),rock);
+                for(int i=0;i<10;i++)
+                {
+                    float a=2*Mathf.PI*i/10;
+                    Vector3 p=V(Mathf.Sin(a)*.224f,Mathf.Cos(a)*.261f,-.016f+.02f*(i%3));
+                    var rockShard=P(ocular,"Placa mineral superpuesta",m.Carved,p,V(.203f,.27f-i%3*.027f,.204f),
+                        i%3==0?rock:rim);
+                    rockShard.localRotation=Quaternion.Euler(-8+7*i,19*(i%2),-a*Mathf.Rad2Deg-i%3*15);
+                }
+                Ball(ocular,"Cuenca del ojo",V(0,0,-.151f),V(.433f,.317f,.171f),Pigment(0x302137));
+                Ball(ocular,"Globo violeta",V(0,.008f,-.204f),V(.361f,.248f,.166f),crystal);
+                Ball(ocular,"Iris amatista",V(0,.008f,-.273f),V(.185f,.218f,.093f),Pigment(0x9B67C5));
+                Plate(ocular,"Pupila vertical",V(0,.006f,-.323f),V(.071f,.206f,.032f),ink,Vector3.zero,"leaf",LeafEdge);
+                Ball(ocular,"Reflejo del iris",V(-.043f,.063f,-.316f),V(.051f,.045f,.024f),iridescent);
                 for(int side=-1;side<=1;side+=2)
                 {
-                    VXCurve(head,"Párpado de quitina",vxPlate,.075f,new Vector3(side*.23f,0,-.095f),new Vector3(side*.15f,.16f,-.12f),new Vector3(0,.19f,-.12f));
-                    VXCurve(head,"Mandíbula del ojo",vxShell,.067f,new Vector3(side*.23f,0,-.095f),new Vector3(side*.16f,-.16f,-.12f),new Vector3(0,-.18f,-.115f));
-                    VXClaw(head,"Cuerno orbital",new Vector3(side*.16f,.13f,.01f),new Vector3(side*.29f,.28f,.03f),new Vector3(side*.21f,.37f,-.055f),.075f);
+                    Sweep(ocular,"Bisel pétreo superior "+side,rim,Knot(side*.229f,.008f,-.107f,.051f),
+                        Knot(side*.148f,.119f,-.182f,.049f),Knot(side*.071f,.151f,-.184f,.044f),Knot(0,.155f,-.166f,.033f));
+                    Sweep(ocular,"Bisel pétreo inferior "+side,rock,Knot(side*.229f,.008f,-.108f,.047f),
+                        Knot(side*.165f,-.084f,-.199f,.047f),Knot(side*.069f,-.132f,-.194f,.038f),Knot(0,-.141f,-.168f,.027f));
+                    Gem(ocular,"Amatista lateral",V(side*.192f,.238f,-.064f),V(.113f,.195f,.148f),crystal)
+                        .localRotation=Quaternion.Euler(10,0,-side*36);
+                    Gem(ocular,"Piedra oscura suspendida",V(side*.356f,-.103f,.023f),V(.083f,.138f,.101f),rim)
+                        .localRotation=Quaternion.Euler(15,0,-side*31);
                 }
-                for(int j=-1;j<=1;j++)VXCurve(head,"Zarcillo sensorial",vxTissue,.054f,new Vector3(j*.12f,-.12f,.06f),new Vector3(j*.16f,-.31f,.1f),new Vector3(j*.1f,-.43f,.17f));
+                Gem(ocular,"Amatista central",V(0,.291f,-.115f),V(.141f,.264f,.138f),crystal);
+                Gem(ocular,"Punta mineral inferior",V(0,-.308f,-.035f),V(.136f,.26f,.156f),rock);
             }
+
             void VXMaw()
             {
+                Color dark=Pigment(0x211933), rock=Pigment(0x584C65), violet=Pigment(0x6F3A9B);
                 var body=G(model,"Idle:Body",Vector3.zero);
-                P(body,"Garganta del vacío",m.Cylinder,Vector3.zero,new Vector3(.58f,.055f,.58f),ink);
-                P(body,"Remolino del abismo",m.Vortex,Vector3.up*.074f,Vector3.one*.42f,vxLight);
-                for(int j=0;j<8;j++)
+                Stem(body,"Sombra del cráter",V(0,.012f,0),.63f,.027f,dark);
+                Mesh funnel=m.UnitMesh(id+"/cuenco",AbyssBowl);
+                P(body,"Cuenco profundo",funnel,Vector3.zero,Vector3.one,Pigment(0x302044));
+                for(int i=0;i<9;i++)
                 {
-                    var p=Rad(j,8,.275f,.095f);
-                    var plate=Ball(body,"Labio acorazado del agujero",p,new Vector3(.23f,.14f,.17f),j%2==0?vxPlate:vxShell);plate.localRotation=Quaternion.Euler(0,-j*45,0);
-                    VXClaw(body,"Diente del horizonte",Rad(j,8,.28f,.1f),Rad(j,8,.27f,.26f),Rad(j,8,.19f,.31f),.052f);
+                    float a=i*Mathf.PI*2/9;
+                    var shard=P(body,"Loseta fracturada",m.Carved,V(Mathf.Cos(a)*.304f,.057f+i%3*.021f,Mathf.Sin(a)*.304f),
+                        V(.190f,.115f+i%3*.041f,.193f),i%2==0?rock:Pigment(0x4A4259));
+                    shard.localRotation=Quaternion.Euler(13-i%3*11,-i*40,13+i%3*14);
+                    var edge=V(Mathf.Cos(a)*.268f,.104f+i%3*.014f,Mathf.Sin(a)*.268f);
+                    var outer=V(Mathf.Cos(a+.25f)*.339f,.082f,Mathf.Sin(a+.25f)*.339f);
+                    Sweep(body,"Fisura radial "+i,Pigment(0x915CC3),
+                        Knot(edge.x,edge.y,edge.z,.012f),Knot((edge.x+outer.x)*.5f,.119f,(edge.z+outer.z)*.5f,.016f),
+                        Knot(outer.x,outer.y,outer.z,.007f));
+                }
+                for(int i=0;i<4;i++)
+                {
+                    const int samples=13;
+                    var curve=new Vector4[samples];
+                    for(int j=0;j<samples;j++)
+                    {
+                        float t=j/(float)(samples-1);
+                        float angle=i*Mathf.PI*.5f+t*5.75f;
+                        float r=Mathf.Lerp(.315f,.026f,t*t);
+                        float y=.063f+.108f*Mathf.Sin(t*Mathf.PI*.92f)-t*.057f+(i%2)*.019f;
+                        float radius=(.023f+(i%2)*.007f)*Mathf.Sin(Mathf.PI*t)*(.98f-t*.30f)+.004f;
+                        curve[j]=Knot(Mathf.Cos(angle)*r,y,Mathf.Sin(angle)*r,radius);
+                    }
+                    Sweep(body,"Brazo de remolino "+i,i%2==0?violet:Pigment(0xB27AE2),curve);
                 }
             }
+
+            static Mesh AbyssBowl()
+            {
+                const int sides=16, rings=4;
+                float[] radii={.018f,.108f,.216f,.309f};
+                float[] depth={.045f,.051f,.085f,.129f};
+                var vertices=new Vector3[sides*rings+1];
+                var indices=new List<int>(sides*18);
+                vertices[sides*rings]=V(0,.045f,0);
+                for(int ring=0;ring<rings;ring++)
+                    for(int i=0;i<sides;i++)
+                    {
+                        float angle=2*Mathf.PI*i/sides;
+                        int current=ring*sides+i, next=ring*sides+(i+1)%sides;
+                        vertices[current]=V(Mathf.Cos(angle)*radii[ring],depth[ring],Mathf.Sin(angle)*radii[ring]);
+                        if(ring==0) indices.AddRange(new[]{sides*rings,next,current});
+                        if(ring<rings-1) indices.AddRange(new[]{current,next,current+sides,next,next+sides,current+sides});
+                    }
+                return Geometry("Cuenco del Vacío",vertices,indices);
+            }
+
             void VXSprinter()
             {
-                var body=G(model,"Idle:Body",new Vector3(0,.47f,0));
-                Ball(body,"Tórax esbelto del corredor",Vector3.zero,new Vector3(.255f,.37f,.24f),vxShell);
-                Ball(body,"Quilla pectoral",new Vector3(0,-.01f,-.095f),new Vector3(.15f,.27f,.09f),vxTissue);
+                Color shadow=Pigment(0x30233F), purple=Pigment(0x634091), violet=Pigment(0x9659CE), gold=Pigment(0xE9B965);
+                var body=G(model,"Idle:Body",V(0,.421f,0));
+                body.localRotation=Quaternion.Euler(-9,-18,-7);
+                Ball(body,"Torso de sombra en carrera",V(0,.064f,-.031f),V(.236f,.306f,.268f),shadow)
+                    .localRotation=Quaternion.Euler(-52,0,-23);
+                Ball(body,"Pelvis de sombra",V(0,-.013f,.078f),V(.198f,.194f,.196f),shadow);
                 for(int side=-1;side<=1;side+=2)
                 {
-                    var knee=new Vector3(side*.13f,-.22f,side<0?.13f:-.11f);var foot=new Vector3(side*.16f,-.42f,side<0?.24f:-.2f);
-                    VXCurve(body,"Pata digitígrada del corredor",vxPlate,.074f,new Vector3(side*.075f,-.11f,0),knee,foot);
-                    Ball(body,"Garra de apoyo del corredor",foot,new Vector3(.09f,.1f,.17f),vxShell);
-                    var arm=G(body,side<0?"Idle:ArmL":"Idle:ArmR",new Vector3(side*.1f,.095f,-.015f));
-                    VXClaw(arm,"Guadaña del corredor",Vector3.zero,new Vector3(side*.15f,-.04f,-side*.06f),new Vector3(side*.12f,-.17f,-side*.15f),.078f);
-                    Leaf(body,"Aleta escapular del corredor",new Vector3(side*.09f,.15f,.065f),new Vector3(.12f,.3f,.08f),vxPlate,new Vector3(-30,0,side*27));
+                    Vector3 knee=side<0?V(-.114f,-.154f,-.053f):V(.111f,-.116f,.199f);
+                    Vector3 foot=side<0?V(-.091f,-.249f,-.185f):V(.162f,-.278f,.3f);
+                    CurvedLimb(body,"Pierna en zancada "+side,shadow,V(side*.067f,-.021f,.049f),
+                        knee,foot,.083f,.057f,.036f);
+                    Plate(body,"Punta del pie",foot+V(0,.007f,.006f),V(.073f,.109f,.059f),purple,
+                        V(side<0?-53:62,0,side*11),"leaf",LeafEdge);
+                    var arm=G(body,side<0?"Idle:ArmL":"Idle:ArmR",V(side*.092f,.106f,-.1f));
+                    Vector3 elbow=side<0?V(-.141f,-.027f,-.052f):V(.099f,-.035f,.136f);
+                    Vector3 hand=side<0?V(-.076f,-.008f,-.174f):V(.138f,-.119f,.170f);
+                    CurvedLimb(arm,"Brazo en zancada "+side,shadow,Vector3.zero,elbow,hand,.062f,.048f,.039f);
+                    Ball(arm,"Puño del corredor",hand,V(.083f,.084f,.089f),purple);
+                    float sweep = side<0?1:.81f;
+                    Sweep(body,"Estela externa "+side,purple,Knot(side*.096f,.132f,.009f,.053f),
+                        Knot(side*.15f,.167f,.119f,.052f),Knot(side*.206f,.148f,.241f*sweep,.033f),
+                        Knot(side*.263f,.176f,.315f*sweep,.023f),Knot(side*.247f,.199f,.396f*sweep,.013f),
+                        Knot(side*.287f,.173f,.459f*sweep,.004f));
+                    Sweep(body,"Estela luminosa "+side,side<0?gold:violet,Knot(side*.091f,.179f,-.047f,.019f),
+                        Knot(side*.137f,.2f,.126f,.023f),Knot(side*.19f,.177f,.227f*sweep,.019f),
+                        Knot(side*.244f,.211f,.363f*sweep,.011f),Knot(side*.28f,.182f,.477f*sweep,.004f));
                 }
-                VXFace(G(body,"Idle:Head",new Vector3(0,.23f,-.07f)),true);
-                var tail=G(body,"Idle:Tail",new Vector3(0,-.055f,.09f));
-                VXCurve(tail,"Cola de equilibrio",vxPlate,.065f,Vector3.zero,new Vector3(.045f,.035f,.18f),new Vector3(.1f,.14f,.3f));
+                var head=G(body,"Idle:Head",V(0,.197f,-.159f));
+                head.localRotation=Quaternion.Euler(12,-5,8);
+                P(head,"Cráneo angular",m.Carved,Vector3.zero,V(.234f,.218f,.237f),shadow)
+                    .localRotation=Quaternion.Euler(-21,0,-7);
+                Plate(head,"Arista de frente",V(0,.066f,-.04f),V(.199f,.097f,.126f),purple,V(-17,0,-5),"shield",ShieldEdge);
+                for(int side=-1;side<=1;side+=2)
+                    Plate(head,"Ojo inclinado de luz",V(side*.063f,.013f,-.101f),V(.037f,.085f,.038f),
+                        Pigment(0xDBA8F1),V(0,side*16,-side*67),"leaf",LeafEdge);
+                Sweep(body,"Hilo bajo de energía",gold,Knot(-.13f,-.13f,-.141f,.014f),
+                    Knot(-.158f,-.163f,.091f,.028f),Knot(-.131f,-.082f,.276f,.017f),Knot(-.041f,-.038f,.4f,.006f));
             }
+
             void VXRootBed()
             {
-                Ball(model,"Raíz basal del organismo",new Vector3(0,.065f,0),new Vector3(.66f,.15f,.62f),vxShell);
-                for(int j=0;j<3;j++)VXCurve(model,"Raíz de quitina",vxPlate,.09f,Rad(j,3,.3f,.035f),Rad(j,3,.17f,.14f),new Vector3(0,.2f,0));
+                P(model,"Roca violeta tallada",m.Carved,V(0,.083f,0),V(.742f,.185f,.701f),Pigment(0x4D405F));
+                for(int i=0;i<5;i++)Box(model,"Losa facetada",Rad(i,5,.269f,.107f),V(.181f,.097f,.207f),Pigment(i%2==0?0x625175:0x40364E)).localRotation=Quaternion.Euler(0,i*72,0);
             }
+
             void VXBeacon()
             {
                 VXRootBed();
-                Ball(model,"Columna vertebral del faro",new Vector3(0,.52f,0),new Vector3(.26f,.88f,.25f),vxShell);
-                Ball(model,"Órgano de señal del faro",new Vector3(0,.98f,0),new Vector3(.32f,.4f,.3f),vxLight);
-                for(int j=0;j<3;j++)
+                Color rock=Pigment(0x42374F), pale=Pigment(0x74648C), violet=Pigment(0xA044D1);
+                Stem(model,"Cuenco escalonado",V(0,.13f,0),.465f,.113f,rock);
+                Stem(model,"Borde tallado",V(0,.221f,0),.447f,.047f,pale);
+                for(int i=0;i<7;i++)
                 {
-                    VXCurve(model,"Contrafuerte orgánico del faro",vxPlate,.105f,Rad(j,3,.29f,.06f),Rad(j,3,.2f,.48f),Rad(j,3,.12f,.86f));
-                    var p=Rad(j,3,.13f,1.05f);
-                    VXClaw(model,"Corona de quitina del faro",p,Rad(j,3,.22f,1.26f),Rad(j,3,.1f,1.32f),.08f);
+                    var foot=Rad(i,7,.244f,.181f);
+                    var tip=Rad(i,7,.294f,.49f+(i%3)*.156f);
+                    var shard=Gem(model,"Prisma irregular exterior",(foot+tip)*.5f,V(.142f,(tip-foot).magnitude+.088f,.136f),i%2==0?rock:pale);
+                    shard.localRotation=Quaternion.FromToRotation(Vector3.up,tip-foot);
                 }
-                for(int j=0;j<3;j++)Ball(model,"Vesícula de energía",new Vector3(0,.3f+j*.19f,-.115f),new Vector3(.095f,.13f,.075f),vxTissue);
+                Leaf(model,"Llama violeta del faro",V(.006f,.55f,0),V(.302f,.614f,.239f),violet,V(0,0,-15));
+                Leaf(model,"Centro púrpura brillante",V(.013f,.439f,-.093f),V(.177f,.369f,.086f),Pigment(0xE68AF2),V(15,0,17));
+                Leaf(model,"Punta de llama",V(-.09f,.756f,.032f),V(.139f,.411f,.094f),Pigment(0x7D3AB6),V(-16,0,-18));
             }
+
             void VXPortal()
             {
                 VXRootBed();
-                Vector3 Point(float angle){float a=angle*Mathf.Deg2Rad;return new Vector3(Mathf.Cos(a)*.335f,.59f+Mathf.Sin(a)*.47f,0);}
-                for(int j=0;j<12;j++)VXCurve(model,"Arco de carapacho",j%2==0?vxPlate:vxShell,.1f,Point(j*30),Point(j*30+15),Point(j*30+30));
-                var veil=P(model,"Membrana del umbral",m.Cylinder,new Vector3(0,.59f,.025f),new Vector3(.51f,.025f,.76f),new Color(.075f,.025f,.105f));veil.localRotation=Quaternion.Euler(90,0,0);
-                var vortex=P(model,"Espiral del umbral vivo",m.Vortex,new Vector3(0,.59f,-.015f),new Vector3(.38f,.44f,.38f),vxLight);vortex.localRotation=Quaternion.Euler(-90,0,0);
-                for(int side=-1;side<=1;side+=2)
+                Color rock=Pigment(0x514162), bevel=Pigment(0x746183), glowColor=Pigment(0xC887EF);
+                Vector3 Arch(float angle,float z=0) => V(Mathf.Cos(angle)*.322f,.588f+Mathf.Sin(angle)*.443f,z);
+                for(int i=0;i<14;i++)
                 {
-                    VXClaw(model,"Diente del arco",new Vector3(side*.31f,.7f,-.025f),new Vector3(side*.24f,.72f,-.07f),new Vector3(side*.19f,.6f,-.075f),.062f);
-                    VXClaw(model,"Espolón del umbral",new Vector3(side*.23f,.92f,0),new Vector3(side*.31f,1.12f,.015f),new Vector3(side*.2f,1.2f,-.025f),.08f);
+                    float a=i*Mathf.PI/7f, b=(i+1)*Mathf.PI/7f;
+                    Flesh(model,"Dovela de obsidiana",Arch(a),Arch(b),.118f,i%3==0?bevel:rock);
+                    Bone(model,"Filete del arco",Arch(a,-.062f),Arch(b,-.062f),.026f,glowColor);
+                    if(i%3==0)Gem(model,"Glifo en dovela",Arch((a+b)*.5f,-.085f),V(.055f,.10f,.046f),bevel).localRotation=Quaternion.Euler(0,0,90+a*Mathf.Rad2Deg);
                 }
+                var veil=P(model,"Membrana violeta del umbral",m.Cylinder,V(0,.588f,.018f),V(.56f,.025f,.79f),Pigment(0x37214F));
+                veil.localRotation=Quaternion.Euler(90,0,0);
+                P(model,"Espiral del umbral",m.Vortex,V(0,.588f,-.04f),V(.474f,.65f,.65f),Pigment(0xA553D1)).localRotation=Quaternion.Euler(-90,0,0);
+                P(model,"Veta clara de la espiral",m.Vortex,V(0,.588f,-.051f),V(.439f,.52f,.604f),glowColor).localRotation=Quaternion.Euler(-90,0,0)*Quaternion.Euler(0,69,0);
+                Gem(model,"Clave del portal",V(0,1.054f,-.025f),V(.117f,.181f,.12f),glowColor);
+                for(int i=0;i<3;i++)Box(model,"Peldaño frontal",V(0,.06f+i*.038f,-.288f+i*.056f),V(.381f,.071f,.144f),i%2==0?rock:bevel);
             }
+
             void VXCage()
             {
                 VXRootBed();
-                Ball(model,"Saco confinado de aislamiento",new Vector3(0,.51f,0),new Vector3(.29f,.46f,.27f),vxLight);
-                for(int j=0;j<4;j++)
+                Color cloak=Pigment(0x333849), folds=Pigment(0x556183), edge=Pigment(0x789BD7);
+                var wraith=G(model,"Aparición encapuchada",V(0,.155f,.018f));
+                var torso=G(wraith,"Manto suspendido",V(0,.35f,.014f));
+                Leaf(torso,"Caída del manto",V(0,-.046f,0),V(.38f,.678f,.276f),cloak,V(9,0,-21));
+                Ball(torso,"Capucha",V(0,.224f,-.052f),V(.254f,.291f,.248f),folds);
+                Ball(torso,"Vacío bajo la capucha",V(0,.232f,-.156f),V(.145f,.171f,.073f),ink);
+                for(int side=-1;side<=1;side+=2)
                 {
-                    VXCurve(model,"Costilla de jaula viva",vxPlate,.075f,Rad(j,4,.27f,.08f),Rad(j,4,.29f,.52f),Rad(j,4,.2f,.93f),new Vector3(0,1.09f,0));
-                    VXCurve(model,"Tendón de contención",vxTissue,.042f,Rad(j,4,.22f,.11f),Rad(j,4,.1f,.34f),new Vector3(0,.41f,0));
+                    TaperedCurve(torso,"Brazo espectral",folds,.104f,V(side*.104f,.103f,0),V(side*.216f,.069f,-.013f),V(side*.284f,.118f,-.11f));
+                    TaperedCurve(torso,"Borde luminoso",edge,.031f,V(side*.077f,.294f,-.144f),V(side*.082f,.181f,-.156f),V(side*.13f,.071f,-.113f));
+                    Leaf(torso,"Pico del manto",V(side*.157f,-.168f,.005f),V(.135f,.365f,.125f),cloak,V(-24,0,side*34));
+                    TaperedCurve(wraith,"Raíz retorcida",Pigment(0x584362),.095f,V(side*.286f,-.036f,-.038f),V(side*.329f,.265f,.083f),V(side*.287f,.565f,.105f),V(side*.17f,.759f,.10f));
                 }
-                Ball(model,"Nudo de cierre de la jaula",new Vector3(0,1.08f,0),new Vector3(.17f,.19f,.17f),vxShell);
-                Gem(model,"Sello vivo del aislamiento",new Vector3(0,.53f,-.133f),new Vector3(.1f,.18f,.055f),vxTissue);
+                var orbit=P(wraith,"Corriente de aislamiento",m.Vortex,V(0,.329f,-.168f),V(.622f,.45f,.467f),Pigment(0x658BC6));
+                orbit.localRotation=Quaternion.Euler(-70,0,28);
             }
         }
     }

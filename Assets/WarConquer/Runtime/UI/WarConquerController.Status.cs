@@ -56,7 +56,7 @@ namespace WarConquer
             {
                 GrayboxUI.Text(box,card.name,0,32,300,45,21,GrayboxUI.PlayerColor(selectedPiece?.owner??viewedPlayer),FontStyle.Bold);
                 var quote=EnergyManager.Quote(s.players[selectedPiece?.owner??viewedPlayer],card,UseResourcesFor(s.players[selectedPiece?.owner??viewedPlayer],card));
-                string stats="E "+quote.EnergyLabel+" · HP "+(selectedPiece!=null?selectedPiece.health+"/"+Game.MaxHealth(selectedPiece):card.health.ToString())+" · ATK "+(selectedPiece!=null?CombatManager.AttackValue(Game,selectedPiece):card.attack)+" · MOV "+(selectedPiece?.remainingMovement??card.movement);
+                string stats=(quote.resources>0?"Pago ":"E ")+quote.EnergyLabel+" · HP "+(selectedPiece!=null?selectedPiece.health+"/"+Game.MaxHealth(selectedPiece):card.health.ToString())+" · ATK "+(selectedPiece!=null?CombatManager.AttackValue(Game,selectedPiece):card.attack)+" · MOV "+(selectedPiece?.remainingMovement??card.movement);
                 var effects=selectedPiece!=null?PieceStatusPresentation.Collect(Game,selectedPiece):null;
                 string summary=effects==null?"":effects.Count==0?"Sin estados activos":string.Join(" · ",effects.Take(2).Select(e=>e.label))+(effects.Count>2?" · +"+(effects.Count-2):"");
                 GrayboxUI.Text(box,stats,0,80,300,35,14);GrayboxUI.Text(box,instance!=null?quote.Detail:Names.Categories[(int)card.category]+" · ALC "+card.range+(selectedPiece!=null?"\n"+summary:""),0,116,300,31,12,GrayboxUI.Muted);

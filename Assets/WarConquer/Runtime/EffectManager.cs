@@ -26,7 +26,7 @@ namespace WarConquer
                 if(effect.operation=="Spore") {g.ActingPlayer.spores+=effect.amount;continue;}
                 foreach(int id in targets)
                 {
-                    var t=s.tiles[id];var p=effect.target=="EnemyPiece"?(t.unit!=null&&t.unit.owner!=g.ActingPlayerId?t.unit:t.structure):t.unit??t.structure;
+                    var t=s.tiles[id];var p = effect.target == "EnemyPiece" ? g.EnemyPieceTarget(t) : t.unit ?? t.structure;
                     switch(effect.operation)
                     {
                         case "Terraform": TerrainManager.Terraform(g,id,effect.biome=="ChooseForestSwamp"?choice:(Biome)Enum.Parse(typeof(Biome),effect.biome),g.ActingPlayerId);break;

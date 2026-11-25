@@ -94,7 +94,7 @@ namespace WarConquer
         {
             if(!CanAct||!TimingRules.CardAllowed(this,c)) return new List<int>();
             var ids=selected??new List<int>();
-            var special=GenericCardRules.SpecialTargets(this,c,ids);if(special!=null)return XiltharRules.FilterSpellTargets(this,c,special,ids);
+            var special=GenericCardRules.SpecialTargets(this,c,ids);if(special!=null)return special;
             if(c.category!=Category.Spell)
                 return State.tiles.Where(t=>FactionCardRules.CanDeploy(this,c,t))
                     .Select(t=>t.id).ToList();
@@ -109,6 +109,14 @@ namespace WarConquer
             int range=c.range + (e.operation=="Poison"&&HasTrait(ActingPlayerId,"PoisonRange")&&!ActingPlayer.towerUsed?1:0);
             return State.tiles.Where(t=>(e.operation=="SporeDamage"||!ids.Contains(t.id))&&ValidSpellTarget(e.target,t,ids)&&(c.range<=0||e.target.Contains("Terraform")||InRange(t.id,range))).Select(t=>t.id).ToList();
         }
+        internal Piece EnemyPieceTarget(HexTile tile)
+        {
+            if (tile.unit != null && tile.unit.owner != ActingPlayerId && XiltharRules.CanTarget(this, tile.unit))
+                return tile.unit;
+
+            return tile.structure != null && tile.structure.owner != ActingPlayerId ? tile.structure : null;
+        }
+
         bool ValidSpellTarget(string kind,HexTile t,IList<int> selected)
         {
             if(XiltharRules.TargetsPiece(kind)&&!XiltharRules.CanTarget(this,t.unit))return false;
@@ -126,12 +134,12 @@ namespace WarConquer
                 case "EnemyGround": return enemy&&Data(t.unit).movementType=="Ground";
                 case "EnemyForest": return enemy&&t.biome==Biome.Forest;
                 case "EnemyForestSwamp": return enemy&&(t.biome==Biome.Forest||t.biome==Biome.Swamp);
-                case "EnemyPiece": return enemy||(t.structure!=null&&t.structure.owner!=ActingPlayerId);
+                case "EnemyPiece": return EnemyPieceTarget(t) != null;
                 case "EnemyAdjacent": return enemy&&BoardManager.Nearby(State,t.id).Any(p=>p.owner==ActingPlayerId);
                 case "EnemyBiome": return t.owner>=0&&t.owner!=ActingPlayerId&&TerrainManager.Normal(t);
                 case "AllyDesert": return t.owner==ActingPlayerId&&t.biome==Biome.Desert;
                 case "Desert": return t.biome==Biome.Desert&&(t.unit==null||t.unit.owner==ActingPlayerId)&&(t.structure==null||t.structure.owner==ActingPlayerId);
-                case "AllyDesertUnit": return ally&&t.biome==Biome.Desert&&t.unit.health<MaxHealth(t.unit);
+                case "AllyDesertUnit": return ally&&t.biome==Biome.Desert&&GenericCardRules.CanHeal(this,t.unit)&&t.unit.health<MaxHealth(t.unit);
                 case "UsedStructure": return t.structure!=null&&t.structure.owner==ActingPlayerId&&t.structure.abilityUsed&&AbilityManager.HasActive(Data(t.structure));
                 default: return false;
             }

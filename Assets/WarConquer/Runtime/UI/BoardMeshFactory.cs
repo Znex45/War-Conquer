@@ -13,6 +13,7 @@ namespace WarConquer
         public readonly Mesh Carved, Crystal, Petal, MushroomCap, Bell, SculptureBody, SculptureBlock;
         public readonly Material Lit;
         readonly List<Mesh> owned=new List<Mesh>();
+        readonly Dictionary<string, Mesh> sculptureMeshes = new Dictionary<string, Mesh>();
         readonly MaterialPropertyBlock properties=new MaterialPropertyBlock();
         public BoardMeshFactory()
         {
@@ -144,6 +145,14 @@ namespace WarConquer
             }
             Part(parent,"Cristal del Líder",Cone,new Vector3(0,.63f,0),new Vector3(.36f,.62f,.36f),faction);
         }
+        internal Mesh UnitMesh(string name, Func<Mesh> create)
+        {
+            if (sculptureMeshes.TryGetValue(name, out var mesh)) return mesh;
+            mesh = create();
+            sculptureMeshes.Add(name, mesh);
+            owned.Add(mesh);
+            return mesh;
+        }
         public void PieceModel(Transform parent,CardData card,Color faction)
         {
             CardPieceModels.Build(this,parent,card,faction);
@@ -157,7 +166,7 @@ namespace WarConquer
         }
         public static void Release(UnityEngine.Object value)
         {if(value==null)return;if(value is GameObject go)go.SetActive(false);if(Application.isPlaying)UnityEngine.Object.Destroy(value);else UnityEngine.Object.DestroyImmediate(value);}
-        public void Dispose(){foreach(var mesh in owned)Release(mesh);owned.Clear();Release(Lit);}
+        public void Dispose(){foreach(var mesh in owned)Release(mesh);owned.Clear();sculptureMeshes.Clear();Release(Lit);}
     }
     public sealed class Hex3DTarget : MonoBehaviour { public int tileId; }
 }

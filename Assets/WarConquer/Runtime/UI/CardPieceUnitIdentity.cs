@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -63,6 +64,185 @@ namespace WarConquer
                     case "sprinting-sprite":SprintIdentity();break;
                 }
             }
+            static Vector3 V(float x, float y, float z) => new Vector3(x, y, z);
+            static Color Pigment(int rgb) => new Color32((byte)(rgb >> 16), (byte)(rgb >> 8), (byte)rgb, 255);
+
+            void TaperedCurve(Transform parent, string name, Color color, float width, params Vector3[] path)
+            {
+                int segments = path.Length - 1;
+                for (int i = 0; i < segments; i++)
+                {
+                    float diameter = width * Mathf.Lerp(1, .46f, (float)i / segments);
+                    Flesh(parent, name, path[i], path[i + 1], diameter, color);
+                    if (i + 1 < segments) Ball(parent, name, path[i + 1], Vector3.one * diameter * .82f, color);
+                }
+            }
+
+            bool SculptRefinedUnit()
+            {
+                switch (card.leader)
+                {
+                    case "FAUNAR": return SculptWoodlandUnit();
+                    case "SAHRIA": return SculptDesertUnit();
+                    case "ZUKGROK": return SculptMycelialFolk() || SculptSwampUnit();
+                    case "XIL'THAR": return SculptVoidArt();
+                    case "GENERIC" when id == "rabbit-token": SculptBurrowRabbit(); return true;
+                    default: return false;
+                }
+            }
+
+            // Shared low-poly silhouettes. Depth is supplied by each part's own scale.
+            static readonly Vector2[] FeatherEdge =
+            {
+                new Vector2(0, -.52f), new Vector2(-.33f, -.27f), new Vector2(-.47f, .06f),
+                new Vector2(-.39f, .29f), new Vector2(-.13f, .47f), new Vector2(.23f, .52f),
+                new Vector2(.44f, .36f), new Vector2(.48f, .19f), new Vector2(.28f, -.12f)
+            };
+            static readonly Vector2[] LeafEdge =
+            {
+                new Vector2(0, -.54f), new Vector2(-.28f, -.29f), new Vector2(-.48f, -.03f),
+                new Vector2(-.39f, .24f), new Vector2(0, .57f), new Vector2(.39f, .24f),
+                new Vector2(.48f, -.03f), new Vector2(.28f, -.29f)
+            };
+            static readonly Vector2[] ShieldEdge =
+            {
+                new Vector2(0, -.53f), new Vector2(-.32f, -.32f), new Vector2(-.49f, -.03f),
+                new Vector2(-.49f, .37f), new Vector2(-.25f, .46f), new Vector2(0, .51f),
+                new Vector2(.25f, .46f), new Vector2(.49f, .37f), new Vector2(.49f, -.03f), new Vector2(.32f, -.32f)
+            };
+            static readonly Vector2[] ClothEdge =
+            {
+                new Vector2(-.42f, -.46f), new Vector2(-.49f, -.18f), new Vector2(-.32f, .4f),
+                new Vector2(-.06f, .51f), new Vector2(.33f, .42f), new Vector2(.43f, .07f),
+                new Vector2(.47f, -.42f), new Vector2(.16f, -.36f), new Vector2(-.08f, -.53f)
+            };
+            static readonly Vector2[] BladeEdge =
+            {
+                new Vector2(-.13f, -.5f), new Vector2(-.29f, -.26f), new Vector2(-.25f, .025f),
+                new Vector2(-.02f, .289f), new Vector2(.44f, .53f), new Vector2(.34f, .19f),
+                new Vector2(.13f, -.025f), new Vector2(.1f, -.5f)
+            };
+            static readonly Vector2[] WingEdge =
+            {
+                new Vector2(0, -.52f), new Vector2(-.34f, -.26f), new Vector2(-.5f, .06f),
+                new Vector2(-.42f, .33f), new Vector2(-.13f, .49f), new Vector2(.26f, .54f),
+                new Vector2(.49f, .4f), new Vector2(.43f, .16f), new Vector2(.27f, -.17f)
+            };
+
+            Transform Plate(Transform parent, string part, Vector3 position, Vector3 scale,
+                Color color, Vector3 rotation, string shape, Vector2[] outline)
+            {
+                var mesh = m.UnitMesh("outline/" + shape, () => BevelOutline(shape, outline));
+                var plate = P(parent, part, mesh, position, scale, color);
+                plate.localRotation = Quaternion.Euler(rotation);
+                return plate;
+            }
+
+            static Mesh BevelOutline(string name, Vector2[] outline)
+            {
+                int n = outline.Length;
+                var vertices = new Vector3[n * 3 + 2];
+                var triangles = new List<int>(n * 18);
+                // Supplied outlines run clockwise from the bottom of their flat front face.
+                for (int i = 0; i < n; i++)
+                {
+                    vertices[i] = new Vector3(outline[i].x * .82f, outline[i].y * .84f, -.5f);
+                    vertices[i + n] = new Vector3(outline[i].x, outline[i].y, -.03f);
+                    vertices[i + n * 2] = new Vector3(outline[i].x * .91f, outline[i].y * .93f, .5f);
+                    int next = (i + 1) % n;
+                    triangles.AddRange(new[] { n * 3, i, next, n * 3 + 1, n * 2 + next, n * 2 + i });
+                    for (int band = 0; band < 2; band++)
+                    {
+                        int a = band * n + i, b = band * n + next;
+                        triangles.AddRange(new[] { a, a + n, b, b, a + n, b + n });
+                    }
+                }
+                vertices[n * 3] = Vector3.back * .61f;
+                vertices[n * 3 + 1] = Vector3.forward * .5f;
+                return Geometry(name, vertices, triangles);
+            }
+
+            static Vector4 Knot(float x, float y, float z, float radius) => new Vector4(x, y, z, radius);
+
+            Transform Sweep(Transform parent, string part, Color color, params Vector4[] knots)
+            {
+                // Each path is fixed for its card and can be reused by every copy of that piece.
+                var mesh = m.UnitMesh(id + "/" + part, () => SweepMesh(part, knots));
+                return P(parent, part, mesh, Vector3.zero, Vector3.one, color);
+            }
+
+            static Mesh SweepMesh(string name, Vector4[] knots)
+            {
+                const int sides = 8;
+                int rings = knots.Length;
+                var positions = new Vector3[rings * sides + 2];
+                var indices = new List<int>((rings - 1) * sides * 6 + sides * 6);
+                Vector3 axis = Vector3.right;
+                for (int i = 0; i < rings; i++)
+                {
+                    Vector3 center = knots[i];
+                    Vector3 tangent = ((Vector3)knots[Mathf.Min(i + 1, rings - 1)] -
+                        (Vector3)knots[Mathf.Max(i - 1, 0)]).normalized;
+                    axis = Vector3.ProjectOnPlane(axis, tangent).normalized;
+                    if (axis.sqrMagnitude < .5f) axis = Vector3.Cross(tangent, Vector3.up).normalized;
+                    if (axis.sqrMagnitude < .5f) axis = Vector3.forward;
+                    Vector3 normal = Vector3.Cross(tangent, axis);
+                    for (int j = 0; j < sides; j++)
+                    {
+                        float angle = 2 * Mathf.PI * j / sides;
+                        positions[i * sides + j] = center + knots[i].w * (axis * Mathf.Cos(angle) + normal * Mathf.Sin(angle));
+                        if (i == rings - 1) continue;
+                        int a = i * sides + j, b = i * sides + (j + 1) % sides;
+                        indices.AddRange(new[] { a, b, a + sides, b, b + sides, a + sides });
+                    }
+                }
+                int startCap = rings * sides, endCap = startCap + 1, lastRing = startCap - sides;
+                positions[startCap] = knots[0];
+                positions[endCap] = knots[rings - 1];
+                for (int j = 0; j < sides; j++)
+                {
+                    int next = (j + 1) % sides;
+                    indices.AddRange(new[] { startCap, next, j, endCap, lastRing + j, lastRing + next });
+                }
+                return Geometry(name, positions, indices);
+            }
+
+            static Mesh Geometry(string name, Vector3[] positions, List<int> indices)
+            {
+                var mesh = new Mesh { name = name, vertices = positions };
+                mesh.SetTriangles(indices, 0);
+                mesh.RecalculateNormals();
+                mesh.RecalculateBounds();
+                return mesh;
+            }
+
+            void CurvedLimb(Transform parent, string part, Color color, Vector3 start, Vector3 joint, Vector3 end,
+                float rootRadius, float jointRadius, float endRadius)
+            {
+                Vector3 above = Vector3.Lerp(start, joint, .76f);
+                Vector3 below = Vector3.Lerp(joint, end, .23f);
+                Sweep(parent, part, color, Knot(start.x, start.y, start.z, rootRadius),
+                    Knot(above.x, above.y, above.z, jointRadius * 1.12f),
+                    Knot(joint.x, joint.y, joint.z, jointRadius),
+                    Knot(below.x, below.y, below.z, Mathf.Lerp(jointRadius, endRadius, .23f)),
+                    Knot(end.x, end.y, end.z, endRadius));
+            }
+
+            void MiniatureEyes(Transform head, float separation, float y, float z, float size,
+                Color iris, Color whites, float tilt = 0)
+            {
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    var eye = G(head, side < 0 ? "Ojo izquierdo" : "Ojo derecho", V(side * separation, y, z));
+                    eye.localRotation = Quaternion.Euler(-8, -side * 17, side * tilt);
+                    Ball(eye, "Párpado oscuro", Vector3.zero, V(size * 1.24f, size * 1.13f, size * .54f), ink);
+                    Ball(eye, "Blanco del ojo", V(0, 0, -size * .14f), V(size, size * .87f, size * .45f), whites);
+                    Ball(eye, "Iris", V(0, -.02f * size, -size * .33f), V(size * .72f, size * .81f, size * .33f), iris);
+                    Ball(eye, "Pupila", V(0, -.035f * size, -size * .47f), V(size * .32f, size * .64f, size * .21f), ink);
+                    Ball(eye, "Destello", V(-size * .13f, size * .18f, -size * .572f), Vector3.one * size * .18f, Color.white);
+                }
+            }
+
             Transform UFind(string name,Transform from=null)=>(from??model).GetComponentsInChildren<Transform>().FirstOrDefault(t=>t.name==name);
             void URemove(params string[] names)
             {
